@@ -1,0 +1,32 @@
+// All the keys with values from procces.env must be configured in Azure App service: Configuration/Aplication settings
+module.exports = {
+ client_server: process.env.CLIENT_SERVER, // If you are developing, add a second parameter with "||" and the url for localhost, in prod the first
+ port: process.env.PORT,
+ dbaccounts: process.env.MONGODBACCOUNTS, // If you are developing, add a second parameter with "||" and mongodb data, in prod the first
+ dbdata: process.env.MONGODBDATA, // If you are developing, add a second parameter with "||" and mongodb data, in prod the first
+ TRANSPORTER_OPTIONS : { // configure the secret keys fot the transporter options, we use nodemailer as transporter
+   host: undefined,
+   port: undefined,
+   secureConnection: undefined,
+    tls: { ciphers: undefined },
+    auth: {
+        user: undefined,
+        pass: undefined
+    }
+ },
+ blobAccessToken:{ // Blob access information: {sasToken:<token>,blobAccountUrl: 'https://<blob_name>.blob.core.windows.net/'}
+    sasToken: undefined,
+    blobAccountUrl: undefined,
+  },
+  f29bio: undefined, // f29Bio sevice URL
+  f29ncr: undefined, // f29Bio sevice URL
+  ncrBearer: process.env.NCRBEARER, // If you are developing, add a second parameter with "||" and the ncr bearer, in prod the first
+  translationKey: process.env.TRANSLATION_KEY, // If you are developing, add a second parameter with "||" and the translation service key, in prod the first
+  translationCategory: process.env.TRANSLATION_CATEGORY, // If you are developing, add a second parameter with "||" and a translation category, in prod the first,
+  dx29Gateway: process.env.DX29GATEWAY // DX29 API GATEWAY,
+  openDxAccessToken:{
+    key: process.env.OPENDXBLOBKEY, //Azure Storage account KEY. Use access keys to authenticate your applications when making requests to this Azure storage account.
+    blobAccount: process.env.OPENDXBLOBNAME
+  },
+  dxv2api: undefined, // dxv2 sevice URL
+}
