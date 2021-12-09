@@ -16,7 +16,6 @@ const superAdmninLangCtrl = require('../controllers/superadmin/lang')
 const superadmninUsersClinicalCtrl = require('../controllers/superadmin/users-clinical')
 
 const hpoServiceCtrl = require('../services/hpo-info')
-const exomizerserviceCtrl = require('../services/exomizer')
 const phene2GeneserviceCtrl = require('../services/phen2Gene')
 const f29ncrserviceCtrl = require('../services/f29ncr')
 const f29apiv2serviceCtrl = require('../services/f29apiv2')
@@ -25,7 +24,6 @@ const f29azureserviceCtrl = require('../services/f29azure')
 const f29gatewayCtrl = require('../services/f29gateway')
 const f29patientgroupsCtrl = require('../services/f29patientGroups')
 const sendEmailCtrl = require('../services/sendEmails')
-const blobOpenDx29Ctrl = require('../services/blobOpenDx29')
 const wikiCtrl = require('../services/wikipedia')
 
 const diagnosisCtrl = require('../controllers/clinical/diagnosis')
@@ -34,8 +32,6 @@ const diagnosisCasesCtrl = require('../controllers/clinical/diagnosis-clinical')
 const supportCtrl = require('../controllers/all/support')
 
 const shareOrInviteCtrl = require('../controllers/all/share')
-
-const testServiceMonarchCtrl = require('../services/crons/test-services-monarch')
 
 const captchaServiceCtrl = require('../services/captcha')
 
@@ -98,8 +94,7 @@ api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotyp
 api.delete('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotype)//de momento no se usa
 api.get('/phenotypes/history/:patientId', auth(roles.All), phenotypeCtrl.getPhenotypeHistory)//de momento no se usa
 api.delete('/phenotypes/history/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotypeHistoryRecord)//de momento no se usa
-api.post('/phenotype/conditions/:limit', auth(roles.All), phenotypeCtrl.getRelatedConditions)
-api.get('/symptoms/:conditionId', phenotypeCtrl.getSymptomsOfDisease)
+
 api.put('/symptoms/changesharewithcommunity/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.setShareWithCommunity)
 api.get('/symptoms/permissions/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.getPermissionsPhenotype)
 
@@ -121,11 +116,6 @@ api.delete('/superadmin/lang/:userIdAndLang', auth(roles.SuperAdmin), superAdmni
 api.get('/langs/',  langCtrl.getLangs)
 
 //api.get('/hpoinfoservice', hpoServiceCtrl.getHposInfo) // no se usa
-
-api.get('/exomizerservice/:patientId', auth(roles.ClinicalSuperAdmin), exomizerserviceCtrl.observerProcessExomizer)
-api.get('/exomizerservices/:patientId', auth(roles.ClinicalSuperAdmin), exomizerserviceCtrl.testProcessExomizer)
-api.get('/exomizerservices/cancel/:patientId', auth(roles.ClinicalSuperAdmin), exomizerserviceCtrl.cancelProcessExomizer)
-api.post('/exomizerservices/moveCorruptedVCF/:patientId', auth(roles.ClinicalSuperAdmin), exomizerserviceCtrl.moveCorruptedVCFsBlobgenomics)
 
 //phen2Gene
 api.post('/phen2Gene/:patientId', auth(roles.ClinicalSuperAdmin), phene2GeneserviceCtrl.launchPhen2Genes)
@@ -166,8 +156,6 @@ api.post('/sharingaccountsclinical/:userId', auth(roles.UserClinicalSuperAdmin),
 api.post('/updatepermissions/', shareOrInviteCtrl.updatepermissions)
 api.post('/updateshowSwalIntro/:patientId', auth(roles.ClinicalSuperAdmin), shareOrInviteCtrl.updateshowSwalIntro)
 
-api.get('/testservicemonarch', testServiceMonarchCtrl.testMonarchService)
-api.post('/testservicemonarch/:userId', auth(roles.UserClinicalSuperAdmin), testServiceMonarchCtrl.saveUserToNotifyMonarch)
 
 api.get('/verifyingcaptcha/:token', captchaServiceCtrl.verifyingcaptcha) // no se usa
 
@@ -189,10 +177,6 @@ api.post('/getDetectLanguage', f29azureserviceCtrl.getDetectLanguage)
 api.post('/sendEmailResultsUndiagnosed', sendEmailCtrl.sendResultsUndiagnosed)
 api.post('/sendEmailResultsDiagnosed', sendEmailCtrl.sendResultsDiagnosed)
 api.post('/sendEmailRevolution', sendEmailCtrl.sendRevolution)
-
-api.post('/blobOpenDx29', blobOpenDx29Ctrl.createBlobOpenDx29)
-api.post('/chekedSymptomsOpenDx29', blobOpenDx29Ctrl.chekedSymptomsOpenDx29)
-api.post('/blobOpenDx29Timeline', blobOpenDx29Ctrl.createBlobOpenTimelineDx29)
 
 
 api.post('/getTranslationDictionary', auth(roles.UserClinicalSuperAdmin), f29azureserviceCtrl.getTranslationDictionary)

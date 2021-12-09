@@ -99,7 +99,7 @@ function getAllMsgs(req, res){
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'SuperAdmin'){
-			Support.find({platform: 'Dx29', platform: undefined},(err, msgs) => {
+			Support.find({platform: 'Raito', platform: undefined},(err, msgs) => {
 
 					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 

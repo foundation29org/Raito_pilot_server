@@ -11,6 +11,7 @@ const serviceAuth = require('../../services/auth')
 const serviceEmail = require('../../services/email')
 const crypt = require('../../services/crypt')
 const bcrypt = require('bcrypt-nodejs')
+const f29azureService = require("../../services/f29azure")
 
 function activateUser(req, res){
 	req.body.email = (req.body.email).toLowerCase();
@@ -441,42 +442,7 @@ function newPass(req, res){
  * }
  *
  */
-function sendEmail (req, res){
-	req.body.email = (req.body.email).toLowerCase();
-	let randomstring = Math.random().toString(36).slice(-12);
-	User.findOne({ 'email': req.body.email }, function (err, user) {
-		if (err) return res.status(500).send({ message: `Error finding the user: ${err}`})
-		if(user){
-			if(req.body.type == "resendEmail"){
-				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, user.group)
-					.then(response => {
-						res.status(200).send({ message: 'Email resent'})
-					})
-					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email'})
-					})
-			}
-			else if(req.body.type == "contactSupport"){
-				let support = new Support()
-				support.type = ''
-				support.subject = 'Help with account activation'
-				support.description = 'Please, help me with my account activation. I did not receive any confirmation email.'
-				support.files = []
-				support.createdBy = user.userId
-				serviceEmail.sendMailSupport(req.body.email, req.body.lang, null, support)
-					.then(response => {
-						res.status(200).send({ message: 'Support contacted'})
-					})
-					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email'})
-					})
-			}
 
-
-
-		}
-	})
-}
 
 function signUp(req, res){
 	req.body.email = (req.body.email).toLowerCase();
@@ -491,7 +457,7 @@ function signUp(req, res){
 		lang: req.body.lang,
 		group: req.body.group,
 		permissions: req.body.permissions,
-		platform: 'Dx29'
+		platform: 'Raito'
 	})
 	User.findOne({ 'email': req.body.email }, function (err, user2) {
 	  if (err) return res.status(500).send({ message: `Error creating the user: ${err}`})
@@ -535,6 +501,14 @@ function signUp(req, res){
 					})
 				}
 
+				//Create the patient
+				if(req.body.role=='User'){
+					var userId = userSaved._id.toString();
+					savePatient(userId, req);
+				}
+				
+
+
 				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, req.body.group)
 					.then(response => {
 						res.status(200).send({ message: 'Account created'})
@@ -552,7 +526,108 @@ function signUp(req, res){
 	})
 }
 
+function savePatient (userId, req){
+	let patient = new Patient()
+	patient.patientName = req.body.userName
+	patient.surname = req.body.lastName
+	patient.birthDate = req.body.birthDate
+	patient.citybirth = req.body.citybirth
+	patient.provincebirth = req.body.provincebirth
+	patient.countrybirth = req.body.countrybirth
+	patient.street = req.body.street
+	patient.postalCode = req.body.postalCode
+	patient.city = req.body.city
+	patient.province = req.body.province
+	patient.country = req.body.country
+	patient.phone1 = req.body.phone1
+	patient.phone2 = req.body.phone2
+	patient.gender = req.body.gender
+	patient.siblings = req.body.siblings
+	patient.parents = req.body.parents
+  	patient.actualStep = req.body.actualStep
+  	patient.stepClinic = req.body.stepClinic
+	patient.relationship = req.body.relationship
+  	patient.previousDiagnosis = req.body.previousDiagnosis
+  	patient.avatar = req.body.avatar
+	patient.createdBy = userId
 
+	if(req.body.avatar==undefined){
+		if(patient.gender!=undefined){
+		if(patient.gender=='male'){
+					patient.avatar='boy-0'
+				}else if(patient.gender=='female'){
+					patient.avatar='girl-0'
+				}
+		}
+	}
+	// when you save, returns an id in patientStored to access that patient
+	patient.save (async (err, patientStored) => {
+		if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
+		var id = patientStored._id.toString();
+		var idencrypt= crypt.encrypt(id);
+		var patientInfo = {sub:idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar};
+		let containerName = (idencrypt).substr(1);
+		var result = await f29azureService.createContainers(containerName);
+		if(result){
+			console.log('Patient created'+patientInfo);
+		//res.status(200).send({message: 'Patient created', patientInfo})
+		}else{
+			deletePatientAndCreateOther(patientStored._id, req, userId);
+		}
+
+	})
+}
+
+function deletePatientAndCreateOther(patientId, req, userId){
+
+	Patient.findById(patientId, (err, patient) => {
+		if (err) return res.status(500).send({message: `Error deleting the patient: ${err}`})
+		if(patient){
+			patient.remove(err => {
+				savePatient(userId, req)
+			})
+		}else{
+			 savePatient(userId, req)
+		}
+	})
+}
+
+function sendEmail (req, res){
+	req.body.email = (req.body.email).toLowerCase();
+	let randomstring = Math.random().toString(36).slice(-12);
+	User.findOne({ 'email': req.body.email }, function (err, user) {
+		if (err) return res.status(500).send({ message: `Error finding the user: ${err}`})
+		if(user){
+			if(req.body.type == "resendEmail"){
+				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, user.group)
+					.then(response => {
+						res.status(200).send({ message: 'Email resent'})
+					})
+					.catch(response => {
+						res.status(200).send({ message: 'Fail sending email'})
+					})
+			}
+			else if(req.body.type == "contactSupport"){
+				let support = new Support()
+				support.type = ''
+				support.subject = 'Help with account activation'
+				support.description = 'Please, help me with my account activation. I did not receive any confirmation email.'
+				support.files = []
+				support.createdBy = user.userId
+				serviceEmail.sendMailSupport(req.body.email, req.body.lang, null, support)
+					.then(response => {
+						res.status(200).send({ message: 'Support contacted'})
+					})
+					.catch(response => {
+						res.status(200).send({ message: 'Fail sending email'})
+					})
+			}
+
+
+
+		}
+	})
+}
 /**
  * @api {post} https://health29.org/api/api/signin Get the token (and the userId)
  * @apiName signIn

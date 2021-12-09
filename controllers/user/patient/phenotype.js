@@ -267,122 +267,6 @@ function deletePhenotypeHistoryRecord (req, res){
 	})
 }
 
-function getRelatedConditions(req, res){
-  let limit = req.params.limit
-	let test = req.body
-	var hposStrins ='';
-	test.forEach(function(element) {
-	  hposStrins+='&id='+element;
-		//hposStrins+= '&id=';
-	});
-	request({
-  //url: 'https://monarchinitiative.org/analyze/phenotype.json?input_items='+hposStrins+'&limit=100&target_species=human',
-	url: 'https://api.monarchinitiative.org/api/sim/search?is_feature_set=true&metric=phenodigm'+hposStrins+'&limit='+limit,
-  json: true
-	}, function(error, response, body) {
-		if(error){
-      console.log(error);
-      tryOWLSim3(res, test, limit);
-			//return res.status(500).send({message: `Error monarch: ${error}`})
-		}else{
-      //console.log(response)
-			if(body.matches!=undefined){
-				var result = [];
-				for(var i = 0; i < body.matches.length; i++) { //data.results.length
-					if(body.matches[i]!=undefined){
-						result.push({"name":{label: body.matches[i].label, id: body.matches[i].id} , "score": body.matches[i].score, "matches": body.matches[i].pairwise_match});
-					}
-				}
-				return res.status(202).send({diseases: result})
-			}else{
-        tryOWLSim3(res, test, limit);
-      }
-		}
-
-	});
-
-}
-
-function tryOWLSim3(res, test, limit){
-  var hposStrins ='';
-	test.forEach(function(element) {
-    if(hposStrins==''){
-      hposStrins=element;
-    }else{
-      hposStrins+='&id='+element;
-    }
-	});
-  var url = config.f29bio+'/api/OWLSim3/match/phenodigm?id='+hposStrins+'&limit='+limit;
-  request({
-  url: config.f29bio+'/api/OWLSim3/match/phenodigm?id='+hposStrins+'&limit='+limit,
-  json: true
-  }, function(error, response, body) {
-    if(error){
-      res.status(500).send({message: `Error monarch: ${error}`})
-    }else{
-      var resultowsim = JSON.parse(body)
-      if(resultowsim.matches!=undefined){
-        var result = [];
-        for(var i = 0; i < resultowsim.matches.length; i++) { //data.results.length
-          if(resultowsim.matches[i]!=undefined){
-            result.push({"name":{label: resultowsim.matches[i].matchLabel, id: resultowsim.matches[i].matchId} , "score": resultowsim.matches[i].rawScore, "matches": []});
-          }
-        }
-        res.status(202).send({diseases: result})
-      }else{
-        res.status(500).send({message: `Error monarch: ${error}`})
-      }
-    }
-
-  });
-
-}
-
-function getSymptomsOfDisease (req, res){
-	let conditionId= req.params.conditionId;
-  var result=Object.create(null);
-  Diagnosis.find({previousDiagnosis: conditionId},async function(err, diagnosis){
-		var listPatientsIds = [];
-		diagnosis.forEach(function(data) {
-			listPatientsIds.push(data.createdBy);
-		});
-    if(listPatientsIds.length>0){
-      var contador = 0;
-      listPatientsIds.forEach(function(patientId) {
-        Phenotype.findOne({createdBy: patientId},async function(err, phenotype){
-      		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-          var patientIdEncrypt = crypt.encrypt(patientId.toString());
-      		if(!phenotype){
-            //if he has no symptoms, do not show the patient
-            //result[patientIdEncrypt] = [];
-          }else{
-			if(phenotype.permissions[0]!=undefined){
-				if(phenotype.data.length>0 && phenotype.permissions[0].shareWithCommunity){
-					var obj = phenotype.data;
-					var listSymptoms = [];
-					obj.forEach(function(symptom) {
-					  listSymptoms.push(symptom.id);
-					})
-					result[patientIdEncrypt] = listSymptoms;
-				  }
-			}
-          }
-          contador++;
-
-          if(contador == listPatientsIds.length){
-            res.status(200).send(result)
-          }
-      	})
-  		});
-
-    }else{
-      res.status(200).send({message: 'No data'})
-    }
-
-	})
-
-
-}
 
 function setShareWithCommunity (req, res){
   let phenotypeId=req.params.phenotypeId;
@@ -413,8 +297,6 @@ module.exports = {
 	updatePhenotype,
 	deletePhenotype,
 	deletePhenotypeHistoryRecord,
-	getRelatedConditions,
-  getSymptomsOfDisease,
   setShareWithCommunity,
   getPermissionsPhenotype
 }

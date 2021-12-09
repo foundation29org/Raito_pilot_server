@@ -11,12 +11,12 @@ const Patient = require('../../models/patient')
 
 var azure = require('azure-storage');
 var blobService = azure
-      .createBlobService("blobgenomics",config.keyGenomics);
+      .createBlobService(config.nameBlob,config.keyGenomics);
 const blobInfo = require('../blob.js')
 
 async function getPatientsAndUpdateEnterValuesListToUpdate(){
     var listPatients=[];
-    await User.find({platform : "Dx29"},async (err, users) => {
+    await User.find({platform : "Raito"},async (err, users) => {
         if (err) return res.status(500).send({message: `Error making the request: ${err}`})
         if(users){
             for(var i = 0; i < users.length; i++) {

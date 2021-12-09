@@ -4,7 +4,7 @@ const crypt = require('./crypt')
 const config = require('../config')
 const request = require('request')
 const storage = require("@azure/storage-blob")
-const accountnameGenomics ="blobgenomics";
+const accountnameGenomics = config.nameBlob;
 const keyGenomics = config.keyGenomics;
 const sharedKeyCredentialGenomics = new storage.StorageSharedKeyCredential(accountnameGenomics,keyGenomics);
 const blobServiceClientGenomics = new storage.BlobServiceClient(
@@ -19,7 +19,7 @@ const User = require('../models/user')
 const Patient = require('../models/patient')
 
 var blobService = azure
-      .createBlobService("blobgenomics",keyGenomics);
+      .createBlobService(config.nameBlob,keyGenomics);
 
 function getDetectLanguage (req, res){
   var jsonText = req.body;
@@ -100,7 +100,7 @@ async function deleteContainers (containerName){
 
 async function createContainerIfNotExists(){
     var listPatients=[];
-    await User.find({platform : "Dx29"},async (err, users) => {
+    await User.find({platform : "Raito"},async (err, users) => {
         if (err) return res.status(500).send({message: `Error making the request: ${err}`})
         if(users){
             for(var i = 0; i < users.length; i++) {
@@ -160,7 +160,7 @@ async function createContainerIfNotExists(){
 
   async function seeSharing(){
       var listPatients=[];
-      await User.find({platform : "Dx29"},async (err, users) => {
+      await User.find({platform : "Raito"},async (err, users) => {
           if (err) return res.status(500).send({message: `Error making the request: ${err}`})
           if(users){
               for(var i = 0; i < users.length; i++) {
@@ -213,7 +213,7 @@ async function createContainerIfNotExists(){
 
   async function setShowSwalIntro(){
       var listPatients=[];
-      await User.find({platform : "Dx29"},async (err, users) => {
+      await User.find({platform : "Raito"},async (err, users) => {
           if (err) return res.status(500).send({message: `Error making the request: ${err}`})
           if(users){
               for(var i = 0; i < users.length; i++) {
