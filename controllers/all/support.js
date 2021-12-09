@@ -17,7 +17,7 @@ function sendMsgSupport(req, res){
 		if (user){
 
 			let support = new Support()
-			support.platform = 'Dx29'
+			support.platform = 'Raito'
 			support.type = req.body.type
 			support.subject = req.body.subject
 			support.description = req.body.description
@@ -48,8 +48,8 @@ function sendMsgSupport(req, res){
 function sendMsgLogoutSupport(req, res){
 			let support = new Support()
 			//support.type = 'Home form'
-			support.subject = 'Dx29 support'
-			support.platform = 'Dx29'
+			support.subject = 'Raito support'
+			support.platform = 'Raito'
 			support.description = 'Name: '+req.body.userName+', Email: '+ req.body.email+ ', Description: ' +req.body.description
 			support.createdBy = "5c77d0492f45d6006c142ab3";
 			support.files = []
@@ -80,7 +80,7 @@ function getUserMsgs(req, res){
 			var listmsgs = [];
 
 			msgs.forEach(function(u) {
-				if(u.platform == 'Dx29' || u.platform == undefined){
+				if(u.platform == 'Raito' || u.platform == undefined){
 					listmsgs.push({subject:u.subject, description: u.description, date: u.date, status: u.status, type: u.type});
 				}
 			});

@@ -395,7 +395,7 @@ function newPass(req, res){
  * @apiName signUp
  * @apiVersion 1.0.0
  * @apiGroup Account
- * @apiDescription This method allows you to create a user account in health 29
+ * @apiDescription This method allows you to create a user account in Raito
  * @apiExample {js} Example usage:
  *  var passwordsha512 = sha512("fjie76?vDh");
  *  var formValue = { email: "example@ex.com", userName: "Peter", password: passwordsha512, lang: "en", group: "None"};

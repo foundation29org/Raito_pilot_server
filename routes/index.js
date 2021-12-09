@@ -16,7 +16,6 @@ const superAdmninLangCtrl = require('../controllers/superadmin/lang')
 const superadmninUsersClinicalCtrl = require('../controllers/superadmin/users-clinical')
 
 const hpoServiceCtrl = require('../services/hpo-info')
-const phene2GeneserviceCtrl = require('../services/phen2Gene')
 const f29ncrserviceCtrl = require('../services/f29ncr')
 const f29apiv2serviceCtrl = require('../services/f29apiv2')
 const f29bioserviceCtrl = require('../services/f29bio')
@@ -117,9 +116,6 @@ api.get('/langs/',  langCtrl.getLangs)
 
 //api.get('/hpoinfoservice', hpoServiceCtrl.getHposInfo) // no se usa
 
-//phen2Gene
-api.post('/phen2Gene/:patientId', auth(roles.ClinicalSuperAdmin), phene2GeneserviceCtrl.launchPhen2Genes)
-api.get('/lastPhen2Gene/:patientId', auth(roles.ClinicalSuperAdmin), phene2GeneserviceCtrl.getLastPhen2GenesResults)
 
 //diagnóstico
 

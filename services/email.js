@@ -19,15 +19,15 @@ var options = {
 
 function sendMailVerifyEmail (email, randomstring, lang, group){
   if(lang=='es'){
-    var subjectlang='Dx29 - Activa la cuenta';
+    var subjectlang='Raito - Activa la cuenta';
   }else if(lang=='pt'){
-    var subjectlang='Dx29 - Ative a conta';
+    var subjectlang='Raito - Ative a conta';
   }else if(lang=='de'){
-    var subjectlang='Dx29 - Aktivieren Sie das Konto';
+    var subjectlang='Raito - Aktivieren Sie das Konto';
   }else if(lang=='nl'){
-    var subjectlang='Dx29 - Activeer het account';
+    var subjectlang='Raito - Activeer het account';
   }else{
-    var subjectlang='Dx29 - Activate the account';
+    var subjectlang='Raito - Activate the account';
   }
   const decoded = new Promise((resolve, reject) => {
     var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
@@ -49,31 +49,6 @@ function sendMailVerifyEmail (email, randomstring, lang, group){
       }
     };
 
-
-    if(group == 'Duchenne Parent Project Netherlands'){
-      urlImg = 'https://raito29.azurewebsites.net/assets/img/duchenne-medium.png';
-
-      var maillistbcc = [
-        'info@duchenne.nl',
-        'fknuistinghneven@gmail.com'
-      ];
-
-      mailOptions = {
-        to: email,
-        from: TRANSPORTER_OPTIONS.auth.user,
-        bcc: maillistbcc,
-        subject: subjectlang,
-        template: 'verify_email/_'+lang,
-        context: {
-          client_server : client_server,
-          email : email,
-          key : randomstring,
-          urlImg: urlImg
-        }
-      };
-    }
-
-
     transporter.sendMail(mailOptions, function(error, info){
       if (error) {
         console.log(error);
@@ -92,15 +67,15 @@ function sendMailVerifyEmail (email, randomstring, lang, group){
 
 function sendMailRecoverPass (email, randomstring, lang){
   if(lang=='es'){
-    var subjectlang='Dx29 - Recuperación de la cuenta';
+    var subjectlang='Raito - Recuperación de la cuenta';
   }else if(lang=='pt'){
-    var subjectlang='Dx29 - Recuperação de conta';
+    var subjectlang='Raito - Recuperação de conta';
   }else if(lang=='de'){
-    var subjectlang='Dx29 - Kontowiederherstellung';
+    var subjectlang='Raito - Kontowiederherstellung';
   }else if(lang=='nl'){
-    var subjectlang='Dx29 - Accountherstel';
+    var subjectlang='Raito - Accountherstel';
   }else{
-    var subjectlang='Dx29 - Account Recovery';
+    var subjectlang='Raito - Account Recovery';
   }
   const decoded = new Promise((resolve, reject) => {
     var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
@@ -235,7 +210,7 @@ function sendMailSupport (email, lang, role, supportStored){
       to: TRANSPORTER_OPTIONS.auth.user,
       from: TRANSPORTER_OPTIONS.auth.user,
       bcc: maillistbcc,
-      subject: 'Mensaje para soporte de DX29',
+      subject: 'Mensaje para soporte de Raito',
       template: 'mail_support/_es',
       context: {
         email : email,
@@ -300,7 +275,7 @@ function sendMailMonarchIsActive (emails){
       to: TRANSPORTER_OPTIONS.auth.user,
       from: TRANSPORTER_OPTIONS.auth.user,
       bcc: emails,
-      subject: 'DX29: Monarch service active',
+      subject: 'Raito: Monarch service active',
       template: 'monarch_is_up/_en'
     };
 
@@ -326,7 +301,7 @@ function sendMailMonarchIsInactive (){
     var mailOptions = {
       to: TRANSPORTER_OPTIONS.auth.user,
       from: TRANSPORTER_OPTIONS.auth.user,
-      subject: 'DX29: Monarch service inactive',
+      subject: 'Raito: Monarch service inactive',
       template: 'monarch_is_down/_en',
     };
 
@@ -354,12 +329,12 @@ function sendMailInvite (email, lang, patientName){
       TRANSPORTER_OPTIONS.auth.user
     ];
 
-    var subjectlang='Dx29 - You have been invited to used Dx29';
+    var subjectlang='Raito - You have been invited to used Raito';
 
     if(lang=='es'){
-      subjectlang='Dx29 - Has sido invitado a usar Dx29';
+      subjectlang='Raito - Has sido invitado a usar Raito';
     }else if(lang=='nl'){
-      subjectlang='Dx29 - U bent uitgenodigd om Dx29 te gebruiken';
+      subjectlang='Raito - U bent uitgenodigd om Raito te gebruiken';
     }
 
     var mailOptions = {
@@ -491,9 +466,9 @@ function sendMailShare (email, patientName, lang, internalmessage, clinicalName,
     if(internalmessage=='Request genetic test'){
       //Solicitud de test genetico por parte del paciente a un clínico que ya existe (caso 2)
       if(lang=='es'){
-        subjectlang='Dx29 - Un paciente le invita a trabajar en su caso en Dx29';
+        subjectlang='Raito - Un paciente le invita a trabajar en su caso en Raito';
       }else if(lang=='nl'){
-        subjectlang='Dx29 - Een patiënt nodigt u uit om hun zaak te werken aan Dx29';
+        subjectlang='Raito - Een patiënt nodigt u uit om hun zaak te werken aan Raito';
       }
       mailOptions = {
         to: email,
@@ -535,7 +510,7 @@ function sendMailNewClinicialShare (email, patientName, lang, internalmessage, m
       TRANSPORTER_OPTIONS.auth.user
     ];
 
-    var subjectlang='Dx29 - A patient is inviting you to discover Dx29';
+    var subjectlang='Raito - A patient is inviting you to discover Raito';
     patientName= capitalizeFirstLetter(patientName);
     if(lang=='es'){
       subjectlang=patientName+ ' necesita ayuda con su diagnóstico';
@@ -904,19 +879,19 @@ function sendEmailInfoPermissions (patientEmail, emailorigen, email, state, lang
     if(state == 'true'){
       emailTo = email
       maillistbcc.push(emailorigen);
-      subjectlang = 'Dx29 - He has agreed to share'
+      subjectlang = 'Raito - He has agreed to share'
       message = 'has agreed to share'
       if(lang=='es'){
-        subjectlang='Dx29 - Ha aceptado compartir';
+        subjectlang='Raito - Ha aceptado compartir';
         message = 'ha aceptado compartir'
       }
 
     }else{
       emailTo = emailorigen
-      subjectlang = 'Dx29 - He has refused to share'
+      subjectlang = 'Raito - He has refused to share'
       message = 'has refused to share'
       if(lang=='es'){
-        subjectlang='Dx29 - Ha rechazado compartir';
+        subjectlang='Raito - Ha rechazado compartir';
         message = 'ha rechazado compartir'
       }
     }
@@ -963,9 +938,9 @@ function sendMailProgramRequestToPatient (patientEmail, clinicalEmail, lang){
     var subjectlang = ''
     emailTo = patientEmail
     //maillistbcc.push(clinicalEmail);
-    subjectlang = 'Dx29 - Request for help to the genetic test - a new email is needed'
+    subjectlang = 'Raito - Request for help to the genetic test - a new email is needed'
     if(lang=='es'){
-      subjectlang='Dx29 - Solicitud de ayuda al test genético- se necesita un nuevo correo electrónico';
+      subjectlang='Raito - Solicitud de ayuda al test genético- se necesita un nuevo correo electrónico';
     }
 
 
@@ -1009,9 +984,9 @@ function sendMailProgramRequestToClinician (patientEmail, clinicalEmail, lang){
     var subjectlang = ''
     emailTo = clinicalEmail
     //maillistbcc.push(patientEmail);
-    subjectlang = 'Dx29 - Request for help to the genetic test - a new email is needed'
+    subjectlang = 'Raito - Request for help to the genetic test - a new email is needed'
     if(lang=='es'){
-      subjectlang='Dx29 - Solicitud de ayuda al test genético - se necesita un nuevo correo electrónico';
+      subjectlang='Raito - Solicitud de ayuda al test genético - se necesita un nuevo correo electrónico';
     }
 
 
@@ -1053,16 +1028,16 @@ function sendMail_request_genetic_program_patient (email, clinicalEmail, lang, p
       TRANSPORTER_OPTIONS.auth.user
     ];
 
-    var subjectlang='Dx29 - GTP - A clinician is inviting you to discover Dx29 and wants to incorporate you into a genetic testing program - '+ randomIdRequest;
+    var subjectlang='Raito - GTP - A clinician is inviting you to discover Raito and wants to incorporate you into a genetic testing program - '+ randomIdRequest;
 
     if(lang=='es'){
-      subjectlang='Dx29 - GTP - Un clínico le invita a descubrir Dx29 y quiere incorporarle en un programa de test genético - '+ randomIdRequest;
+      subjectlang='Raito - GTP - Un clínico le invita a descubrir Raito y quiere incorporarle en un programa de test genético - '+ randomIdRequest;
     }
 
     if(!instructionsNewAccount){
-      subjectlang='Dx29 - GTP - A clinician wants to incorporate you into a genetic testing program - '+randomIdRequest;
+      subjectlang='Raito - GTP - A clinician wants to incorporate you into a genetic testing program - '+randomIdRequest;
       if(lang=='es'){
-        subjectlang='Dx29 - GTP - Un clínico quiere incorporarle en un programa de test genético - '+randomIdRequest;
+        subjectlang='Raito - GTP - Un clínico quiere incorporarle en un programa de test genético - '+randomIdRequest;
       }
     }
 
@@ -1129,10 +1104,10 @@ function sendMail_request_genetic_program_clinician (email, clinicalEmail, lang,
       TRANSPORTER_OPTIONS.auth.user
     ];
 
-    var subjectlang='Dx29 - GTP - continue the process - '+randomIdRequest;
+    var subjectlang='Raito - GTP - continue the process - '+randomIdRequest;
 
     if(lang=='es'){
-      subjectlang='Dx29 - GTP - CONTINUAR CON EL PROCESO - '+ randomIdRequest;
+      subjectlang='Raito - GTP - CONTINUAR CON EL PROCESO - '+ randomIdRequest;
     }
 
     var attachments = [];
@@ -1365,10 +1340,10 @@ function sendMailResultsUndiagnosed (email, msg, symptoms, diseases, lang, dateH
     ];
 
     var mailOptions = {};
-    var subjectlang = 'Dx29 results';
+    var subjectlang = 'Raito results';
 
     if(lang=='es'){
-      subjectlang='Resultados de Dx29';
+      subjectlang='Resultados de Raito';
     }
 
     const ts_hms = new Date();    
@@ -1379,7 +1354,7 @@ function sendMailResultsUndiagnosed (email, msg, symptoms, diseases, lang, dateH
       ("0" + ts_hms.getHours()).slice(-2) + '' +
       ("0" + ts_hms.getMinutes()).slice(-2) + '' +
       ("0" + ts_hms.getSeconds()).slice(-2);
-      var fileName = 'Dx29_Report_'+stringDate+'.pdf';
+      var fileName = 'Raito_Report_'+stringDate+'.pdf';
 
 
     if(msg==''){
@@ -1450,10 +1425,10 @@ function sendMailResultsDiagnosed (email, msg, symptoms, disease, lang, dateHead
     ];
 
     var mailOptions = {};
-    var subjectlang = 'Dx29 results';
+    var subjectlang = 'Raito results';
 
     if(lang=='es'){
-      subjectlang='Resultados de Dx29';
+      subjectlang='Resultados de Raito';
     }
 
 
@@ -1465,7 +1440,7 @@ function sendMailResultsDiagnosed (email, msg, symptoms, disease, lang, dateHead
       ("0" + ts_hms.getHours()).slice(-2) + '' +
       ("0" + ts_hms.getMinutes()).slice(-2) + '' +
       ("0" + ts_hms.getSeconds()).slice(-2);
-      var fileName = 'Dx29_Report_'+stringDate+'.pdf';
+      var fileName = 'Raito_Report_'+stringDate+'.pdf';
 
     if(msg==''){
       mailOptions = {
@@ -1535,10 +1510,10 @@ function sendRevolution (email, lang, bodyAttachments){
     ];
 
     var mailOptions = {};
-    var subjectlang = 'Dx29 Revolution';
+    var subjectlang = 'Raito Revolution';
 
     if(lang=='es'){
-      subjectlang='Revolución de Dx29';
+      subjectlang='Revolución de Raito';
     }
 
     mailOptions = {
