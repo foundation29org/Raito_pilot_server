@@ -1,5 +1,6 @@
 'use strict'
 
+const crypt = require('./crypt')
 const config = require('../config')
 const request = require('request')
 

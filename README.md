@@ -1,5 +1,5 @@
 <div style="margin-bottom: 1%; padding-bottom: 2%;">
-	<img align="right" width="100px" src="/img/logo-Dx29.png">
+	<img align="right" width="100px" src="/img/logo-raito.png">
 </div>			
 
 Dx29 server

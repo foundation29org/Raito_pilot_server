@@ -3,6 +3,7 @@
 
 const mongoose = require ('mongoose');
 const Schema = mongoose.Schema
+const User = require('./user')
 
 const { conndbaccounts } = require('../db_connect')
 
@@ -14,7 +15,8 @@ const SupportSchema = Schema({
 	status: {type: String, default: 'unread'},
 	statusDate: {type: Date, default: Date.now},
 	files: Object,
-	date: {type: Date, default: Date.now}
+	date: {type: Date, default: Date.now},
+	createdBy: { type: Schema.Types.ObjectId, ref: "User"}
 })
 
 module.exports = conndbaccounts.model('Support',SupportSchema)
