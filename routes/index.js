@@ -62,9 +62,6 @@ api.get('/users/name/:userId', auth(roles.All), userCtrl.getUserName)
 api.get('/users/email/:userId', auth(roles.All), userCtrl.getUserEmail)
 api.get('/patient/email/:patientId', auth(roles.All), userCtrl.getPatientEmail)
 
-api.get('/users/showintrowizard/:userId', auth(roles.ClinicalSuperAdmin), userCtrl.getShowIntroWizard)
-api.put('/users/showintrowizard/:userId', auth(roles.ClinicalSuperAdmin), userCtrl.setShowIntroWizard)
-
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
 
@@ -77,10 +74,6 @@ api.delete('/patients/:patientId', auth(roles.UserClinical), patientCtrl.deleteP
 api.put('/patients/changenotes/:patientId', auth(roles.UserClinical), patientCtrl.changenotes)
 api.put('/case/changename/:patientId', auth(roles.UserClinical), patientCtrl.changecasename)
 api.put('/case/changesharedname/:patientId', auth(roles.OnlyClinical), patientCtrl.changesharedcasename)
-api.get('/patients/actualstep/:patientId', auth(roles.OnlyUser), patientCtrl.getActualStep)
-api.put('/patients/actualstep/:patientId', auth(roles.OnlyUser), patientCtrl.setActualStep)
-api.get('/case/stepclinic/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.getStepClinic)
-api.put('/case/stepclinic/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.setStepClinic)
 api.get('/case/updateLastAccess/:patientId', auth(roles.OnlyClinical), patientCtrl.updateLastAccess)
 api.get('/patients/pendingJobs/:patientId', auth(roles.All), patientCtrl.getPendingJobs)
 api.put('/patients/pendingJobs/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.setPendingJobs)
