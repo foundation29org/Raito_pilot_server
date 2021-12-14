@@ -41,15 +41,13 @@ const PatientSchema = Schema({
 	notes: {type: String, default: ''},
 	isArchived: {type: Boolean, default: false},
 	sharing: {type: Object, default: []},
-	actualStep: {type: String, default: '0.0'},
-	stepClinic: {type: String, default: '6.0'},
-	//status:{actualStep: String,pendingworks:Object},
 	status: Object,
 	relationship: String,
 	lastAccess: {type: Date, default: Date.now},
 	creationDate: {type: Date, default: Date.now},
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
+	group: { type: String, required: true, default: null},
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)

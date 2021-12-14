@@ -40,7 +40,7 @@ const UserSchema = Schema({
 	lastLogin: {type: Date, default: null},
 	userName: String,
 	loginAttempts: { type: Number, required: true, default: 0 },
-  lockUntil: { type: Number },
+  	lockUntil: { type: Number },
 	lang: { type: String, required: true, default: 'en'},
 	randomCodeRecoverPass: String,
 	dateTimeRecoverPass: Date,
@@ -49,7 +49,6 @@ const UserSchema = Schema({
 	blockedaccount: {type: Boolean, default: false},
 	permissions: {type: Object, default: {}},
 	platform: {type: String, default: ''},
-	showIntroWizard: {type: Boolean, default: true},
 })
 
 
