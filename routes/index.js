@@ -35,6 +35,8 @@ const shareOrInviteCtrl = require('../controllers/all/share')
 const captchaServiceCtrl = require('../services/captcha')
 
 const feedbackDevCtrl = require('../controllers/all/feedback_dev')
+const seizuresCtrl = require('../controllers/user/patient/seizures')
+const groupCtrl = require('../controllers/all/group')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -185,6 +187,18 @@ api.post('/wiki', wikiCtrl.callwiki)
 
 //patientGroups
 api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
+
+
+// seizuresCtrl routes, using the controller seizures, this controller has methods
+api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
+api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
+api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
+api.delete('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.deleteSeizure)
+api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveMassiveSeizure)
+
+//groups
+api.get('/groupsnames', groupCtrl.getGroupsNames)
+api.get('/groups', groupCtrl.getGroups)
 
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
