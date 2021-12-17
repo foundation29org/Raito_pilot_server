@@ -546,6 +546,7 @@ function savePatient (userId, req){
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
   	patient.previousDiagnosis = req.body.previousDiagnosis
+	patient.consentGiven = req.body.consentGiven
   	patient.avatar = req.body.avatar
 	patient.createdBy = userId
 
@@ -563,7 +564,7 @@ function savePatient (userId, req){
 		if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
 		var id = patientStored._id.toString();
 		var idencrypt= crypt.encrypt(id);
-		var patientInfo = {sub:idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar};
+		var patientInfo = {sub:idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGiven: patient.consentGiven};
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if(result){
