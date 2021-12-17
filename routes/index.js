@@ -37,6 +37,9 @@ const captchaServiceCtrl = require('../services/captcha')
 const feedbackDevCtrl = require('../controllers/all/feedback_dev')
 const seizuresCtrl = require('../controllers/user/patient/seizures')
 const groupCtrl = require('../controllers/all/group')
+const medicationCtrl = require('../controllers/user/patient/medication')
+
+const feelCtrl = require('../controllers/user/patient/feel')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -198,7 +201,30 @@ api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveM
 
 //groups
 api.get('/groupsnames', groupCtrl.getGroupsNames)
+api.get('/groupadmin/:groupName', groupCtrl.getGroupAdmin)
 api.get('/groups', groupCtrl.getGroups)
+api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
+api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
+api.get('/group/medications/:groupName', auth(roles.All), groupCtrl.getMedicationsGroup)
+
+//medications
+api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
+api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
+api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
+api.put('/medication/:medicationId', auth(roles.OnlyUser), medicationCtrl.updateMedication)
+api.delete('/medication/:medicationId', auth(roles.OnlyUser), medicationCtrl.deleteDose)
+api.delete('/medications/:drugNameAndPatient', auth(roles.OnlyUser), medicationCtrl.deleteMedication)
+api.get('/medications/all/:drugNameAndPatient', auth(roles.UserResearcher), medicationCtrl.getAllMedicationByNameForPatient)
+
+api.delete('/medications/update/:PatientIdAndMedicationId', auth(roles.OnlyUser), medicationCtrl.deleteMedicationByIDAndUpdateStateForThePrevious)
+api.put('/medication/newdose/:medicationIdAndPatient', auth(roles.OnlyUser), medicationCtrl.newDose)
+api.put('/medication/stoptaking/:medicationId', auth(roles.OnlyUser), medicationCtrl.stoptaking)
+api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicationCtrl.changenotes)
+api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
+
+// seizuresCtrl routes, using the controller seizures, this controller has methods
+api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
+api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
