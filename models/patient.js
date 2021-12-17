@@ -48,6 +48,7 @@ const PatientSchema = Schema({
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
 	group: { type: String, required: true, default: null},
+	consentGiven: {type: String, default: 'No'},
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)
