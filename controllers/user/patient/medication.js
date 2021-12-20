@@ -61,10 +61,9 @@ const crypt = require('../../../services/crypt')
  */
 function getMedications (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
-	console.log(patientId);
 
 	//Medication.find({createdBy: patientId}, {"createdBy" : false }).sort({ endDate : 'asc'}).exec(function(err, medications){
-		Medication.find({"createdBy": patientId},(err, medications) => {
+		Medication.find({"createdBy": patientId}, {"createdBy" : false},(err, medications) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 
 		var listMedications = [];
@@ -197,9 +196,9 @@ function getMedication (req, res){
 function saveMedication (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 
-	Medication.find({createdBy: patientId, drug: req.body.drug}).sort({ endDate : 'asc'}).exec(function(err, medications){
+	
+	Medication.find({"createdBy": patientId, "drug": req.body.drug},(err, medications) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
 		var listMedications = [];
 		var failmsg= '';
 		var bsd = new Date(req.body.startDate);

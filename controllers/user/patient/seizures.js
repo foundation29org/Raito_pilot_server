@@ -11,7 +11,7 @@ const crypt = require('../../../services/crypt')
 function getSeizures (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	//Seizures.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-	Seizures.find({"createdBy": patientId},(err, eventsdb) => {
+	Seizures.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
 
