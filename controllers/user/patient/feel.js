@@ -11,7 +11,7 @@ const crypt = require('../../../services/crypt')
 function getFeels (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	//Feel.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-		Feel.find({"createdBy": patientId},(err, eventsdb) => {
+		Feel.find({"createdBy": patientId}, {"createdBy" : false, "_id": false },(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
 
