@@ -11,7 +11,7 @@ const crypt = require('../../../services/crypt')
 function getFeels (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	//Feel.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-		Feel.find({"createdBy": patientId}, {"createdBy" : false, "_id": false },(err, eventsdb) => {
+		Feel.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
 
@@ -42,7 +42,25 @@ function saveFeel (req, res){
 
 }
 
+function deleteFeel (req, res){
+	let feelId=req.params.feelId
+
+	Feel.findById(feelId, (err, feeldb) => {
+		if (err) return res.status(500).send({message: `Error deleting the feel: ${err}`})
+		if (feeldb){
+			feeldb.remove(err => {
+				if(err) return res.status(500).send({message: `Error deleting the feel: ${err}`})
+				res.status(200).send({message: `The feel has been deleted`})
+			})
+		}else{
+			 return res.status(404).send({code: 208, message: `Error deleting the feel: ${err}`})
+		}
+
+	})
+}
+
 module.exports = {
 	getFeels,
-	saveFeel
+	saveFeel,
+	deleteFeel
 }
