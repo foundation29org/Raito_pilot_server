@@ -13,7 +13,7 @@ const crypt = require('../../services/crypt')
 const bcrypt = require('bcrypt-nodejs')
 const f29azureService = require("../../services/f29azure")
 
-function activateUser(req, res){
+function activateUser(req, res) {
 	req.body.email = (req.body.email).toLowerCase();
 	const user = new User({
 		email: req.body.email,
@@ -21,29 +21,29 @@ function activateUser(req, res){
 		confirmed: true
 	})
 	User.findOne({ 'email': req.body.email }, function (err, user2) {
-	  if (err) return res.status(500).send({ message: `Error activating account: ${err}`})
-		if (user2){
-			if(user2.confirmationCode==req.body.key){
-				user2.confirmed=true;
+		if (err) return res.status(500).send({ message: `Error activating account: ${err}` })
+		if (user2) {
+			if (user2.confirmationCode == req.body.key) {
+				user2.confirmed = true;
 				let update = user2;
 				let userId = user2._id
 				User.findByIdAndUpdate(userId, update, (err, userUpdated) => {
-					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 					//mirar si el usuario tiene rol User, y está el email en algún programa, si es así, cambiar a el paciente y asignarle createdBy del nuevo usuario, y compartirlo con el clínico que era el createdBy
-					if(userUpdated.role=='User'){
+					if (userUpdated.role == 'User') {
 						//Programs.find({}, function(err, programs) {
 						//lo he comprobado que funcione
 						Programs.find({ 'requests.email': userUpdated.email }, (err, programs) => {
-							if(programs!=undefined){
+							if (programs != undefined) {
 								var foundUserEmail = false;
 								for (var j = 0; j < programs.length && !foundUserEmail; j++) {
 									var program = programs[j];
 									Programs.findById(program._id, (err, programdb) => {
-										if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
-										if(programdb){
+										if (err) return res.status(500).send({ message: `Error deleting the case: ${err}` })
+										if (programdb) {
 
 											for (var i = 0; i < programdb.requests.length && !foundUserEmail; i++) {
-												if(programdb.requests[i].email == userUpdated.email){
+												if (programdb.requests[i].email == userUpdated.email) {
 													foundUserEmail = true;
 													//update createdBy of patient
 													let userIdCreatedBy = programdb.requests[i].idUser;
@@ -52,15 +52,15 @@ function activateUser(req, res){
 													var newUserId = userUpdated._id;
 
 													User.findById(decryptUserId, (err, clinicalUser) => {
-														if(clinicalUser){
-															Patient.findByIdAndUpdate(patientId, { createdBy: newUserId }, {new: true}, (err, patientUpdated) => {
-																if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+														if (clinicalUser) {
+															Patient.findByIdAndUpdate(patientId, { createdBy: newUserId }, { new: true }, (err, patientUpdated) => {
+																if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 
 																//update sharing, for clinician
 																var date = Date.now();
-																var permissions = {"shareEmr" : true,"askFirst" : false, "shareWithAll" : false};
-																patientUpdated.sharing.push({_id : userIdCreatedBy, state: '', role: 'Clinical', email: clinicalUser.email, permissions: permissions, invitedby: userIdCreatedBy, patientName: patientUpdated.patientName, date: date, showSwalIntro: true});
-																Patient.findByIdAndUpdate(patientId, { sharing: patientUpdated.sharing }, {new: true}, (err, patientUpdated) => {
+																var permissions = { "shareEmr": true, "askFirst": false, "shareWithAll": false };
+																patientUpdated.sharing.push({ _id: userIdCreatedBy, state: '', role: 'Clinical', email: clinicalUser.email, permissions: permissions, invitedby: userIdCreatedBy, patientName: patientUpdated.patientName, date: date, showSwalIntro: true });
+																Patient.findByIdAndUpdate(patientId, { sharing: patientUpdated.sharing }, { new: true }, (err, patientUpdated) => {
 																	//enviar un email avisando?
 																})
 
@@ -71,28 +71,28 @@ function activateUser(req, res){
 
 												}
 											}
-											if(!foundUserEmail){
+											if (!foundUserEmail) {
 
 
 											}
-										}else{
-											return res.status(200).send({message: 'program not found'})
+										} else {
+											return res.status(200).send({ message: 'program not found' })
 										}
 									})
-						    }
+								}
 							}
-					  });
+						});
 
 
 					}
 
-					res.status(200).send({ message: 'activated'})
+					res.status(200).send({ message: 'activated' })
 				})
-			}else{
-				return res.status(200).send({ message: 'error'})
+			} else {
+				return res.status(200).send({ message: 'error' })
 			}
-		}else{
-			return res.status(500).send({ message: `user not exists: ${err}`})
+		} else {
+			return res.status(500).send({ message: `user not exists: ${err}` })
 		}
 	})
 }
@@ -138,14 +138,14 @@ function activateUser(req, res){
  * * user not exists
  * * account not activated
  */
-function recoverPass(req, res){
+function recoverPass(req, res) {
 	req.body.email = (req.body.email).toLowerCase();
 	console.log(req.body.email);
 	User.findOne({ 'email': req.body.email }, function (err, user) {
-	  if (err) return res.status(500).send({ message: 'Error searching the user'})
-		if (user){
+		if (err) return res.status(500).send({ message: 'Error searching the user' })
+		if (user) {
 			console.log(user.confirmed);
-				if(user.confirmed){
+			if (user.confirmed) {
 				//generamos una clave aleatoria y añadimos un campo con la hora de la clave proporcionada, cada que caduque a los 15 minutos
 				let randomstring = Math.random().toString(36).slice(-12)
 				user.randomCodeRecoverPass = randomstring;
@@ -153,24 +153,24 @@ function recoverPass(req, res){
 
 				//guardamos los valores en BD y enviamos Email
 				User.findByIdAndUpdate(user._id, user, (err, userUpdated) => {
-					if (err) return res.status(500).send({ message: 'Error saving the user'})
+					if (err) return res.status(500).send({ message: 'Error saving the user' })
 
 					serviceEmail.sendMailRecoverPass(req.body.email, randomstring, user.lang)
 						.then(response => {
-							return res.status(200).send({ message: 'Email sent'})
+							return res.status(200).send({ message: 'Email sent' })
 						})
 						.catch(response => {
 							//create user, but Failed sending email.
 							//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-							res.status(500).send({ message: 'Fail sending email'})
+							res.status(500).send({ message: 'Fail sending email' })
 						})
 					//return res.status(200).send({ token: serviceAuth.createToken(user)})
 				})
-			}else{
-				return res.status(500).send({ message: 'account not activated'})
+			} else {
+				return res.status(500).send({ message: 'account not activated' })
 			}
-		}else{
-			return res.status(500).send({ message: 'user not exists'})
+		} else {
+			return res.status(500).send({ message: 'user not exists' })
 		}
 	})
 }
@@ -223,53 +223,53 @@ function recoverPass(req, res){
  * * Error saving the pass
 
  */
-function updatePass(req, res){
+function updatePass(req, res) {
 	const user0 = new User({
 		password: req.body.password
 	})
 	req.body.email = (req.body.email).toLowerCase();
 	User.findOne({ 'email': req.body.email }, function (err, user) {
-	  if (err) return res.status(500).send({ message: 'Error searching the user'})
-		if (user){
-			const userToSave=user;
+		if (err) return res.status(500).send({ message: 'Error searching the user' })
+		if (user) {
+			const userToSave = user;
 			userToSave.password = req.body.password
 			//ver si el enlace a caducado, les damos 15 minutos para reestablecer la pass
 			var limittime = new Date(); // just for example, can be any other time
-			var myTimeSpan = 15*60*1000; // 15 minutes in milliseconds
+			var myTimeSpan = 15 * 60 * 1000; // 15 minutes in milliseconds
 			limittime.setTime(limittime.getTime() - myTimeSpan);
 
 			//var limittime = moment().subtract(15, 'minutes').unix();
 
-			if(limittime.getTime() < userToSave.dateTimeRecoverPass.getTime()){
-				if(userToSave.randomCodeRecoverPass == req.body.randomCodeRecoverPass){
+			if (limittime.getTime() < userToSave.dateTimeRecoverPass.getTime()) {
+				if (userToSave.randomCodeRecoverPass == req.body.randomCodeRecoverPass) {
 
 
 					bcrypt.genSalt(10, (err, salt) => {
-						if (err) return res.status(500).send({ message: 'error salt'})
+						if (err) return res.status(500).send({ message: 'error salt' })
 						bcrypt.hash(userToSave.password, salt, null, (err, hash) => {
-							if (err) return res.status(500).send({ message: 'error hash'})
+							if (err) return res.status(500).send({ message: 'error hash' })
 
 							userToSave.password = hash
 							User.findByIdAndUpdate(userToSave._id, userToSave, (err, userUpdated) => {
-								if (err) return res.status(500).send({message: 'Error saving the pass'})
-								if (!userUpdated) return res.status(500).send({message: 'not found'})
+								if (err) return res.status(500).send({ message: 'Error saving the pass' })
+								if (!userUpdated) return res.status(500).send({ message: 'not found' })
 
-								return res.status(200).send({ message: 'password changed'})
+								return res.status(200).send({ message: 'password changed' })
 							})
 						})
 					})
 
 
 
-				}else{
-					return res.status(500).send({ message: 'invalid link'})
+				} else {
+					return res.status(500).send({ message: 'invalid link' })
 				}
-			}else{
-				return res.status(500).send({ message: 'link expired'})
+			} else {
+				return res.status(500).send({ message: 'link expired' })
 			}
-		}else{
+		} else {
 			//return res.status(500).send({ message: 'user not exists'})
-			return res.status(500).send({ message: 'invalid link'})
+			return res.status(500).send({ message: 'invalid link' })
 		}
 	})
 }
@@ -327,66 +327,66 @@ function updatePass(req, res){
  * * Account is unactivated
  */
 
-function newPass(req, res){
+function newPass(req, res) {
 	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.actualpassword, function(err, userToUpdate, reason) {
+	User.getAuthenticated(req.body.email, req.body.actualpassword, function (err, userToUpdate, reason) {
 		if (err) return res.status(500).send({ message: err })
 
-			// login was successful if we have a user
-			if (userToUpdate) {
-				bcrypt.genSalt(10, (err, salt) => {
-					if (err) return res.status(500).send({ message: 'error salt'})
-					bcrypt.hash(req.body.newpassword, salt, null, (err, hash) => {
-						if (err) return res.status(500).send({ message: 'error hash'})
+		// login was successful if we have a user
+		if (userToUpdate) {
+			bcrypt.genSalt(10, (err, salt) => {
+				if (err) return res.status(500).send({ message: 'error salt' })
+				bcrypt.hash(req.body.newpassword, salt, null, (err, hash) => {
+					if (err) return res.status(500).send({ message: 'error hash' })
 
-						userToUpdate.password = hash
-						User.findByIdAndUpdate(userToUpdate._id, userToUpdate, (err, userUpdated) => {
-							if (err) return res.status(500).send({message: 'Error saving the pass'})
-							if (!userUpdated) return res.status(500).send({message: 'not found'})
+					userToUpdate.password = hash
+					User.findByIdAndUpdate(userToUpdate._id, userToUpdate, (err, userUpdated) => {
+						if (err) return res.status(500).send({ message: 'Error saving the pass' })
+						if (!userUpdated) return res.status(500).send({ message: 'not found' })
 
-							return res.status(200).send({ message: 'password changed'})
-						})
+						return res.status(200).send({ message: 'password changed' })
 					})
 				})
-			}else{
-				// otherwise we can determine why we failed
-				var reasons = User.failedLogin;
-				switch (reason) {
-						case reasons.NOT_FOUND:
-						return res.status(202).send({
-							message: 'Login failed'
-						})
-						case reasons.PASSWORD_INCORRECT:
-								// note: these cases are usually treated the same - don't tell
-								// the user *why* the login failed, only that it did
-								return res.status(202).send({
-									message: 'Login failed'
-								})
-								break;
-						case reasons.MAX_ATTEMPTS:
-								// send email or otherwise notify user that account is
-								// temporarily locked
-								return res.status(202).send({
-									message: 'Account is temporarily locked'
-								})
-								break;
-						case reasons.UNACTIVATED:
-								return res.status(202).send({
-									message: 'Account is unactivated'
-								})
-								break;
-						case reasons.BLOCKED:
-								return res.status(202).send({
-									message: 'Account is blocked'
-								})
-								break;
+			})
+		} else {
+			// otherwise we can determine why we failed
+			var reasons = User.failedLogin;
+			switch (reason) {
+				case reasons.NOT_FOUND:
+					return res.status(202).send({
+						message: 'Login failed'
+					})
+				case reasons.PASSWORD_INCORRECT:
+					// note: these cases are usually treated the same - don't tell
+					// the user *why* the login failed, only that it did
+					return res.status(202).send({
+						message: 'Login failed'
+					})
+					break;
+				case reasons.MAX_ATTEMPTS:
+					// send email or otherwise notify user that account is
+					// temporarily locked
+					return res.status(202).send({
+						message: 'Account is temporarily locked'
+					})
+					break;
+				case reasons.UNACTIVATED:
+					return res.status(202).send({
+						message: 'Account is unactivated'
+					})
+					break;
+				case reasons.BLOCKED:
+					return res.status(202).send({
+						message: 'Account is blocked'
+					})
+					break;
 
-					}
 			}
+		}
 
 
 
-		})
+	})
 
 }
 
@@ -444,7 +444,7 @@ function newPass(req, res){
  */
 
 
-function signUp(req, res){
+function signUp(req, res) {
 	req.body.email = (req.body.email).toLowerCase();
 	let randomstring = Math.random().toString(36).slice(-12);
 	const user = new User({
@@ -453,45 +453,45 @@ function signUp(req, res){
 		subrole: req.body.subrole,
 		userName: req.body.userName,
 		password: req.body.password,
-	 	confirmationCode: randomstring,
+		confirmationCode: randomstring,
 		lang: req.body.lang,
 		group: req.body.group,
 		permissions: req.body.permissions,
 		platform: 'Raito'
 	})
 	User.findOne({ 'email': req.body.email }, function (err, user2) {
-	  if (err) return res.status(500).send({ message: `Error creating the user: ${err}`})
-		if (!user2){
+		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
+		if (!user2) {
 			user.save((err, userSaved) => {
-				if (err) return res.status(500).send({ message: `Error creating the user: ${err}`})
+				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
 
-				if(req.body.patientId != undefined){
+				if (req.body.patientId != undefined) {
 					var tempo = req.body.patientId
 					let patientIdt = crypt.decrypt(tempo)
 					//let patientId= crypt.decrypt(req.params.patientId);
 
-					Patient.findById(patientIdt, {"createdBy" : false }, (err, patient) => {
+					Patient.findById(patientIdt, { "createdBy": false }, (err, patient) => {
 						if (err) {
 							console.log('falla');
 							console.log(err)
 						}
-						if(patient){
+						if (patient) {
 							var id = userSaved._id.toString();
-							var userId= crypt.encrypt(id);
+							var userId = crypt.encrypt(id);
 							//mirar si ya está compartido
 							var found = false;
 							for (var i = 0; i < patient.sharing.length && !found; i++) {
-								if(patient.sharing[i]._id == userId){
+								if (patient.sharing[i]._id == userId) {
 									found = true;
 								}
 							}
-							if(!found){
-								patient.sharing.push({_id : userId});
-								Patient.findByIdAndUpdate(patientIdt, { sharing: patient.sharing }, {new: true}, (err, patientUpdated) => {
+							if (!found) {
+								patient.sharing.push({ _id: userId });
+								Patient.findByIdAndUpdate(patientIdt, { sharing: patient.sharing }, { new: true }, (err, patientUpdated) => {
 									if (err) {
 										console.log(err);
 									}
-									if(patientUpdated){
+									if (patientUpdated) {
 										//console.log(patientUpdated);
 									}
 								})
@@ -502,31 +502,32 @@ function signUp(req, res){
 				}
 
 				//Create the patient
-				if(req.body.role=='User'){
+				console.log(req.body.role);
+				if (req.body.role == 'User') {
 					var userId = userSaved._id.toString();
 					savePatient(userId, req);
 				}
-				
+
 
 
 				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, req.body.group)
 					.then(response => {
-						res.status(200).send({ message: 'Account created'})
+						res.status(200).send({ message: 'Account created' })
 					})
 					.catch(response => {
 						//create user, but Failed sending email.
 						//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-						res.status(200).send({ message: 'Fail sending email'})
+						res.status(200).send({ message: 'Fail sending email' })
 					})
 				//return res.status(200).send({ token: serviceAuth.createToken(user)})
 			})
-		}else{
-			return res.status(202).send({ message: 'user exists'})
+		} else {
+			return res.status(202).send({ message: 'user exists' })
 		}
 	})
 }
 
-function savePatient (userId, req){
+function savePatient(userId, req) {
 	let patient = new Patient()
 	patient.patientName = req.body.userName
 	patient.surname = req.body.lastName
@@ -545,68 +546,68 @@ function savePatient (userId, req){
 	patient.siblings = req.body.siblings
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
-  	patient.previousDiagnosis = req.body.previousDiagnosis
+	patient.previousDiagnosis = req.body.previousDiagnosis
 	patient.consentGiven = req.body.consentGiven
-  	patient.avatar = req.body.avatar
+	patient.avatar = req.body.avatar
 	patient.createdBy = userId
 
-	if(req.body.avatar==undefined){
-		if(patient.gender!=undefined){
-		if(patient.gender=='male'){
-					patient.avatar='boy-0'
-				}else if(patient.gender=='female'){
-					patient.avatar='girl-0'
-				}
+	if (req.body.avatar == undefined) {
+		if (patient.gender != undefined) {
+			if (patient.gender == 'male') {
+				patient.avatar = 'boy-0'
+			} else if (patient.gender == 'female') {
+				patient.avatar = 'girl-0'
+			}
 		}
 	}
 	// when you save, returns an id in patientStored to access that patient
-	patient.save (async (err, patientStored) => {
-		if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
+	patient.save(async (err, patientStored) => {
+		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
 		var id = patientStored._id.toString();
-		var idencrypt= crypt.encrypt(id);
-		var patientInfo = {sub:idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGiven: patient.consentGiven};
+		var idencrypt = crypt.encrypt(id);
+		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGiven: patient.consentGiven };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
-		if(result){
-			console.log('Patient created'+patientInfo);
-		//res.status(200).send({message: 'Patient created', patientInfo})
-		}else{
+		if (result) {
+			console.log('Patient created' + patientInfo);
+			//res.status(200).send({message: 'Patient created', patientInfo})
+		} else {
 			deletePatientAndCreateOther(patientStored._id, req, userId);
 		}
 
 	})
 }
 
-function deletePatientAndCreateOther(patientId, req, userId){
+function deletePatientAndCreateOther(patientId, req, userId) {
 
 	Patient.findById(patientId, (err, patient) => {
-		if (err) return res.status(500).send({message: `Error deleting the patient: ${err}`})
-		if(patient){
+		if (err) return console.log({ message: `Error deleting the patient: ${err}` })
+		if (patient) {
 			patient.remove(err => {
 				savePatient(userId, req)
 			})
-		}else{
-			 savePatient(userId, req)
+		} else {
+			savePatient(userId, req)
 		}
 	})
 }
 
-function sendEmail (req, res){
+function sendEmail(req, res) {
 	req.body.email = (req.body.email).toLowerCase();
 	let randomstring = Math.random().toString(36).slice(-12);
 	User.findOne({ 'email': req.body.email }, function (err, user) {
-		if (err) return res.status(500).send({ message: `Error finding the user: ${err}`})
-		if(user){
-			if(req.body.type == "resendEmail"){
+		if (err) return res.status(500).send({ message: `Error finding the user: ${err}` })
+		if (user) {
+			if (req.body.type == "resendEmail") {
 				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, user.group)
 					.then(response => {
-						res.status(200).send({ message: 'Email resent'})
+						res.status(200).send({ message: 'Email resent' })
 					})
 					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email'})
+						res.status(200).send({ message: 'Fail sending email' })
 					})
 			}
-			else if(req.body.type == "contactSupport"){
+			else if (req.body.type == "contactSupport") {
 				let support = new Support()
 				support.type = ''
 				support.subject = 'Help with account activation'
@@ -615,10 +616,10 @@ function sendEmail (req, res){
 				support.createdBy = user.userId
 				serviceEmail.sendMailSupport(req.body.email, req.body.lang, null, support)
 					.then(response => {
-						res.status(200).send({ message: 'Support contacted'})
+						res.status(200).send({ message: 'Support contacted' })
 					})
 					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email'})
+						res.status(200).send({ message: 'Fail sending email' })
 					})
 			}
 
@@ -686,57 +687,57 @@ function sendEmail (req, res){
  * }
  *
  */
-function signIn(req, res){
-    // attempt to authenticate user
-		req.body.email = (req.body.email).toLowerCase();
-		User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
-			if (err) return res.status(500).send({ message: err })
+function signIn(req, res) {
+	// attempt to authenticate user
+	req.body.email = (req.body.email).toLowerCase();
+	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+		if (err) return res.status(500).send({ message: err })
 
-        // login was successful if we have a user
-        if (user) {
-            // handle login success
-						return res.status(200).send({
-							message: 'You have successfully logged in',
-							token: serviceAuth.createToken(user),
-							lang: user.lang,
-							platform: user.platform
-						})
-        }else{
-					// otherwise we can determine why we failed
-					var reasons = User.failedLogin;
-					switch (reason) {
-							case reasons.NOT_FOUND:
-							return res.status(202).send({
-								message: 'Not found'
-							})
-							case reasons.PASSWORD_INCORRECT:
-									// note: these cases are usually treated the same - don't tell
-									// the user *why* the login failed, only that it did
-									return res.status(202).send({
-										message: 'Login failed'
-									})
-									break;
-							case reasons.MAX_ATTEMPTS:
-									// send email or otherwise notify user that account is
-									// temporarily locked
-									return res.status(202).send({
-										message: 'Account is temporarily locked'
-									})
-									break;
-							case reasons.UNACTIVATED:
-									return res.status(202).send({
-										message: 'Account is unactivated'
-									})
-									break;
-							case reasons.BLOCKED:
-									return res.status(202).send({
-										message: 'Account is blocked'
-									})
-									break;
-						}
-				}
-
+		// login was successful if we have a user
+		if (user) {
+			// handle login success
+			return res.status(200).send({
+				message: 'You have successfully logged in',
+				token: serviceAuth.createToken(user),
+				lang: user.lang,
+				platform: user.platform
 			})
+		} else {
+			// otherwise we can determine why we failed
+			var reasons = User.failedLogin;
+			switch (reason) {
+				case reasons.NOT_FOUND:
+					return res.status(202).send({
+						message: 'Not found'
+					})
+				case reasons.PASSWORD_INCORRECT:
+					// note: these cases are usually treated the same - don't tell
+					// the user *why* the login failed, only that it did
+					return res.status(202).send({
+						message: 'Login failed'
+					})
+					break;
+				case reasons.MAX_ATTEMPTS:
+					// send email or otherwise notify user that account is
+					// temporarily locked
+					return res.status(202).send({
+						message: 'Account is temporarily locked'
+					})
+					break;
+				case reasons.UNACTIVATED:
+					return res.status(202).send({
+						message: 'Account is unactivated'
+					})
+					break;
+				case reasons.BLOCKED:
+					return res.status(202).send({
+						message: 'Account is blocked'
+					})
+					break;
+			}
+		}
+
+	})
 }
 
 
@@ -785,25 +786,25 @@ function signIn(req, res){
  *
  */
 
-function getUser (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+function getUser(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "role" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!user) return res.status(404).send({code: 208, message: `The user does not exist`})
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
-		res.status(200).send({user})
+		res.status(200).send({ user })
 	})
 }
 
-function getSettings (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+function getSettings(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"userName": false, "lang": false, "email": false, "signupDate": false, "_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "randomCodeRecoverPass" : false, "dateTimeRecoverPass" : false, "confirmed" : false, "role" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!user) return res.status(404).send({code: 208, message: `The user does not exist`})
+	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
-		res.status(200).send({user})
+		res.status(200).send({ user })
 	})
 }
 
@@ -855,77 +856,124 @@ function getSettings (req, res){
  *
  */
 
-function updateUser (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+function updateUser(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
 	let update = req.body
 
-	User.findByIdAndUpdate(userId, update, {select: '-_id userName lang email signupDate massunit lengthunit', new: true}, (err, userUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+	User.findByIdAndUpdate(userId, update, { select: '-_id userName lang email signupDate massunit lengthunit', new: true }, (err, userUpdated) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 
-		res.status(200).send({ user: userUpdated})
+		res.status(200).send({ user: userUpdated })
 	})
 }
 
-function deleteUser (req, res){
-	let userId=req.params.userId
+function deleteUser(req, res) {
+	let userId = req.params.userId
 
 	User.findById(userId, (err, user) => {
-		if (err) return res.status(500).send({message: `Error deleting the user: ${err}`})
-		if (user){
+		if (err) return res.status(500).send({ message: `Error deleting the user: ${err}` })
+		if (user) {
 			user.remove(err => {
-				if(err) return res.status(500).send({message: `Error deleting the user: ${err}`})
-				res.status(200).send({message: `The user has been deleted.`})
+				if (err) return res.status(500).send({ message: `Error deleting the user: ${err}` })
+				res.status(200).send({ message: `The user has been deleted.` })
 			})
-		}else{
-			 return res.status(404).send({code: 208, message: `Error deleting the user: ${err}`})
+		} else {
+			return res.status(404).send({ code: 208, message: `Error deleting the user: ${err}` })
 		}
 
 	})
 }
 
 
-function getUserName (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+function getUserName(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "role" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
-		if(user){
+		if (user) {
 			result = user.userName;
 		}
-		res.status(200).send({userName: result})
+		res.status(200).send({ userName: result })
 	})
 }
 
-function getUserEmail (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+function getUserEmail(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "role" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
-		if(user){
+		if (user) {
 			result = user.email;
 		}
-		res.status(200).send({email: result})
+		res.status(200).send({ email: result })
 	})
 }
 
-function getPatientEmail (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+function getPatientEmail(req, res) {
+	let patientId = crypt.decrypt(req.params.patientId);
 	Patient.findById(patientId, (err, patientUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var userId = patientUpdated.createdBy;
-		User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "role" : false, "lastLogin" : false}, (err, user) => {
-			if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 			var result = "Jhon";
-			if(user){
+			if (user) {
 				result = user.email;
 			}
-			res.status(200).send({email: result})
+			res.status(200).send({ email: result })
 		})
 
 
 	})
+}
+
+function getGpt3Permision(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	//añado  {"_id" : false} para que no devuelva el _id
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		var result = "Jhon";
+		if (user) {
+			result = user.gptPermission;
+		}
+		res.status(200).send({ gptPermission: result})
+	})
+}
+
+function setGpt3Permision(req, res) {
+
+	let userId = crypt.decrypt(req.params.userId);
+	var gptPermission = req.body.gptPermission;
+	User.findByIdAndUpdate(userId, { gptPermission: gptPermission }, { new: true }, (err, userUpdated) => {
+		if (userUpdated) {
+			res.status(200).send({ message: 'Updated' })
+		} else {
+			console.log(err);
+			res.status(200).send({ message: 'error' })
+		}
+	})
+}
+
+function setNumCallsGpt3(req, res) {
+
+	let userId = crypt.decrypt(req.params.userId);
+
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		var numCallsGtp3 = user.numCallsGtp3;
+		numCallsGtp3++;
+		User.findByIdAndUpdate(userId, { numCallsGtp3: numCallsGtp3 }, { new: true }, (err, userUpdated) => {
+			if (userUpdated) {
+				res.status(200).send({ message: 'Updated' })
+			} else {
+				console.log(err);
+				res.status(200).send({ message: 'error' })
+			}
+		})
+	})
+	
 }
 
 module.exports = {
@@ -942,5 +990,8 @@ module.exports = {
 	sendEmail,
 	getUserName,
 	getUserEmail,
-	getPatientEmail
+	getPatientEmail,
+	getGpt3Permision,
+	setGpt3Permision,
+	setNumCallsGpt3
 }

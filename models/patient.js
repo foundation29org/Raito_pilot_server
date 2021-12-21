@@ -47,7 +47,7 @@ const PatientSchema = Schema({
 	creationDate: {type: Date, default: Date.now},
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
-	group: { type: String, required: true, default: null},
+	group: { type: String, default: null},
 	consentGiven: {type: String, default: 'No'},
 })
 

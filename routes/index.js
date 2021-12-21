@@ -24,6 +24,7 @@ const f29gatewayCtrl = require('../services/f29gateway')
 const f29patientgroupsCtrl = require('../services/f29patientGroups')
 const sendEmailCtrl = require('../services/sendEmails')
 const wikiCtrl = require('../services/wikipedia')
+const openAIserviceCtrl = require('../services/openai')
 
 const diagnosisCtrl = require('../controllers/clinical/diagnosis')
 const diagnosisCasesCtrl = require('../controllers/clinical/diagnosis-clinical')
@@ -66,6 +67,9 @@ api.delete('/users/:userId', auth(roles.AllLessResearcher), userCtrl.deleteUser)
 api.get('/users/name/:userId', auth(roles.All), userCtrl.getUserName)
 api.get('/users/email/:userId', auth(roles.All), userCtrl.getUserEmail)
 api.get('/patient/email/:patientId', auth(roles.All), userCtrl.getPatientEmail)
+api.get('/gpt3/:userId', auth(roles.All), userCtrl.getGpt3Permision)
+api.post('/gpt3/:userId', auth(roles.All), userCtrl.setGpt3Permision)
+api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
@@ -225,6 +229,10 @@ api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medication
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
+api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
+
+//services OPENAI
+api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)
 
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
