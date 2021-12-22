@@ -10,7 +10,6 @@ const { conndbdata } = require('../db_connect')
 const PhenotypeHistorySchema = Schema({
 	validator_id: {type: String, default: null},
 	validated: {type: Boolean, default: false},
-	inputType: {type: String, default: null},
 	date: {type: Date, default: Date.now},
 	data: Object,
 	discarded: Object,

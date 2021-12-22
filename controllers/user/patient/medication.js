@@ -31,7 +31,6 @@ const crypt = require('../../../services/crypt')
  * @apiSuccess {String} _id For each medication: Medication unique ID.
  * @apiSuccess {String} dose For each medication: Other medication dose.
  * @apiSuccess {String} drug For each medication: Other medication name.
- * @apiSuccess {Date} vaccinationDate For each medication: on which the patient has been vaccinated with other medication.
  * @apiSuccess {String} notes For each medication: Medication notes.
  * @apiSuccess {Date} endDate For each medication: on which the patient ends with other medication.
  * @apiSuccess {Date} startDate For each medication: on which the patient starts with other medication.
@@ -43,9 +42,6 @@ const crypt = require('../../../services/crypt')
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -98,7 +94,6 @@ function getMedications (req, res){
  * @apiSuccess {String} _id Medication unique ID.
  * @apiSuccess {String} dose Other medication dose.
  * @apiSuccess {String} drug  Other medication name.
- * @apiSuccess {Date} vaccinationDate  on which the patient has been vaccinated with other medication.
  * @apiSuccess {String} notes Medication notes.
  * @apiSuccess {Date} endDate on which the patient ends with other medication.
  * @apiSuccess {Date} startDate on which the patient starts with other medication.
@@ -109,9 +104,6 @@ function getMedications (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -142,9 +134,6 @@ function getMedication (req, res){
  *   var medication ={
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -176,9 +165,6 @@ function getMedication (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -277,9 +263,6 @@ function saveMedication (req, res){
  *   var medication = {
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -311,9 +294,6 @@ function saveMedication (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -411,7 +391,6 @@ function deleteDose (req, res){
  * @apiSuccess {String} _id For each medication: Medication unique ID.
  * @apiSuccess {String} dose For each medication: Other medication dose.
  * @apiSuccess {String} drug For each medication: Other medication name.
- * @apiSuccess {Date} vaccinationDate For each medication: on which the patient has been vaccinated with other medication.
  * @apiSuccess {String} notes For each medication: Medication notes.
  * @apiSuccess {Date} endDate For each medication: on which the patient ends with other medication.
  * @apiSuccess {Date} startDate For each medication: on which the patient starts with other medication.
@@ -423,9 +402,6 @@ function deleteDose (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -609,9 +585,6 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
  *   var medication ={
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"endDate" : null,
  * 			"startDate" : {
  * 				"$date" : 1610406000000
@@ -642,9 +615,6 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"endDate" : null,
  * 			"startDate" : {
  * 				"$date" : 1610406000000
@@ -734,9 +704,6 @@ function newDose (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -792,9 +759,6 @@ function stoptaking (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {
@@ -850,9 +814,6 @@ function changenotes (req, res){
  * 			"_id" : <medicationId>,
  * 			"dose" : "32",
  * 			"drug" : "Endocrinology - Metformin",
- * 			"vaccinationDate" : {
- * 				$date" : 1611593911550
- * 			},
  * 			"notes":"note1",
  * 			"endDate" : null,
  * 			"startDate" : {

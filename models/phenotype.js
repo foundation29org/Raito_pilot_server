@@ -14,7 +14,6 @@ const Permissions = Schema({
 const PhenotypeSchema = Schema({
 	validator_id: {type: String, default: null},
 	validated: {type: Boolean, default: false},
-	inputType: {type: String, default: null},
 	date: {type: Date, default: Date.now},
 	data: Object,
 	discarded: {type: Object, default: []},

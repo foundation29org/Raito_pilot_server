@@ -17,8 +17,6 @@ const MedicationSchema = Schema({
 	otherSchedule: String,
 	adverseEffects: Object,
 	compassionateUse: {type: String, default: ''},
-	vaccinations: String,
-	vaccinationDate: {type: Date, default: Date.now},
 	notes: {type: String, default: ''},
 	freesideEffects: {type: String, default: ''},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
