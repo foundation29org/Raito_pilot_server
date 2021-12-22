@@ -135,7 +135,6 @@ function savePhenotype (req, res){
 			res.status(202).send({message: 'There is already a phenotype for the patient', phenotype: phenotype})
 		}else if(!phenotype){
 			let phenotype = new Phenotype()
-			phenotype.inputType = req.body.inputType
 			phenotype.data = req.body.data
       if(req.body.discarded!=undefined){
         phenotype.discarded = req.body.discarded

@@ -3,42 +3,59 @@
 'use strict'
 
 // add the social-info model
-const Diagnosis = require('../../../models/diagnosis')
+const Medication = require('../../../models/medication')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
+const Feel = require('../../../models/feel')
 const Phenotype = require('../../../models/phenotype')
-const PhenotypeHistory = require('../../../models/phenotype-history')
+const Seizures = require('../../../models/seizures')
 
 function getData (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 
-	var result = [];
+	var result = {};
 
 	Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
-		result.push({patient:patient});
-		//social
-		Diagnosis.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, diagnosisInfo) => {
-			if(diagnosisInfo){
-				result.push({diagnosisInfo:diagnosisInfo});
-			}
-			Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
+		//result.push({patient:patient});
+
+		//medication
+		Medication.find({createdBy: patientId}, {"createdBy" : false, "_id" : false },(err, medications)=>{
+			if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			var listMedications = [];
+			medications.forEach(function(medication) {
+				listMedications.push(medication);
+			});
+			//result.push({medication:listMedications});
+			result["medication"]= listMedications;
+
+			//Phenotype
+			Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false, "_id" : false }, (err, phenotype) => {
 				if(phenotype){
-					result.push({phenotype:phenotype});
+					//result.push({phenotype:phenotype});
+					result["phenotype"]=phenotype;
 				}
-
-				PhenotypeHistory.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, phenotypeHistory){
-
-					var listPhenotypeHistory = [];
-					phenotypeHistory.forEach(function(phenotype) {
-						listPhenotypeHistory.push(phenotype);
+				//Feel
+				Feel.find({"createdBy": patientId}, {"createdBy" : false, "_id" : false }, (err, feels) => {
+					var listFeels = [];
+					feels.forEach(function(feel) {
+						listFeels.push(feel);
 					});
-					result.push({phenotypeHistory:listPhenotypeHistory});
-					res.status(200).send(result)
+					//result.push({feels:listFeels});
+					result["feel"]=listFeels;
 
-				});
+					//Seizures
+					Seizures.find({createdBy: patientId}, {"createdBy" : false, "_id" : false },(err, seizures)=>{
+						var listSeizures = [];
+						seizures.forEach(function(seizure) {
+							listSeizures.push(seizure);
+						});
+						//result.push({seizures:listSeizures});
+						result["seizure"]=listSeizures;
+						res.status(200).send(result)
+					});
+				})
 			})
-
 
 		})
 	})

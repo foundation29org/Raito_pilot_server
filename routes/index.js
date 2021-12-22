@@ -9,6 +9,7 @@ const langCtrl = require('../controllers/all/lang')
 const patientCtrl = require('../controllers/user/patient')
 
 const exportCtrl = require('../controllers/user/patient/export')
+const deleteAccountCtrl = require('../controllers/user/delete')
 
 const phenotypeCtrl = require('../controllers/user/patient/phenotype')
 
@@ -73,6 +74,9 @@ api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
+
+//delete account
+api.get('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
 
 // patient routes, using the controller patient, this controller has methods
 api.get('/patients-all/:userId', auth(roles.All), patientCtrl.getPatientsUser)
