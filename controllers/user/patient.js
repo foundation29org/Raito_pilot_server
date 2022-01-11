@@ -67,7 +67,7 @@ function getPatientsUser (req, res){
 				patients.forEach(function(u) {
 					var id = u._id.toString();
 					var idencrypt= crypt.encrypt(id);
-					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, birthDate: u.birthDate, gender: u.gender, country: u.country});
+					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
 				});
 
 				//res.status(200).send({patient, patient})
@@ -85,7 +85,7 @@ function getPatientsUser (req, res){
 				patients.forEach(function(u) {
 					var id = u._id.toString();
 					var idencrypt= crypt.encrypt(id);
-					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, isArchived: u.isArchived, birthDate: u.birthDate, gender: u.gender, country: u.country});
+					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, isArchived: u.isArchived, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
 				});
 
 				//res.status(200).send({patient, patient})
