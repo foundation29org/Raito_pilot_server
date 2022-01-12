@@ -8,7 +8,9 @@ const Patient = require('./patient')
 const { conndbdata } = require('../db_connect')
 
 const FeelSchema = Schema({
-	answers: Object,
+	a1: String,
+	a2: String,
+	a3: String,
 	note: String,
 	date: {type: Date, default: Date.now},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
