@@ -26,7 +26,10 @@ function getFeels (req, res){
 function saveFeel (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let eventdb = new Feel()
-	eventdb.value = req.body.value;
+	eventdb.a1 = req.body.a1;
+	eventdb.a2 = req.body.a2;
+	eventdb.a3 = req.body.a3;
+	eventdb.note = req.body.note;
 	eventdb.createdBy = patientId
 
 	// when you save, returns an id in eventdbStored to access that feel
