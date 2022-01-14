@@ -201,6 +201,7 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
+api.post('/seizures/dates/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
@@ -216,6 +217,7 @@ api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGr
 api.get('/group/medications/:groupName', auth(roles.All), groupCtrl.getMedicationsGroup)
 
 //medications
+api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
 api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
@@ -231,6 +233,7 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
+api.post('/feels/dates/:patientId', auth(roles.UserResearcher), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)

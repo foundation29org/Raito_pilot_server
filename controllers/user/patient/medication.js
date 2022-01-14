@@ -7,6 +7,33 @@ const Medication = require('../../../models/medication')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
+function getMedicationsDate (req, res){
+	let patientId= crypt.decrypt(req.params.patientId);
+	var period = 31;
+	if(req.body.rangeDate == 'quarter'){
+		period = 90;
+	}else if(req.body.rangeDate == 'year'){
+		period = 365;
+	}
+	var actualDate = new Date();
+	var actualDateTime = actualDate.getTime();
+
+	var pastDate=new Date(actualDate);
+    pastDate.setDate(pastDate.getDate() - period);
+	var pastDateDateTime = pastDate.getTime();
+	
+	//Medication.find({createdBy: patientId}, {"createdBy" : false }).sort({ endDate : 'asc'}).exec(function(err, medications){
+		Medication.find({"createdBy": patientId, $or:[ {"startDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}]}, {"createdBy" : false},(err, medications) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+		var listMedications = [];
+
+		medications.forEach(function(medication) {
+			listMedications.push(medication);
+		});
+		res.status(200).send(listMedications)
+	});
+}
 
 /**
  * @api {get} https://health29.org/api/medications/:patientId Get medication list
@@ -847,6 +874,7 @@ function sideeffect (req, res){
 }
 
 module.exports = {
+	getMedicationsDate,
 	getMedications,
 	getMedication,
 	saveMedication,

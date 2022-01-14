@@ -7,6 +7,31 @@ const Seizures = require('../../../models/seizures')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
+function getSeizuresDate (req, res){
+	let patientId= crypt.decrypt(req.params.patientId);
+	var period = 31;
+	if(req.body.rangeDate == 'quarter'){
+		period = 90;
+	}else if(req.body.rangeDate == 'year'){
+		period = 365;
+	}
+	var actualDate = new Date();
+	var actualDateTime = actualDate.getTime();
+
+	var pastDate=new Date(actualDate);
+    pastDate.setDate(pastDate.getDate() - period);
+	var pastDateDateTime = pastDate.getTime();
+	//Seizures.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
+	Seizures.find({"createdBy": patientId, "start":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		var listEventsdb = [];
+
+		eventsdb.forEach(function(eventdb) {
+			listEventsdb.push(eventdb);
+		});
+		res.status(200).send(listEventsdb)
+	});
+}
 
 function getSeizures (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
@@ -168,6 +193,7 @@ function saveMassiveSeizure2 (req, res){
 }
 
 module.exports = {
+	getSeizuresDate,
 	getSeizures,
 	saveSeizure,
 	updateSeizure,
