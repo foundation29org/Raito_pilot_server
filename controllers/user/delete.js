@@ -12,6 +12,7 @@ const Feel = require('../../models/feel')
 const Phenotype = require('../../models/phenotype')
 const PhenotypeHistory = require('../../models/phenotype-history')
 const Seizures = require('../../models/seizures')
+const Prom = require('../../models/prom')
 
 const f29azureService = require("../../services/f29azure")
 
@@ -30,6 +31,7 @@ function deleteAccount (req, res){
 			deleteFeel(patientId);
 			deletePhenotype(patientId);
 			deletePhenotypeHistory(patientId);
+			deleteProms(patientId);
 			deletePatient(res, patientId, containerName, userId);
 		});
 		//deleteUser(res, userId);
@@ -100,6 +102,18 @@ function deletePhenotypeHistory (patientId){
 	})
 }
 
+function deleteProms (patientId){
+	Prom.find({ 'createdBy': patientId }, (err, proms) => {
+		if (err) console.log({message: `Error deleting the proms: ${err}`})
+		proms.forEach(function(prom) {
+			prom.remove(err => {
+				if(err) console.log({message: `Error deleting the proms: ${err}`})
+			})
+		});
+		console.log('delete proms');
+	})
+}
+
 function deletePatient (res, patientId, containerName, userId){
 	Patient.findById(patientId, (err, patient) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
@@ -142,7 +156,7 @@ function savePatient(userId) {
 		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
-		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGiven: patient.consentGiven };
+		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGivenGTP: patient.consentGivenGTP };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if (result) {

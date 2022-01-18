@@ -42,6 +42,7 @@ const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
 
 const feelCtrl = require('../controllers/user/patient/feel')
+const promCtrl = require('../controllers/user/patient/prom')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -91,6 +92,8 @@ api.get('/case/updateLastAccess/:patientId', auth(roles.OnlyClinical), patientCt
 api.get('/patients/pendingJobs/:patientId', auth(roles.All), patientCtrl.getPendingJobs)
 api.put('/patients/pendingJobs/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.setPendingJobs)
 api.put('/patients/deletePendingJobs/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.deletePendingJob)
+api.put('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.consentgroup)
+api.get('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.getConsentGroup)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.get('/phenotypes/:patientId', auth(roles.All), phenotypeCtrl.getPhenotype)
@@ -237,6 +240,13 @@ api.post('/feels/dates/:patientId', auth(roles.UserResearcher), feelCtrl.getFeel
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
+
+//proms
+api.post('/prom/dates/:patientId', auth(roles.UserResearcher), promCtrl.getPromsDates)
+api.get('/prom/:patientId', auth(roles.UserResearcher), promCtrl.getProms)
+api.post('/prom/:patientId', auth(roles.OnlyUser), promCtrl.saveProm)
+api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
+api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
 
 //services OPENAI
 api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)

@@ -9,7 +9,9 @@ const crypt = require('../../../services/crypt')
 
 const Feel = require('../../../models/feel')
 const Phenotype = require('../../../models/phenotype')
+const Prom = require('../../../models/prom')
 const Seizures = require('../../../models/seizures')
+const { sendEmailInfoPermissions } = require('../../../services/email')
 
 function getData (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
@@ -44,6 +46,15 @@ function getData (req, res){
 					//result.push({feels:listFeels});
 					result["feel"]=listFeels;
 
+					//Proms
+					Prom.find({"createdBy": patientId}, {"createdBy" : false, "_id" : false }, (err, proms) => {
+						var listProms = [];
+						proms.forEach(function(prom) {
+							listProms.push(prom);
+						});
+						//result.push({prom:listProms});
+						result["prom"]=listProms;
+
 					//Seizures
 					Seizures.find({createdBy: patientId}, {"createdBy" : false, "_id" : false },(err, seizures)=>{
 						var listSeizures = [];
@@ -54,6 +65,7 @@ function getData (req, res){
 						result["seizure"]=listSeizures;
 						res.status(200).send(result)
 					});
+				})
 				})
 			})
 
