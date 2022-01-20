@@ -151,8 +151,12 @@ async function getPatientInfo(group) {
 					//console.log('datos del paciente:');
 					//resolve({ user: user, data: data})
 					console.log(data);
-					//sendEmailToAdminGroup(data);
-					console.log('send email');
+					if(data.length>0){
+						//sendEmailToAdminGroup(data);
+						console.log('send email');
+					}
+					
+					
 					resolve(data)
 				})
 				.catch(function (err) {
