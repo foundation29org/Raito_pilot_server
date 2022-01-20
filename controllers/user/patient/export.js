@@ -11,6 +11,9 @@ const Feel = require('../../../models/feel')
 const Phenotype = require('../../../models/phenotype')
 const Prom = require('../../../models/prom')
 const Seizures = require('../../../models/seizures')
+
+
+const Group = require('../../../models/group')
 const { sendEmailInfoPermissions } = require('../../../services/email')
 
 function getData (req, res){
@@ -78,6 +81,221 @@ function getData (req, res){
 	//res.status(200).send(result)
 }
 
+async function cronSendData() {
+	try {
+		var groups = await geGroups();
+		var data = await getInfoGroup(groups);
+		console.log(data);
+	} catch (e) {
+		console.error("Error: ", e);
+	}
+}
+
+function geGroups() {
+	return new Promise(resolve => {
+		var listGroups = [];
+		Group.find({}, function(err, groups) {
+			if (groups) {
+				groups.forEach(group => {
+					listGroups.push(group);
+				});
+			}
+			resolve(listGroups);
+		});
+	});
+}
+
+async function getInfoGroup(groups) {
+	return new Promise(async function (resolve, reject) {
+		var promises = [];
+		if (groups.length > 0) {
+			for (var index in groups) {
+				promises.push(getPatientInfo(groups[index]));
+			}
+		} else {
+			resolve('No data')
+		}
+		await Promise.all(promises)
+			.then(async function (data) {
+				var dataRes = [];
+				data.forEach(function (dataPatientsUser) {
+					dataPatientsUser.forEach(function (dataPatient) {
+						dataRes.push(dataPatient);
+					});
+				});
+				console.log('termina')
+				//resolve(dataRes)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+
+	});
+}
+
+async function getPatientInfo(group) {
+	return new Promise(async function (resolve, reject) {
+
+		var promises2 = [];
+		await Patient.find({"group": group.name}, (err, patientsFound) => {
+			for (var indexPatient in patientsFound) {
+				if(patientsFound[indexPatient].consentgroup){
+					promises2.push(getAllPatientInfo(patientsFound[indexPatient], indexPatient, group.name));
+				}
+				
+			}
+
+			Promise.all(promises2)
+				.then(function (data) {
+					//console.log('datos del paciente:');
+					//resolve({ user: user, data: data})
+					console.log(data);
+					//sendEmailToAdminGroup(data);
+					console.log('send email');
+					resolve(data)
+				})
+				.catch(function (err) {
+					console.log('Manejar promesa rechazada (' + err + ') aquí.');
+					return null;
+				});
+
+		});
+
+
+
+
+	});
+}
+
+
+async function getAllPatientInfo(patient, index, group) {
+	return new Promise(async function (resolve, reject) {
+		//console.log(patient);
+		let patientId = patient._id;
+		var promises3 = [];
+		console.log(patientId);
+		promises3.push(getMedications(patientId));
+		promises3.push(getPhenotype(patientId));
+		promises3.push(getFeel(patientId));
+		promises3.push(getProm(patientId));
+		promises3.push(getSeizure(patientId));
+
+		await Promise.all(promises3)
+			.then(async function (data) {
+				/* var resPatientData = [];
+				 resPatientData.push({data:patient, name:"patient"});
+				 resPatientData.push({info:data})*/
+				let patientIdEnc = crypt.encrypt(patientId.toString());
+				var patientInfo = {};
+				patientInfo['medication'] = data[0];
+				patientInfo['phenotype'] = data[1];
+				patientInfo['feel'] = data[2];
+				patientInfo['prom'] = data[3];
+				patientInfo['seizure'] = data[4];
+				resolve({ patientId: patientIdEnc, patientInfo: patientInfo, group: group })
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+	});
+}
+
+async function getMedications(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
+			if (err){
+				console.log(err);
+				resolve(err)
+			} 
+			//console.log('Medication done.');
+			var listMedications = [];
+			if(medications){
+				medications.forEach(function (medication) {
+					listMedications.push(medication);
+				});
+			}
+			
+			resolve(listMedications);
+		})
+	});
+}
+
+async function getPhenotype(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
+			//console.log('Phenotype done.');
+			if (phenotype) {
+				resolve(phenotype);
+			} else {
+				resolve([]);
+			}
+		})
+	});
+}
+
+async function getFeel(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
+			if (err){
+				console.log(err);
+				resolve(err)
+			} 
+			//console.log('Feel done.');
+			var listFeels = [];
+			if(feels){
+				feels.forEach(function (feel) {
+					listFeels.push(feel);
+				});
+			}
+			
+			resolve(listFeels);
+		})
+	});
+}
+
+async function getProm(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Prom.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, proms) {
+			if (err){
+				console.log(err);
+				resolve(err)
+			} 
+			//console.log('Proms done.');
+			var listProms = [];
+			if(proms){
+				proms.forEach(function (prom) {
+					listProms.push(prom);
+				});
+			}
+			
+			resolve(listProms);
+		})
+	});
+}
+
+async function getSeizure(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
+			if (err){
+				console.log(err);
+				resolve(err)
+			} 
+			//console.log('Seizures done.');
+			var listSeizures = [];
+			if(seizures){
+				seizures.forEach(function (seizure) {
+					listSeizures.push(seizure);
+				});
+			}
+			
+			resolve(listSeizures);
+		})
+	});
+}
+
 module.exports = {
-	getData
+	getData,
+	cronSendData
 }

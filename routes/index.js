@@ -75,6 +75,7 @@ api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
+api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
 
 //delete account
 api.get('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
@@ -245,6 +246,7 @@ api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
 api.post('/prom/dates/:patientId', auth(roles.UserResearcher), promCtrl.getPromsDates)
 api.get('/prom/:patientId', auth(roles.UserResearcher), promCtrl.getProms)
 api.post('/prom/:patientId', auth(roles.OnlyUser), promCtrl.saveProm)
+api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.savesProm)
 api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
 api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
 

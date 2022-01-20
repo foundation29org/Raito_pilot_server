@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "serve": "nodemon index.js",
-    "test": "jasmine"
+    "test": "jasmine",
+    "crondatagroups": "node -e \"require('./controllers/user/patient/export.js').cronSendData()\""
   },
   "author": "LOA",
   "license": "MIT",
