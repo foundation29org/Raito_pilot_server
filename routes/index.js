@@ -42,6 +42,7 @@ const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
 
 const feelCtrl = require('../controllers/user/patient/feel')
+const promCtrl = require('../controllers/user/patient/prom')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -74,6 +75,7 @@ api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
+api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
 
 //delete account
 api.get('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
@@ -91,6 +93,8 @@ api.get('/case/updateLastAccess/:patientId', auth(roles.OnlyClinical), patientCt
 api.get('/patients/pendingJobs/:patientId', auth(roles.All), patientCtrl.getPendingJobs)
 api.put('/patients/pendingJobs/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.setPendingJobs)
 api.put('/patients/deletePendingJobs/:patientId', auth(roles.ClinicalSuperAdmin), patientCtrl.deletePendingJob)
+api.put('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.consentgroup)
+api.get('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.getConsentGroup)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.get('/phenotypes/:patientId', auth(roles.All), phenotypeCtrl.getPhenotype)
@@ -201,6 +205,7 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
+api.post('/seizures/dates/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
@@ -216,6 +221,7 @@ api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGr
 api.get('/group/medications/:groupName', auth(roles.All), groupCtrl.getMedicationsGroup)
 
 //medications
+api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
 api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
@@ -231,9 +237,18 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
+api.post('/feels/dates/:patientId', auth(roles.UserResearcher), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
+
+//proms
+api.post('/prom/dates/:patientId', auth(roles.UserResearcher), promCtrl.getPromsDates)
+api.get('/prom/:patientId', auth(roles.UserResearcher), promCtrl.getProms)
+api.post('/prom/:patientId', auth(roles.OnlyUser), promCtrl.saveProm)
+api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.savesProm)
+api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
+api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
 
 //services OPENAI
 api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)

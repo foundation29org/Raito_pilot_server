@@ -452,6 +452,7 @@ function signUp(req, res) {
 		role: req.body.role,
 		subrole: req.body.subrole,
 		userName: req.body.userName,
+		lastName: req.body.lastName,
 		password: req.body.password,
 		confirmationCode: randomstring,
 		lang: req.body.lang,
@@ -529,8 +530,8 @@ function signUp(req, res) {
 
 function savePatient(userId, req) {
 	let patient = new Patient()
-	patient.patientName = req.body.userName
-	patient.surname = req.body.lastName
+	patient.patientName = ''
+	patient.surname = ''
 	patient.birthDate = req.body.birthDate
 	patient.citybirth = req.body.citybirth
 	patient.provincebirth = req.body.provincebirth
@@ -547,7 +548,7 @@ function savePatient(userId, req) {
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
 	patient.previousDiagnosis = req.body.previousDiagnosis
-	patient.consentGiven = req.body.consentGiven
+	patient.consentGivenGTP = req.body.consentGivenGTP
 	patient.avatar = req.body.avatar
 	patient.createdBy = userId
 
@@ -565,7 +566,7 @@ function savePatient(userId, req) {
 		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
-		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGiven: patient.consentGiven };
+		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGivenGTP: patient.consentGivenGTP };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if (result) {
@@ -860,7 +861,7 @@ function updateUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	let update = req.body
 
-	User.findByIdAndUpdate(userId, update, { select: '-_id userName lang email signupDate massunit lengthunit', new: true }, (err, userUpdated) => {
+	User.findByIdAndUpdate(userId, update, { select: '-_id userName lastName lang email signupDate massunit lengthunit', new: true }, (err, userUpdated) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 
 		res.status(200).send({ user: userUpdated })

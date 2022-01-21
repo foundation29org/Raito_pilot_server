@@ -12,6 +12,7 @@ const SeizuresSchema = Schema({
 	duracion: {type: Number, default: 0},
 	type: {type: String, default: null},
 	start: {type: Date, default: null},
+	state: {type: String, default: ''},
 	GUID: {type: String, default: ''},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
 })
