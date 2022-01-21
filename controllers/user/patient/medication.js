@@ -23,7 +23,7 @@ function getMedicationsDate (req, res){
 	var pastDateDateTime = pastDate.getTime();
 	
 	//Medication.find({createdBy: patientId}, {"createdBy" : false }).sort({ endDate : 'asc'}).exec(function(err, medications){
-		Medication.find({"createdBy": patientId, $or:[ {"startDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}]}, {"createdBy" : false},(err, medications) => {
+		Medication.find({"createdBy": patientId, $or:[ {"startDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":null}]}, {"createdBy" : false},(err, medications) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 
 		var listMedications = [];
