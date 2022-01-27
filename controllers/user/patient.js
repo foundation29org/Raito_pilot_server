@@ -535,6 +535,29 @@ function getConsentGroup (req, res){
 	})
 }
 
+function setChecks (req, res){
+
+	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
+
+	Patient.findByIdAndUpdate(patientId, { checks: req.body.checks }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+			res.status(200).send({message: 'checks changed'})
+
+	})
+}
+
+function getChecks (req, res){
+
+	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
+
+	Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err,patient) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			res.status(200).send({checks: patient.checks})
+
+	})
+}
+
 module.exports = {
 	getPatientsUser,
 	getPatient,
@@ -549,5 +572,7 @@ module.exports = {
 	deletePendingJob,
   updateLastAccess, 
   consentgroup,
-  getConsentGroup
+  getConsentGroup,
+  setChecks,
+  getChecks
 }

@@ -10,6 +10,7 @@ const { conndbdata } = require('../db_connect')
 const MedicationSchema = Schema({
 	drug: Object,
 	dose: String,
+	date: {type: Date, default: Date.now},
 	startDate: {type: Date, default: Date.now},
 	endDate: {type: Date, default: null},
 	sideEffects: {type: Object, default: null},
