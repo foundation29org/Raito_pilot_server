@@ -19,6 +19,11 @@ const ParentSchema = Schema({
 	nameCaregiver: String
 })
 
+const checksSchema = Schema({
+	check1: {type: Boolean, default: false},
+	check2: {type: Boolean, default: false}
+})
+
 const PatientSchema = Schema({
 	patientName: String,
 	surname: String,
@@ -50,6 +55,10 @@ const PatientSchema = Schema({
 	group: { type: String, default: null},
 	consentGivenGTP: {type: String, default: 'No'},
 	consentgroup: {type: Boolean, default: false},
+	checks: {type: checksSchema, default: {
+		check1: false,
+		check2: false
+	}},
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)
