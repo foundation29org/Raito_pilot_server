@@ -156,7 +156,7 @@ function savePatient(userId) {
 		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
-		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentGivenGTP: patient.consentGivenGTP };
+		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if (result) {
