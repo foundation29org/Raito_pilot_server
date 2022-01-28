@@ -55,7 +55,6 @@ const PatientSchema = Schema({
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
 	group: { type: String, default: null},
-	consentGivenGTP: {type: Boolean, default: false},
 	consentgroup: {type: Boolean, default: false},
 	checks: {type: checksSchema, default: {
 		check1: false,
