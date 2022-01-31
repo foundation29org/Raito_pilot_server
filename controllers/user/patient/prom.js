@@ -63,6 +63,7 @@ function saveProm(req, res) {
 	let eventdb = new Prom()
 	eventdb.idProm = req.body.idProm;
 	eventdb.data = req.body.data;
+	eventdb.other = req.body.other;
 	eventdb.createdBy = patientId
 
 	// when you save, returns an id in eventdbStored to access that Prom
@@ -97,7 +98,6 @@ async function saveData(proms, patientId) {
 		//await User.find({platform : "Dx29", email: 'testpatient2@test.com'},async (err, users) => {
 		if (proms.length > 0) {
 			for (var index in proms) {
-				console.log(proms[index].data);
 				if (proms[index].data != null) {
 					if (proms[index]._id) {
 						promises.push(updateOneProm(proms[index], patientId));
@@ -128,7 +128,7 @@ async function saveData(proms, patientId) {
 
 function updateOneProm(prom, patientId) {
 	return new Promise(async function (resolve, reject) {
-		let promId = prom.promId;
+		let promId = prom._id
 		let update = prom
 
 		Prom.findByIdAndUpdate(promId, update, { select: '-createdBy', new: true }, (err, promUpdated) => {
@@ -146,6 +146,7 @@ async function saveOneProm(prom, patientId) {
 		let eventdb = new Prom()
 		eventdb.idProm = prom.idProm;
 		eventdb.data = prom.data;
+		eventdb.other = prom.other;
 		eventdb.createdBy = patientId
 		// when you save, returns an id in eventdbStored to access that Prom
 		eventdb.save((err, eventdbStored) => {

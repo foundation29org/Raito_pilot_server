@@ -17,25 +17,36 @@ const Prom = require('../../models/prom')
 const f29azureService = require("../../services/f29azure")
 
 function deleteAccount (req, res){
+	console.log(req.body);
+	req.body.email = (req.body.email).toLowerCase();
+	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+		if (err) return res.status(500).send({ message: err })
 
-	let userId= crypt.decrypt(req.params.userId);
-	Patient.find({"createdBy": userId},(err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-		patients.forEach(function(u) {
-			var patientId = u._id.toString();
-			var patientIdCrypt=crypt.encrypt(u._id.toString());
-			   var containerName=patientIdCrypt.substr(1).toString();
-			deleteMedication(patientId);
-			deleteSeizures(patientId);
-			deleteFeel(patientId);
-			deletePhenotype(patientId);
-			deletePhenotypeHistory(patientId);
-			deleteProms(patientId);
-			deletePatient(res, patientId, containerName, userId);
-		});
-		//deleteUser(res, userId);
+		// login was successful if we have a user
+		if (user) {
+			let userId= crypt.decrypt(req.params.userId);
+			Patient.find({"createdBy": userId},(err, patients) => {
+				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		
+				patients.forEach(function(u) {
+					var patientId = u._id.toString();
+					var patientIdCrypt=crypt.encrypt(u._id.toString());
+					var containerName=patientIdCrypt.substr(1).toString();
+					deleteMedication(patientId);
+					deleteSeizures(patientId);
+					deleteFeel(patientId);
+					deletePhenotype(patientId);
+					deletePhenotypeHistory(patientId);
+					deleteProms(patientId);
+					deletePatient(res, patientId, containerName, userId);
+				});
+				//deleteUser(res, userId);
+			})
+		}else{
+			res.status(200).send({message: `fail`})
+		}
 	})
+	
 
 	/*User.findById(userId, (err, user) => {
 	})*/

@@ -78,7 +78,7 @@ api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
 api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
 
 //delete account
-api.get('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
+api.post('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
 
 // patient routes, using the controller patient, this controller has methods
 api.get('/patients-all/:userId', auth(roles.All), patientCtrl.getPatientsUser)
