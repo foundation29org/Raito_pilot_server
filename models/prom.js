@@ -10,6 +10,7 @@ const { conndbdata } = require('../db_connect')
 const PromSchema = Schema({
 	idProm: String,
 	data: {type: Schema.Types.Mixed},
+	other: {type: Schema.Types.Mixed},
 	date: {type: Date, default: Date.now},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
 })
