@@ -28,13 +28,14 @@ function getPromsDates(req, res) {
 		var listEventsdb = [];
 
 		eventsdb.forEach(function (eventdb, error) {
-			if (eventdb.idProm == '7' || eventdb.idProm == '11') {
+			/*if (eventdb.idProm == '7' || eventdb.idProm == '11') {
 				if (eventdb.date < actualDateTime && eventdb.date > pastDateDateTime) {
 					listEventsdb.push(eventdb);
 				}
 			} else {
 				listEventsdb.push(eventdb);
-			}
+			}*/
+			listEventsdb.push(eventdb);
 
 		});
 		var respTask = listEventsdb.length;
