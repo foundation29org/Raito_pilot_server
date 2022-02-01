@@ -558,6 +558,18 @@ function getChecks (req, res){
 	})
 }
 
+function setBirthDate (req, res){
+
+	let patientId= crypt.decrypt(req.params.patientId);
+
+	Patient.findByIdAndUpdate(patientId, { birthDate: req.body.birthDate }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+			res.status(200).send({message: 'birthDate changed'})
+
+	})
+}
+
 module.exports = {
 	getPatientsUser,
 	getPatient,
@@ -574,5 +586,6 @@ module.exports = {
   consentgroup,
   getConsentGroup,
   setChecks,
-  getChecks
+  getChecks,
+  setBirthDate
 }

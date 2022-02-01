@@ -44,6 +44,9 @@ const medicationCtrl = require('../controllers/user/patient/medication')
 const feelCtrl = require('../controllers/user/patient/feel')
 const promCtrl = require('../controllers/user/patient/prom')
 
+const weightCtrl = require('../controllers/user/patient/weight')
+const heightCtrl = require('../controllers/user/patient/height')
+
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
 const api = express.Router()
@@ -97,6 +100,7 @@ api.put('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.consent
 api.get('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.getConsentGroup)
 api.put('/patient/checks/:patientId', auth(roles.All), patientCtrl.setChecks)
 api.get('/patient/checks/:patientId', auth(roles.All), patientCtrl.getChecks)
+api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDate)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.get('/phenotypes/:patientId', auth(roles.All), phenotypeCtrl.getPhenotype)
@@ -251,6 +255,18 @@ api.post('/prom/:patientId', auth(roles.OnlyUser), promCtrl.saveProm)
 api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.savesProm)
 api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
 api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
+
+// weightinfo routes, using the controller socialinfo, this controller has methods
+api.get('/weight/:patientId', auth(roles.UserResearcher), weightCtrl.getWeight)
+api.get('/weights/:patientId', auth(roles.UserResearcher), weightCtrl.getHistoryWeight)
+api.post('/weight/:patientId', auth(roles.OnlyUser), weightCtrl.saveWeight)
+api.delete('/weight/:weightId', auth(roles.OnlyUser), weightCtrl.deleteWeight)//de momento no se usa
+
+// heighteinfo routes, using the controller socialinfo, this controller has methods
+api.get('/height/:patientId', auth(roles.UserResearcher), heightCtrl.getHeight)
+api.get('/heights/:patientId', auth(roles.UserResearcher), heightCtrl.getHistoryHeight)
+api.post('/height/:patientId', auth(roles.OnlyUser), heightCtrl.saveHeight)
+api.delete('/height/:heightId', auth(roles.OnlyUser), heightCtrl.deleteHeight)//de momento no se usa
 
 //services OPENAI
 api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)
