@@ -12,6 +12,8 @@ const Feel = require('../../models/feel')
 const Phenotype = require('../../models/phenotype')
 const PhenotypeHistory = require('../../models/phenotype-history')
 const Seizures = require('../../models/seizures')
+const Weight = require('../../models/weight')
+const Height = require('../../models/height')
 const Prom = require('../../models/prom')
 
 const f29azureService = require("../../services/f29azure")
@@ -34,6 +36,8 @@ function deleteAccount (req, res){
 					var containerName=patientIdCrypt.substr(1).toString();
 					deleteMedication(patientId);
 					deleteSeizures(patientId);
+					deleteWeight(patientId);
+					deleteHeight(patientId);
 					deleteFeel(patientId);
 					deletePhenotype(patientId);
 					deletePhenotypeHistory(patientId);
@@ -73,6 +77,30 @@ function deleteSeizures (patientId){
 			})
 		});
 		console.log('delete seizures');
+	})
+}
+
+function deleteWeight (patientId){
+	Weight.find({ 'createdBy': patientId }, (err, weights) => {
+		if (err) console.log({message: `Error deleting the weights: ${err}`})
+		weights.forEach(function(weight) {
+			weight.remove(err => {
+				if(err) console.log({message: `Error deleting the weights: ${err}`})
+			})
+		});
+		console.log('delete weights');
+	})
+}
+
+function deleteHeight (patientId){
+	Height.find({ 'createdBy': patientId }, (err, heights) => {
+		if (err) console.log({message: `Error deleting the heights: ${err}`})
+		heights.forEach(function(height) {
+			height.remove(err => {
+				if(err) console.log({message: `Error deleting the heights: ${err}`})
+			})
+		});
+		console.log('delete heights');
 	})
 }
 
