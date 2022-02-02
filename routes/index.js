@@ -224,7 +224,7 @@ api.get('/groupadmin/:groupName', groupCtrl.getGroupAdmin)
 api.get('/groups', groupCtrl.getGroups)
 api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
-api.get('/group/medications/:groupName', auth(roles.All), groupCtrl.getMedicationsGroup)
+api.get('/group/medications/:groupId', auth(roles.All), groupCtrl.getMedicationsGroup)
 
 //medications
 api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
