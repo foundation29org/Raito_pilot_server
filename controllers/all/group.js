@@ -47,7 +47,7 @@ function getGroupsNames (req, res){
     var listGroups = [];
     if(groups.length>0){
       groups.forEach(function(group) {
-        listGroups.push({name:group.name});
+        listGroups.push({name:group.name, _id: group._id});
       });
     }
 
@@ -688,8 +688,8 @@ function updatePhenotypeGroup (req, res){
  */
 
 function getMedicationsGroup (req, res){
-	let groupName= req.params.groupName;
-  Group.findOne({ 'name': groupName }, function (err, group) {
+	let groupId= req.params.groupId;
+  Group.findOne({ '_id': groupId }, function (err, group) {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
