@@ -96,7 +96,6 @@ async function savesProm(req, res) {
 async function saveData(proms, patientId) {
 	return new Promise(async function (resolve, reject) {
 		var promises = [];
-		//await User.find({platform : "Dx29", email: 'testpatient2@test.com'},async (err, users) => {
 		if (proms.length > 0) {
 			for (var index in proms) {
 				if (proms[index].data != null) {
