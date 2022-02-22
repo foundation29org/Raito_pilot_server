@@ -44,8 +44,12 @@ const medicationCtrl = require('../controllers/user/patient/medication')
 const feelCtrl = require('../controllers/user/patient/feel')
 const promCtrl = require('../controllers/user/patient/prom')
 
+const docsCtrl = require('../controllers/user/patient/documents')
+
 const weightCtrl = require('../controllers/user/patient/weight')
 const heightCtrl = require('../controllers/user/patient/height')
+
+const openRaitoCtrl = require('../controllers/all/openraito')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -75,6 +79,7 @@ api.get('/patient/email/:patientId', auth(roles.All), userCtrl.getPatientEmail)
 api.get('/gpt3/:userId', auth(roles.All), userCtrl.getGpt3Permision)
 api.post('/gpt3/:userId', auth(roles.All), userCtrl.setGpt3Permision)
 api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
+api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
@@ -256,6 +261,11 @@ api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.savesProm)
 api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
 api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
 
+// seizuresCtrl routes, using the controller seizures, this controller has methods
+api.get('/documents/:patientId', auth(roles.UserResearcher), docsCtrl.getDocuments)
+api.post('/document/:patientId', auth(roles.OnlyUser), docsCtrl.saveDocument)
+api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
+
 // weightinfo routes, using the controller socialinfo, this controller has methods
 api.get('/weight/:patientId', auth(roles.UserResearcher), weightCtrl.getWeight)
 api.get('/weights/:patientId', auth(roles.UserResearcher), weightCtrl.getHistoryWeight)
@@ -270,6 +280,14 @@ api.delete('/height/:heightId', auth(roles.OnlyUser), heightCtrl.deleteHeight)//
 
 //services OPENAI
 api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)
+
+// openraito
+api.get('/openraito/patients/:userId', auth(roles.OnlyClinical), openRaitoCtrl.getPatientsUser)
+api.post('/openraito/patient/:patientId', auth(roles.OnlyClinical), openRaitoCtrl.getPatient)
+api.get('/openraito/patient/generalshare/:patientId', auth(roles.UserResearcher), openRaitoCtrl.getGeneralShare)
+api.post('/openraito/patient/generalshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setGeneralShare)
+api.get('/openraito/patient/cusmtomshare/:patientId', auth(roles.UserResearcher), openRaitoCtrl.getCustomShare)
+api.post('/openraito/patient/cusmtomshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setCustomShare)
 
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)

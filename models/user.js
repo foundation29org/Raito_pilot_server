@@ -52,6 +52,7 @@ const UserSchema = Schema({
 	platform: {type: String, default: ''},
 	gptPermission: {type: Boolean, default: false},
 	numCallsGtp3: { type: Number, default: 0 },
+	verified: {type: Boolean, default: false},
 })
 
 

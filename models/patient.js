@@ -26,6 +26,18 @@ const checksSchema = Schema({
 	check4: {type: Boolean, default: false}
 })
 
+const generalShareSchema = Schema({
+	basicData:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	seizures:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	meds:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	feel:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	docs:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	notes: {type: String, default: ''},
+	date: {type: Date, default: Date.now},
+	token: {type: String, default: ''},
+	operations: {type: Object, default: []}
+})
+
 const PatientSchema = Schema({
 	patientName: String,
 	surname: String,
@@ -62,6 +74,20 @@ const PatientSchema = Schema({
 		check3: false,
 		check4: false
 	}},
+	generalShare:{
+		type: generalShareSchema, default:{
+			basicData:{r:false, w:false,d:false},
+			seizures:{r:false, w:false,d:false},
+			meds:{r:false, w:false,d:false},
+			feel:{r:false, w:false,d:false},
+			docs:{r:false, w:false,d:false},
+			notes: '',
+			date: {type: Date, default: Date.now},
+			token: '',
+			operations: {type: Object, default: []}
+		}
+	},
+	customShare: [generalShareSchema]
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)
