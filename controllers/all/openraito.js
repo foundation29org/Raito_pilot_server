@@ -22,7 +22,12 @@ function getPatientsUser(req, res) {
                 patients.forEach(function (u) {
                     var id = u._id.toString();
                     var idencrypt = crypt.encrypt(id);
-                    listpatients.push({ id: idencrypt, birthDate: u.birthDate, gender: u.gender, group: u.group });
+                    if(u.generalShare.basicData.r){
+                        listpatients.push({ id: idencrypt, patientName: u.patientName, surname: u.surname, birthDate: u.birthDate, gender: u.gender, group: u.group });
+                    }else{
+                        listpatients.push({ id: idencrypt, patientName: null, surname: null, birthDate: null, gender: null, group: u.group });
+                    }
+                    
                 });
 
                 //res.status(200).send({patient, patient})
@@ -43,8 +48,12 @@ function getPatient(req, res) {
     Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
         if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
         if (!patient) return res.status(202).send({ message: `The patient does not exist` })
-
-        res.status(200).send({ patient })
+        if(patient.generalShare.basicData.r){
+            res.status(200).send({ patient })
+        }else{
+            res.status(200).send({ message: 'You do not have access', generalShare: patient.generalShare })
+        }
+        
     })
 }
 
@@ -80,9 +89,25 @@ function setCustomShare(req, res) {
     })
 }
 
+function getAllPatientInfo(req, res) {
+    let patientId = crypt.decrypt(req.params.patientId);
+    console.log(req.body);
+    Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
+        if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+        if (!patient) return res.status(202).send({ message: `The patient does not exist` })
+        if(patient.generalShare.basicData.r){
+            res.status(200).send({ patient })
+        }else{
+            res.status(200).send({ message: 'You do not have access', generalShare: patient.generalShare })
+        }
+        
+    })
+}
+
 module.exports = {
     getPatientsUser,
     getPatient,
+    getAllPatientInfo,
     getGeneralShare,
     setGeneralShare,
     getCustomShare,
