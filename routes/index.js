@@ -229,7 +229,7 @@ api.get('/groupadmin/:groupName', groupCtrl.getGroupAdmin)
 api.get('/groups', groupCtrl.getGroups)
 api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
-api.get('/group/medications/:groupId', auth(roles.All), groupCtrl.getMedicationsGroup)
+api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
 
 //medications
 api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
@@ -282,14 +282,14 @@ api.delete('/height/:heightId', auth(roles.OnlyUser), heightCtrl.deleteHeight)//
 api.post('/callopenai', auth(roles.OnlyUser), openAIserviceCtrl.callOpenAi)
 
 // openraito
-api.get('/openraito/patients/:userId', auth(roles.OnlyClinical), openRaitoCtrl.getPatientsUser)
+api.get('/openraito/patients', auth(roles.OnlyClinical), openRaitoCtrl.getPatientsUser)
 api.post('/openraito/patient/:patientId', auth(roles.OnlyClinical), openRaitoCtrl.getPatient)
 api.post('/openraito/patient/all/:patientId', openRaitoCtrl.getAllPatientInfo)
 api.get('/openraito/patient/generalshare/:patientId', auth(roles.UserResearcher), openRaitoCtrl.getGeneralShare)
 api.post('/openraito/patient/generalshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setGeneralShare)
 api.get('/openraito/patient/cusmtomshare/:patientId', auth(roles.UserResearcher), openRaitoCtrl.getCustomShare)
 api.post('/openraito/patient/cusmtomshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setCustomShare)
-
+api.get('/openraito/patientsrequest', openRaitoCtrl.getPatientsRequest)
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/
