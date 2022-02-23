@@ -9,7 +9,7 @@ const { conndbdata } = require('../db_connect')
 
 const DocumentSchema = Schema({
 	name: {type: String, default: ''},
-	description: {type: Number, default: 0},
+	description: {type: String, default: ''},
 	url: {type: String, default: ''},
 	dateDoc: {type: Date, default: null},
 	date: {type: Date, default: Date.now},
