@@ -264,6 +264,7 @@ api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.get('/documents/:patientId', auth(roles.UserResearcher), docsCtrl.getDocuments)
 api.post('/document/:patientId', auth(roles.OnlyUser), docsCtrl.saveDocument)
+api.put('/document/:documentId', auth(roles.OnlyUser), docsCtrl.updateDocument)
 api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
 
 // weightinfo routes, using the controller socialinfo, this controller has methods

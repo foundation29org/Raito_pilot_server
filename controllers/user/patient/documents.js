@@ -43,6 +43,18 @@ function saveDocument (req, res){
 
 }
 
+function updateDocument(req, res){
+	let documentId= req.params.documentId;
+	let update = req.body
+
+	Document.findByIdAndUpdate(documentId, update, {select: '-createdBy', new: true}, (err,eventdbUpdated) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+		res.status(200).send({message: 'Document updated'})
+
+	})
+}
+
 function deleteDocument (req, res){
 	let documentId=req.params.documentId
 
@@ -63,5 +75,6 @@ function deleteDocument (req, res){
 module.exports = {
 	getDocuments,
 	saveDocument,
+	updateDocument,
 	deleteDocument
 }
