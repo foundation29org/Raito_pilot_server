@@ -27,11 +27,7 @@ const checksSchema = Schema({
 })
 
 const generalShareSchema = Schema({
-	basicData:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
-	seizures:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
-	meds:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
-	feel:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
-	docs:{r:{type: Boolean, default: false}, w:{type: Boolean, default: false},d:{type: Boolean, default: false}},
+	data:{patientInfo:{type: Boolean, default: false}, medicalInfo:{type: Boolean, default: false},devicesInfo:{type: Boolean, default: false},genomicsInfo:{type: Boolean, default: false}},
 	notes: {type: String, default: ''},
 	date: {type: Date, default: Date.now},
 	token: {type: String, default: ''},
@@ -76,15 +72,11 @@ const PatientSchema = Schema({
 	}},
 	generalShare:{
 		type: generalShareSchema, default:{
-			basicData:{r:false, w:false,d:false},
-			seizures:{r:false, w:false,d:false},
-			meds:{r:false, w:false,d:false},
-			feel:{r:false, w:false,d:false},
-			docs:{r:false, w:false,d:false},
+			data:{patientInfo:false, medicalInfo:false,devicesInfo:false,genomicsInfo:false},
 			notes: '',
-			date: {type: Date, default: Date.now},
+			date: Date.now,
 			token: '',
-			operations: {type: Object, default: []}
+			operations: []
 		}
 	},
 	customShare: [generalShareSchema]
