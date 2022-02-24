@@ -9,7 +9,6 @@ function getGeneralShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
     Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
         if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-        console.log(patient.generalShare);
         res.status(200).send({ generalShare: patient.generalShare })
     })
 }
