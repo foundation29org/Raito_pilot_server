@@ -33,7 +33,27 @@ function setCustomShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
     Patient.findByIdAndUpdate(patientId, { customShare: req.body }, { select: '-createdBy', new: true }, (err, patientUpdated) => {
         if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-        res.status(200).send({ message: 'custom share changed', customShare: patientUpdated.customShare  })
+        res.status(200).send({ message: 'custom share changed', customShare: patientUpdated.customShare })
+    })
+}
+
+function getIndividualsShare(req, res) {
+    let patientId = crypt.decrypt(req.params.patientId);
+    Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
+        res.status(200).send({ individualsShare: patient.individualShare })
+    })
+}
+
+function setIndividualsShare(req, res) {
+    let patientId = crypt.decrypt(req.params.patientId);
+    Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true }, (err, patientUpdated) => {
+        if (err) {
+            console.log(err);
+        }
+        if (patientUpdated) {
+            console.log(patientUpdated);
+            res.status(200).send({ message: 'individuals share updated' })
+        }
     })
 }
 
@@ -41,5 +61,7 @@ module.exports = {
     getGeneralShare,
     setGeneralShare,
     getCustomShare,
-    setCustomShare
+    setCustomShare,
+    getIndividualsShare,
+    setIndividualsShare
 }
