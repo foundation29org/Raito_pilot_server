@@ -37,15 +37,16 @@ function setCustomShare(req, res) {
     })
 }
 
-function getIndividualsShare(req, res) {
+function getIndividualShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
     Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
-        res.status(200).send({ individualsShare: patient.individualShare })
+        res.status(200).send({ individualShare: patient.individualShare })
     })
 }
 
-function setIndividualsShare(req, res) {
+function setIndividualShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
+    console.log(req.body);
     Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true }, (err, patientUpdated) => {
         if (err) {
             console.log(err);
@@ -62,6 +63,6 @@ module.exports = {
     setGeneralShare,
     getCustomShare,
     setCustomShare,
-    getIndividualsShare,
-    setIndividualsShare
+    getIndividualShare,
+    setIndividualShare
 }
