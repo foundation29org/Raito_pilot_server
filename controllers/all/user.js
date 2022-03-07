@@ -380,6 +380,11 @@ function newPass(req, res) {
 						message: 'Account is blocked'
 					})
 					break;
+				case reasons.WRONG_PLATFORM:
+					return res.status(202).send({
+						message: 'This is not your platform'
+					})
+					break;
 
 			}
 		}
@@ -735,6 +740,11 @@ function signIn(req, res) {
 						message: 'Account is blocked'
 					})
 					break;
+				case reasons.WRONG_PLATFORM:
+					return res.status(202).send({
+						message: 'This is not your platform'
+					})
+					break;
 			}
 		}
 
@@ -939,7 +949,7 @@ function getGpt3Permision(req, res) {
 		if (user) {
 			result = user.gptPermission;
 		}
-		res.status(200).send({ gptPermission: result})
+		res.status(200).send({ gptPermission: result })
 	})
 }
 
@@ -974,7 +984,21 @@ function setNumCallsGpt3(req, res) {
 			}
 		})
 	})
-	
+
+}
+
+
+function isVerified(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	//añado  {"_id" : false} para que no devuelva el _id
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		var result = false;
+		if (user) {
+			result = user.verified;
+		}
+		res.status(200).send({ verified: result })
+	})
 }
 
 module.exports = {
@@ -994,5 +1018,6 @@ module.exports = {
 	getPatientEmail,
 	getGpt3Permision,
 	setGpt3Permision,
-	setNumCallsGpt3
+	setNumCallsGpt3,
+	isVerified
 }

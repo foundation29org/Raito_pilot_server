@@ -26,6 +26,24 @@ const checksSchema = Schema({
 	check4: {type: Boolean, default: false}
 })
 
+const generalShareSchema = Schema({
+	data:{patientInfo:{type: Boolean, default: false}, medicalInfo:{type: Boolean, default: false},devicesInfo:{type: Boolean, default: false},genomicsInfo:{type: Boolean, default: false}},
+	notes: {type: String, default: ''},
+	date: {type: Date, default: Date.now},
+	token: {type: String, default: ''},
+	operations: {type: Object, default: []}
+})
+
+const individualShareSchema = Schema({
+	data:{patientInfo:{type: Boolean, default: false}, medicalInfo:{type: Boolean, default: false},devicesInfo:{type: Boolean, default: false},genomicsInfo:{type: Boolean, default: false}},
+	notes: {type: String, default: ''},
+	date: {type: Date, default: Date.now},
+	token: {type: String, default: ''},
+	operations: {type: Object, default: []},
+	idUser: {type: String, default: null},
+	status: {type: String, default: 'Pending'}
+})
+
 const PatientSchema = Schema({
 	patientName: String,
 	surname: String,
@@ -62,6 +80,17 @@ const PatientSchema = Schema({
 		check3: false,
 		check4: false
 	}},
+	generalShare:{
+		type: generalShareSchema, default:{
+			data:{patientInfo:false, medicalInfo:false,devicesInfo:false,genomicsInfo:false},
+			notes: '',
+			date: Date.now,
+			token: '',
+			operations: []
+		}
+	},
+	customShare: [generalShareSchema],
+	individualShare: [individualShareSchema]
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)
