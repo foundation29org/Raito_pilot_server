@@ -5,7 +5,7 @@
 Dx29 server
 ===============================================================================================================================
 
-[![Build Status](https://f29.visualstudio.com/Health29%20for%20Diagnosis/_apis/build/status/dx29%20-%20dev%20-%20server%20-%20CI?branchName=develop)](https://f29.visualstudio.com/Health29%20for%20Diagnosis/_build/latest?definitionId=44&amp;branchName=develop)   [![Deployment status](https://f29.vsrm.visualstudio.com/_apis/public/Release/badge/88bb841e-8756-480d-9840-a24ba6dd4cb4/14/15)](https://f29.visualstudio.com/Health29%20for%20Diagnosis/_release?_a=releases&view=mine&definitionId=14)
+[![Build status](https://f29.visualstudio.com/Raito/_apis/build/status/prod/Raito-server-prod)](https://f29.visualstudio.com/Raito/_build/latest?definitionId=114)   [![Deployment status](https://f29.vsrm.visualstudio.com/_apis/public/Release/badge/88bb841e-8756-480d-9840-a24ba6dd4cb4/14/15)](https://f29.visualstudio.com/Health29%20for%20Diagnosis/_release?_a=releases&view=mine&definitionId=14)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 #### 1. Overview 
 
