@@ -31,7 +31,7 @@ const UserSchema = Schema({
 		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
 	},
 	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
-	role: { type: String, required: true, enum: ['User', 'Clinical'], default: 'User' },
+	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },
 	subrole: String,
 	group: { type: String, required: true, default: 'None' },
 	confirmed: { type: Boolean, default: false },
@@ -53,6 +53,8 @@ const UserSchema = Schema({
 	gptPermission: { type: Boolean, default: false },
 	numCallsGtp3: { type: Number, default: 0 },
 	verified: { type: Boolean, default: false },
+	countryselectedPhoneCode: { type: String, default: '' },
+	phone: { type: String, default: '' }
 })
 
 
@@ -119,7 +121,8 @@ UserSchema.statics.getAuthenticated = function (email, password, cb) {
 		if (!user) {
 			return cb(null, null, reasons.NOT_FOUND);
 		}
-		if (user.role != 'User') {
+		console.log(user.role);
+		if (user.role != 'User' && user.role != 'Admin') {
 			return cb(null, null, reasons.WRONG_PLATFORM);
 		}
 		//Check if the account is activated.
