@@ -4,7 +4,7 @@ module.exports = {
  AllLessResearcher:['SuperAdmin', 'User', 'Admin', 'Clinical'],
  OnlyUser:['User'],
  OnlyClinical:['Clinical'],
- UserResearcher:['User','Researcher'],
+ UserResearcher:['User','Researcher', 'Clinical'],
  AdminSuperAdmin:['Admin', 'SuperAdmin'],
  Admin:['Admin'],
  SuperAdmin:['SuperAdmin'],
