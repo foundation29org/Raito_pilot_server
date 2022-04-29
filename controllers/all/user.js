@@ -751,6 +751,65 @@ function signIn(req, res) {
 	})
 }
 
+function signWith(req, res) {
+	// attempt to authenticate user
+	req.body.email = (req.body.email).toLowerCase();
+	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+		if (err) return res.status(500).send({ message: err })
+
+		// login was successful if we have a user
+		if (user) {
+			// handle login success
+			return res.status(200).send({
+				message: 'You have successfully logged in',
+				token: serviceAuth.createToken(user),
+				lang: user.lang
+			})
+		} else {
+			req.body.email = (req.body.email).toLowerCase();
+			let randomstring = Math.random().toString(36).slice(-12);
+			const user = new User({
+				email: req.body.email,
+				role: req.body.role,
+				userName: req.body.userName,
+				lastName: req.body.lastName,
+				password: req.body.password,
+				confirmationCode: randomstring,
+				provider: req.body.provider,
+				lang: req.body.lang
+			})
+			User.findOne({ 'email': req.body.email }, function (err, user2) {
+				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
+				if (!user2) {
+					user.save((err, userSaved) => {
+						if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
+						if(userSaved){
+							
+							var userId = userSaved._id.toString();
+							savePatient(userId, req);
+							
+							return res.status(200).send({
+								message: 'You have successfully logged in',
+								token: serviceAuth.createToken(userSaved),
+								lang: userSaved.lang
+							})
+						}else{
+
+						}
+						
+					})
+				} else {
+					return res.status(200).send({
+								message: 'You have successfully logged in',
+								token: serviceAuth.createToken(user2),
+								lang: user2.lang
+							})
+				}
+			})
+		}
+
+	})
+}
 
 /**
  * @api {get} https://health29.org/api/users/:id Get user
@@ -901,11 +960,11 @@ function getUserName(req, res) {
 	//añado  {"_id" : false} para que no devuelva el _id
 	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-		var result = "Jhon";
 		if (user) {
-			result = user.userName;
+			res.status(200).send({ userName: user.userName, lastName: user.lastName, isUser: req.params.userId })
+		}else{
+			res.status(200).send({ userName: '', lastName: '', isUser: req.params.userId})
 		}
-		res.status(200).send({ userName: result })
 	})
 }
 
@@ -987,7 +1046,6 @@ function setNumCallsGpt3(req, res) {
 
 }
 
-
 function isVerified(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
@@ -995,9 +1053,23 @@ function isVerified(req, res) {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = false;
 		if (user) {
-			result = user.verified;
+			result = user.infoVerified;
 		}
-		res.status(200).send({ verified: result })
+		res.status(200).send({ infoVerified: result })
+	})
+}
+
+function setInfoVerified(req, res) {
+
+	let userId = crypt.decrypt(req.params.userId);
+	var infoVerified = req.body.infoVerified;
+	User.findByIdAndUpdate(userId, { infoVerified: infoVerified }, { new: true }, (err, userUpdated) => {
+		if (userUpdated) {
+			res.status(200).send({ message: 'Updated' })
+		} else {
+			console.log(err);
+			res.status(200).send({ message: 'error' })
+		}
 	})
 }
 
@@ -1008,6 +1080,7 @@ module.exports = {
 	newPass,
 	signUp,
 	signIn,
+	signWith,
 	getUser,
 	getSettings,
 	updateUser,
@@ -1019,5 +1092,6 @@ module.exports = {
 	getGpt3Permision,
 	setGpt3Permision,
 	setNumCallsGpt3,
-	isVerified
+	isVerified,
+	setInfoVerified
 }

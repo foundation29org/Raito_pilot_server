@@ -59,6 +59,7 @@ const api = express.Router()
 //routes for login-logout
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
+api.post('/signwith', userCtrl.signWith)
 
 // activarcuenta
 api.post('/activateuser', userCtrl.activateUser)
@@ -80,6 +81,7 @@ api.get('/gpt3/:userId', auth(roles.All), userCtrl.getGpt3Permision)
 api.post('/gpt3/:userId', auth(roles.All), userCtrl.setGpt3Permision)
 api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
+api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
 
 //export data
 api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
@@ -182,6 +184,7 @@ api.post('/annotate_batch/', f29ncrserviceCtrl.getAnnotate_batch)
 
 //services dx29V2API
 api.post('/callTextAnalytics', f29apiv2serviceCtrl.callTextAnalytics)
+api.post('/callTAFhir', f29apiv2serviceCtrl.callTextAnalyticsFhir)
 
 //services f29bio
 api.post('/Translation/document/translate', f29bioserviceCtrl.getTranslationDictionary)
