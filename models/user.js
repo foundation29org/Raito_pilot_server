@@ -20,6 +20,13 @@ const ParentSchema = Schema({
 	profession: String
 })
 
+const InfoVerifiedSchema = Schema({
+	isVerified: {type: Boolean, default: false},
+	status: { type: String, default: 'Not started' },
+	url: { type: String, default: null },
+	info: {type: Object, default: {}}
+})
+
 const UserSchema = Schema({
 	email: {
 		type: String,
@@ -52,9 +59,15 @@ const UserSchema = Schema({
 	platform: { type: String, default: '' },
 	gptPermission: { type: Boolean, default: false },
 	numCallsGtp3: { type: Number, default: 0 },
-	verified: { type: Boolean, default: false },
 	countryselectedPhoneCode: { type: String, default: '' },
-	phone: { type: String, default: '' }
+	phone: { type: String, default: '' },
+	provider: { type: String, default: '' },
+	infoVerified:{
+		type: InfoVerifiedSchema, default:{
+			isVerified:false,
+			info: {}
+		}
+	}
 })
 
 
