@@ -30,7 +30,7 @@ function sendMailVerifyEmail (email, randomstring, lang, group){
     var subjectlang='Raito - Activate the account';
   }
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
     ];
@@ -78,7 +78,7 @@ function sendMailRecoverPass (email, randomstring, lang){
     var subjectlang='Raito - Account Recovery';
   }
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user,
@@ -194,7 +194,7 @@ function sendMailRequestNewTranslation (user, lang, jsonData){
 
 function sendMailSupport (email, lang, role, supportStored){
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
     var attachments = [];
     if(supportStored.files.length>0){
       supportStored.files.forEach(function(file) {
@@ -323,7 +323,7 @@ function sendMailMonarchIsInactive (){
 
 function sendMailInvite (email, lang, patientName){
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
@@ -371,7 +371,7 @@ function capitalizeFirstLetter(string) {
 
 function sendMailShare (email, patientName, lang, internalmessage, clinicalName, message, userNameOrigin, emailOrigin, isMine, role){
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
@@ -504,7 +504,7 @@ function sendMailShare (email, patientName, lang, internalmessage, clinicalName,
 
 function sendMailNewClinicialShare (email, patientName, lang, internalmessage, message, emailOrigin, mydata){
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
@@ -869,7 +869,7 @@ function sendMailRequestChangePermissionsClinician (email, userName, lang, patie
 
 function sendEmailInfoPermissions (patientEmail, emailorigen, email, state, lang){
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [TRANSPORTER_OPTIONS.auth.user];
 
@@ -930,7 +930,7 @@ function sendEmailInfoPermissions (patientEmail, emailorigen, email, state, lang
 function sendMailProgramRequestToPatient (patientEmail, clinicalEmail, lang){
   //caso 3
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [TRANSPORTER_OPTIONS.auth.user];
 
@@ -976,7 +976,7 @@ function sendMailProgramRequestToPatient (patientEmail, clinicalEmail, lang){
 function sendMailProgramRequestToClinician (patientEmail, clinicalEmail, lang){
   //caso 3
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [TRANSPORTER_OPTIONS.auth.user];
 
@@ -1022,7 +1022,7 @@ function sendMailProgramRequestToClinician (patientEmail, clinicalEmail, lang){
 function sendMail_request_genetic_program_patient (email, clinicalEmail, lang, patientId, instructionsNewAccount, randomIdRequest){
   //caso 1.1.2
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
@@ -1098,7 +1098,7 @@ function sendMail_request_genetic_program_patient (email, clinicalEmail, lang, p
 function sendMail_request_genetic_program_clinician (email, clinicalEmail, lang, patientId, randomIdRequest){
   //caso 1.1.1
   const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito29.azurewebsites.net/assets/img/logo-raito.png';
+    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
 
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
