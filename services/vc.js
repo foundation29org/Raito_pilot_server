@@ -115,6 +115,7 @@ async function requestVC (req, res){
 }
 
 async function issuanceCallback (req, res){
+  console.log(req);
   var body = '';
   req.on('data', function (data) {
     body += data;
