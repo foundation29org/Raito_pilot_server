@@ -84,39 +84,32 @@ async function requestVC (req, res){
       mainApp.sessionStore.set( id, session);  
     }
   });
-
-  var token = await getToken();
-  //console.log(token);
-  console.log(req.hostname)
   var callbackurl = `https://${req.hostname}/api/issuer/issuanceCallback`;
   if(req.hostname=='localhost'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
+  var token = await getToken();
+  var auth = 'Bearer '+token;
   var pin = generatePin(4);
   var requestConfigFile = generateBodyRequestVC(callbackurl, id, pin);
-  console.log(requestConfigFile)
   var options = {
     'method': 'POST',
     'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
     'headers': {
       'Content-Type': 'Application/json',
-      'Authorization': 'Bearer '+token
+      'Authorization': auth
     },
     body: JSON.stringify(requestConfigFile)
+  
   };
-  try {
-    request(options, function (error, response) {
-      if (error) throw new Error(error);
-      var respJson = JSON.parse(response.body)
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body);
+    var respJson = JSON.parse(response.body)
       respJson.id = id;
       respJson.pin = pin;
       res.status(200).send(respJson)
-    });
-  } catch (error) {
-    console.log(error);
-  }
-  
-
+  });
 }
 
 async function issuanceCallback (req, res){
