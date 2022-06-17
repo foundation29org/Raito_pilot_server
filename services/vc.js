@@ -39,8 +39,7 @@ async function getToken (){
   
 }
 
-function generateBodyRequestVC(callbackurl, id){
-  var pin = generatePin(4);
+function generateBodyRequestVC(callbackurl, id, pin){
   var body =  
   {
     "includeQRCode": true,
@@ -93,7 +92,8 @@ async function requestVC (req, res){
   if(req.hostname=='localhost'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
-  var requestConfigFile = generateBodyRequestVC(callbackurl, id);
+  var pin = generatePin(4);
+  var requestConfigFile = generateBodyRequestVC(callbackurl, id, pin);
   console.log(requestConfigFile)
   var options = {
     'method': 'POST',
@@ -108,10 +108,10 @@ async function requestVC (req, res){
   try {
     request(options, function (error, response) {
       if (error) throw new Error(error);
-      console.log(response.body);
-      res.status(200).send(response.body)
-      /*var resp = response.json()
-      console.log(resp);*/
+      var respJson = JSON.parse(response.body)
+      respJson.id = id;
+      respJson.pin = pin;
+      res.status(200).send(respJson)
     });
   } catch (error) {
     console.log(error);
