@@ -85,6 +85,7 @@ async function requestVC (req, res){
     }
   });
   var callbackurl = `https://${req.hostname}/api/issuer/issuanceCallback`;
+  console.log(req.hostname);
   if(req.hostname=='localhost'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
