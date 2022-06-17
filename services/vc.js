@@ -84,9 +84,10 @@ async function requestVC (req, res){
       mainApp.sessionStore.set( id, session);  
     }
   });
-  var callbackurl = `https://${req.hostname}/api/issuer/issuanceCallback`;
-  console.log(req.hostname);
-  if(req.hostname=='localhost'){
+  var callbackurl = `https://${config.client_server}/api/issuer/issuanceCallback`;
+  console.log(callbackurl)
+  console.log(config.client_server);
+  if(config.client_server=='http://localhost:4200'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
   var token = await getToken();
