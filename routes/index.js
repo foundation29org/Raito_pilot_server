@@ -296,6 +296,8 @@ api.post('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), 
 
 //vc
 api.get('/createissuer', vcServiceCtrl.requestVC)
+api.post('/issuer/issuanceCallback', vcServiceCtrl.issuanceCallback)
+api.get('/issuer/issuance-response', vcServiceCtrl.issuanceResponse)
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/

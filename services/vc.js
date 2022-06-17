@@ -47,10 +47,10 @@ function generateBodyRequestVC(callbackurl, id, pin){
       "url": `${callbackurl}`,
       "state": id,
       "headers": {
-        "api-key": "ade3600d-9fda-4314-aa60-b01663313e2a"
+        "api-key": config.VC.API_KEY
       }
     },
-    "authority": "did:ion:EiDE2LtNwb0bllvgy5IaSbJGz21MhtxNrQQGGaa0PCs-Sg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiI3MjFlNjQzOGUzYTQ0YWU2OWI3M2Y0NjZlNjMwZmFjZXZjU2lnbmluZ0tleS0yOTdkYSIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJmQ1ViMGVvNU13dVZjLS1Ya1huODN0YkdBMDZGNkZkOW9EZHV4T1VJX3E0IiwieSI6IkdROVJrXzc1bDBXYmNBOHQ1Z3hfVG5ySnB2T0c4emQxcmlPVjRocFVyODgifSwicHVycG9zZXMiOlsiYXV0aGVudGljYXRpb24iLCJhc3NlcnRpb25NZXRob2QiXSwidHlwZSI6IkVjZHNhU2VjcDI1NmsxVmVyaWZpY2F0aW9uS2V5MjAxOSJ9XSwic2VydmljZXMiOlt7ImlkIjoibGlua2VkZG9tYWlucyIsInNlcnZpY2VFbmRwb2ludCI6eyJvcmlnaW5zIjpbImh0dHBzOi8vZm91bmRhdGlvbjI5Lm9yZy8iXX0sInR5cGUiOiJMaW5rZWREb21haW5zIn0seyJpZCI6Imh1YiIsInNlcnZpY2VFbmRwb2ludCI6eyJpbnN0YW5jZXMiOlsiaHR0cHM6Ly9iZXRhLmh1Yi5tc2lkZW50aXR5LmNvbS92MS4wLzUwYmRiMjI3LTEwMGQtNDgwOC1iNGI5LWFhYzQyNmUyOGM0ZiJdfSwidHlwZSI6IklkZW50aXR5SHViIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlERGdVNUJka3BOZE9LcGpYbF9DWDQ3NVVvTmJuUlBHTGEzSTJqbXRhN05RUSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpQjlEZm84ZVJ2SUNjZ19JU1V6bzQwMFZTYjJyUEV5TmZGYWdXZ0xaUW1RSlEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUMyQ3UwZXE2R2hrSWJSQU9vcFhBZFFZQnRmajRCcktxUi00ZXlMYWZqOTJBIn19", 
+    "authority": config.VC.AUTHORITY_DID, 
     "registration": {
       "clientName": "Verifiable Credential Expert Sample"
     },
@@ -88,7 +88,7 @@ async function requestVC (req, res){
   var token = await getToken();
   //console.log(token);
   console.log(req.hostname)
-  var callbackurl = `https://${req.hostname}/api/issuer/issuance-request-callback`;
+  var callbackurl = `https://${req.hostname}/api/issuer/issuanceCallback`;
   if(req.hostname=='localhost'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
@@ -104,7 +104,6 @@ async function requestVC (req, res){
     },
     body: JSON.stringify(requestConfigFile)
   };
-  // body: '{"includeQRCode": true,"callback": {"url": "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback","state": "7bdfb936-2130-4fa3-88c0-736b0a5ce1b5","headers": {"api-key": "ade3600d-9fda-4314-aa60-b01663313e2a"}},"authority": "did:ion:EiDE2LtNwb0bllvgy5IaSbJGz21MhtxNrQQGGaa0PCs-Sg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiI3MjFlNjQzOGUzYTQ0YWU2OWI3M2Y0NjZlNjMwZmFjZXZjU2lnbmluZ0tleS0yOTdkYSIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJmQ1ViMGVvNU13dVZjLS1Ya1huODN0YkdBMDZGNkZkOW9EZHV4T1VJX3E0IiwieSI6IkdROVJrXzc1bDBXYmNBOHQ1Z3hfVG5ySnB2T0c4emQxcmlPVjRocFVyODgifSwicHVycG9zZXMiOlsiYXV0aGVudGljYXRpb24iLCJhc3NlcnRpb25NZXRob2QiXSwidHlwZSI6IkVjZHNhU2VjcDI1NmsxVmVyaWZpY2F0aW9uS2V5MjAxOSJ9XSwic2VydmljZXMiOlt7ImlkIjoibGlua2VkZG9tYWlucyIsInNlcnZpY2VFbmRwb2ludCI6eyJvcmlnaW5zIjpbImh0dHBzOi8vZm91bmRhdGlvbjI5Lm9yZy8iXX0sInR5cGUiOiJMaW5rZWREb21haW5zIn0seyJpZCI6Imh1YiIsInNlcnZpY2VFbmRwb2ludCI6eyJpbnN0YW5jZXMiOlsiaHR0cHM6Ly9iZXRhLmh1Yi5tc2lkZW50aXR5LmNvbS92MS4wLzUwYmRiMjI3LTEwMGQtNDgwOC1iNGI5LWFhYzQyNmUyOGM0ZiJdfSwidHlwZSI6IklkZW50aXR5SHViIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlERGdVNUJka3BOZE9LcGpYbF9DWDQ3NVVvTmJuUlBHTGEzSTJqbXRhN05RUSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpQjlEZm84ZVJ2SUNjZ19JU1V6bzQwMFZTYjJyUEV5TmZGYWdXZ0xaUW1RSlEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUMyQ3UwZXE2R2hrSWJSQU9vcFhBZFFZQnRmajRCcktxUi00ZXlMYWZqOTJBIn19", "registration": {"clientName": "Verifiable Credential Expert Sample"},"issuance": { "type": "VerifiedCredentialExpert", "manifest": "https://beta.eu.did.msidentity.com/v1.0/50bdb227-100d-4808-b4b9-aac426e28c4f/verifiableCredential/contracts/VerifiedCredentialExpert", "pin": {   "value": "1313",   "length": 4 }, "claims": {   "given_name": "Megan",   "family_name": "Bowen" }}}'
   try {
     request(options, function (error, response) {
       if (error) throw new Error(error);
@@ -120,6 +119,85 @@ async function requestVC (req, res){
 
 }
 
+async function issuanceCallback (req, res){
+  var body = '';
+  req.on('data', function (data) {
+    body += data;
+  });
+  req.on('end', function () {
+    console.log( body );
+    if ( req.headers['api-key'] != config.VC.API_KEY ) {
+      res.status(401).json({
+        'error': 'api-key wrong or missing'
+        });  
+      return; 
+    }
+    var issuanceResponse = JSON.parse(body.toString());
+    var message = null;
+    // there are 2 different callbacks. 1 if the QR code is scanned (or deeplink has been followed)
+    // Scanning the QR code makes Authenticator download the specific request from the server
+    // the request will be deleted from the server immediately.
+    // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
+    // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
+    if ( issuanceResponse.code == "request_retrieved" ) {
+      message = "QR Code is scanned. Waiting for issuance to complete...";
+      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
+        var sessionData = {
+          "status" : "request_retrieved",
+          "message": message
+        };
+        session.sessionData = sessionData;
+        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
+          res.send();
+        });
+      })      
+    }
+
+    if ( issuanceResponse.code == "issuance_successful" ) {
+      message = "Credential successfully issued";
+      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
+        var sessionData = {
+          "status" : "issuance_successful",
+          "message": message
+        };
+        session.sessionData = sessionData;
+        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
+          res.send();
+        });
+      })      
+    }
+
+    if ( issuanceResponse.code == "issuance_error" ) {
+      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
+        var sessionData = {
+          "status" : "issuance_error",
+          "message": issuanceResponse.error.message,
+          "payload" :issuanceResponse.error.code
+        };
+        session.sessionData = sessionData;
+        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
+          res.send();
+        });
+      })      
+    }
+    
+    res.send()
+  });  
+  res.send()
+}
+
+async function issuanceResponse (req, res){
+  var id = req.query.id;
+  mainApp.sessionStore.get( id, (error, session) => {
+    if (session && session.sessionData) {
+      console.log(`status: ${session.sessionData.status}, message: ${session.sessionData.message}`);
+      res.status(200).json(session.sessionData);   
+      }
+  })
+}
+
 module.exports = {
-  requestVC
+  requestVC,
+  issuanceCallback,
+  issuanceResponse
 }
