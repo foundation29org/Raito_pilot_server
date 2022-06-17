@@ -13,90 +13,6 @@ const crypt = require('../../services/crypt')
 const bcrypt = require('bcrypt-nodejs')
 const f29azureService = require("../../services/f29azure")
 
-function activateUser(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
-	const user = new User({
-		email: req.body.email,
-		key: req.body.key,
-		confirmed: true
-	})
-	User.findOne({ 'email': req.body.email }, function (err, user2) {
-		if (err) return res.status(500).send({ message: `Error activating account: ${err}` })
-		if (user2) {
-			if (user2.confirmationCode == req.body.key) {
-				user2.confirmed = true;
-				let update = user2;
-				let userId = user2._id
-				User.findByIdAndUpdate(userId, update, (err, userUpdated) => {
-					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-					//mirar si el usuario tiene rol User, y está el email en algún programa, si es así, cambiar a el paciente y asignarle createdBy del nuevo usuario, y compartirlo con el clínico que era el createdBy
-					if (userUpdated.role == 'User') {
-						//Programs.find({}, function(err, programs) {
-						//lo he comprobado que funcione
-						Programs.find({ 'requests.email': userUpdated.email }, (err, programs) => {
-							if (programs != undefined) {
-								var foundUserEmail = false;
-								for (var j = 0; j < programs.length && !foundUserEmail; j++) {
-									var program = programs[j];
-									Programs.findById(program._id, (err, programdb) => {
-										if (err) return res.status(500).send({ message: `Error deleting the case: ${err}` })
-										if (programdb) {
-
-											for (var i = 0; i < programdb.requests.length && !foundUserEmail; i++) {
-												if (programdb.requests[i].email == userUpdated.email) {
-													foundUserEmail = true;
-													//update createdBy of patient
-													let userIdCreatedBy = programdb.requests[i].idUser;
-													let decryptUserId = crypt.decrypt(programdb.requests[i].idUser);
-													let patientId = crypt.decrypt(programdb.requests[i].patientId);
-													var newUserId = userUpdated._id;
-
-													User.findById(decryptUserId, (err, clinicalUser) => {
-														if (clinicalUser) {
-															Patient.findByIdAndUpdate(patientId, { createdBy: newUserId }, { new: true }, (err, patientUpdated) => {
-																if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-
-																//update sharing, for clinician
-																var date = Date.now();
-																var permissions = { "shareEmr": true, "askFirst": false, "shareWithAll": false };
-																patientUpdated.sharing.push({ _id: userIdCreatedBy, state: '', role: 'Clinical', email: clinicalUser.email, permissions: permissions, invitedby: userIdCreatedBy, patientName: patientUpdated.patientName, date: date, showSwalIntro: true });
-																Patient.findByIdAndUpdate(patientId, { sharing: patientUpdated.sharing }, { new: true }, (err, patientUpdated) => {
-																	//enviar un email avisando?
-																})
-
-
-															})
-														}
-													});
-
-												}
-											}
-											if (!foundUserEmail) {
-
-
-											}
-										} else {
-											return res.status(200).send({ message: 'program not found' })
-										}
-									})
-								}
-							}
-						});
-
-
-					}
-
-					res.status(200).send({ message: 'activated' })
-				})
-			} else {
-				return res.status(200).send({ message: 'error' })
-			}
-		} else {
-			return res.status(500).send({ message: `user not exists: ${err}` })
-		}
-	})
-}
-
 
 /**
  * @api {post} https://health29.org/api/api/recoverpass Request password change
@@ -144,31 +60,26 @@ function recoverPass(req, res) {
 	User.findOne({ 'email': req.body.email }, function (err, user) {
 		if (err) return res.status(500).send({ message: 'Error searching the user' })
 		if (user) {
-			console.log(user.confirmed);
-			if (user.confirmed) {
-				//generamos una clave aleatoria y añadimos un campo con la hora de la clave proporcionada, cada que caduque a los 15 minutos
-				let randomstring = Math.random().toString(36).slice(-12)
-				user.randomCodeRecoverPass = randomstring;
-				user.dateTimeRecoverPass = Date.now();
+			//generamos una clave aleatoria y añadimos un campo con la hora de la clave proporcionada, cada que caduque a los 15 minutos
+			let randomstring = Math.random().toString(36).slice(-12)
+			user.randomCodeRecoverPass = randomstring;
+			user.dateTimeRecoverPass = Date.now();
 
-				//guardamos los valores en BD y enviamos Email
-				User.findByIdAndUpdate(user._id, user, (err, userUpdated) => {
-					if (err) return res.status(500).send({ message: 'Error saving the user' })
+			//guardamos los valores en BD y enviamos Email
+			User.findByIdAndUpdate(user._id, user, (err, userUpdated) => {
+				if (err) return res.status(500).send({ message: 'Error saving the user' })
 
-					serviceEmail.sendMailRecoverPass(req.body.email, randomstring, user.lang)
-						.then(response => {
-							return res.status(200).send({ message: 'Email sent' })
-						})
-						.catch(response => {
-							//create user, but Failed sending email.
-							//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-							res.status(500).send({ message: 'Fail sending email' })
-						})
-					//return res.status(200).send({ token: serviceAuth.createToken(user)})
-				})
-			} else {
-				return res.status(500).send({ message: 'account not activated' })
-			}
+				serviceEmail.sendMailRecoverPass(req.body.email, randomstring, user.lang)
+					.then(response => {
+						return res.status(200).send({ message: 'Email sent' })
+					})
+					.catch(response => {
+						//create user, but Failed sending email.
+						//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
+						res.status(500).send({ message: 'Fail sending email' })
+					})
+				//return res.status(200).send({ token: serviceAuth.createToken(user)})
+			})
 		} else {
 			return res.status(500).send({ message: 'user not exists' })
 		}
@@ -450,11 +361,11 @@ function newPass(req, res) {
 
 
 function signUp(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
 	let randomstring = Math.random().toString(36).slice(-12);
 	const user = new User({
 		email: req.body.email,
-		role: req.body.role,
+		moralisId: req.body.moralisId,
+		ethAddress: req.body.ethAddress,
 		subrole: req.body.subrole,
 		userName: req.body.userName,
 		lastName: req.body.lastName,
@@ -465,70 +376,25 @@ function signUp(req, res) {
 		permissions: req.body.permissions,
 		platform: 'Raito'
 	})
-	User.findOne({ 'email': req.body.email }, function (err, user2) {
+	User.findOne({ 'moralisId': req.body.moralisId }, function (err, user2) {
 		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
 		if (!user2) {
 			user.save((err, userSaved) => {
 				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-
-				if (req.body.patientId != undefined) {
-					var tempo = req.body.patientId
-					let patientIdt = crypt.decrypt(tempo)
-					//let patientId= crypt.decrypt(req.params.patientId);
-
-					Patient.findById(patientIdt, { "createdBy": false }, (err, patient) => {
-						if (err) {
-							console.log('falla');
-							console.log(err)
-						}
-						if (patient) {
-							var id = userSaved._id.toString();
-							var userId = crypt.encrypt(id);
-							//mirar si ya está compartido
-							var found = false;
-							for (var i = 0; i < patient.sharing.length && !found; i++) {
-								if (patient.sharing[i]._id == userId) {
-									found = true;
-								}
-							}
-							if (!found) {
-								patient.sharing.push({ _id: userId });
-								Patient.findByIdAndUpdate(patientIdt, { sharing: patient.sharing }, { new: true }, (err, patientUpdated) => {
-									if (err) {
-										console.log(err);
-									}
-									if (patientUpdated) {
-										//console.log(patientUpdated);
-									}
-								})
-							}
-
-						}
-					})
-				}
-
+				console.log(userSaved);
 				//Create the patient
-				console.log(req.body.role);
-				if (req.body.role == 'User') {
-					var userId = userSaved._id.toString();
-					savePatient(userId, req);
-				}
-
-
-
-				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, req.body.group)
-					.then(response => {
-						res.status(200).send({ message: 'Account created' })
-					})
-					.catch(response => {
-						//create user, but Failed sending email.
-						//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-						res.status(200).send({ message: 'Fail sending email' })
-					})
-				//return res.status(200).send({ token: serviceAuth.createToken(user)})
+				var userId = userSaved._id.toString();
+				console.log(userId);
+				savePatient(userId, req);
+				res.status(200).send({
+					message: 'You have successfully logged in',
+					token: serviceAuth.createToken(userSaved),
+					lang: userSaved.lang,
+					platform: userSaved.platform
+				})
 			})
 		} else {
-			return res.status(202).send({ message: 'user exists' })
+			res.status(202).send({ message: 'user exists' })
 		}
 	})
 }
@@ -556,7 +422,6 @@ function savePatient(userId, req) {
 	patient.consentgroup = req.body.consentgroup
 	patient.avatar = req.body.avatar
 	patient.createdBy = userId
-
 	if (req.body.avatar == undefined) {
 		if (patient.gender != undefined) {
 			if (patient.gender == 'male') {
@@ -568,7 +433,11 @@ function savePatient(userId, req) {
 	}
 	// when you save, returns an id in patientStored to access that patient
 	patient.save(async (err, patientStored) => {
-		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
+		if (err) {
+			console.log(err);
+			console.log({ message: `Failed to save in the database: ${err} ` })
+		}
+		console.log(patientStored);
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
 		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
@@ -604,17 +473,7 @@ function sendEmail(req, res) {
 	User.findOne({ 'email': req.body.email }, function (err, user) {
 		if (err) return res.status(500).send({ message: `Error finding the user: ${err}` })
 		if (user) {
-			if (req.body.type == "resendEmail") {
-				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, user.group)
-					.then(response => {
-						res.status(200).send({ message: 'Email resent' })
-					})
-					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email' })
-					})
-			}
-			else if (req.body.type == "contactSupport") {
-				let support = new Support()
+			let support = new Support()
 				support.type = ''
 				support.subject = 'Help with account activation'
 				support.description = 'Please, help me with my account activation. I did not receive any confirmation email.'
@@ -627,7 +486,6 @@ function sendEmail(req, res) {
 					.catch(response => {
 						res.status(200).send({ message: 'Fail sending email' })
 					})
-			}
 
 
 
@@ -695,8 +553,7 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
-	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+	User.getAuthenticated(req.body.moralisId, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
@@ -711,11 +568,20 @@ function signIn(req, res) {
 		} else {
 			// otherwise we can determine why we failed
 			var reasons = User.failedLogin;
+			console.log(reasons);
+			console.log(reason);
 			switch (reason) {
 				case reasons.NOT_FOUND:
-					return res.status(202).send({
-						message: 'Not found'
-					})
+					//create de new user
+					if(req.body.moralisId && req.body.password && req.body.ethAddress){
+						signUp(req, res)
+						break;
+					}else{
+						return res.status(202).send({
+							message: 'Not found'
+						})
+					}
+					
 				case reasons.PASSWORD_INCORRECT:
 					// note: these cases are usually treated the same - don't tell
 					// the user *why* the login failed, only that it did
@@ -859,7 +725,7 @@ function signWith(req, res) {
 function getUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -870,7 +736,7 @@ function getUser(req, res) {
 function getSettings(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -958,7 +824,7 @@ function deleteUser(req, res) {
 function getUserName(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (user) {
 			res.status(200).send({ userName: user.userName, lastName: user.lastName, isUser: req.params.userId, email: user.email })
@@ -971,7 +837,7 @@ function getUserName(req, res) {
 function getUserEmail(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
 		if (user) {
@@ -986,7 +852,7 @@ function getPatientEmail(req, res) {
 	Patient.findById(patientId, (err, patientUpdated) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var userId = patientUpdated.createdBy;
-		User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 			var result = "Jhon";
 			if (user) {
@@ -1002,7 +868,7 @@ function getPatientEmail(req, res) {
 function getGpt3Permision(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
 		if (user) {
@@ -1030,7 +896,7 @@ function setNumCallsGpt3(req, res) {
 
 	let userId = crypt.decrypt(req.params.userId);
 
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var numCallsGtp3 = user.numCallsGtp3;
 		numCallsGtp3++;
@@ -1049,7 +915,7 @@ function setNumCallsGpt3(req, res) {
 function isVerified(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = false;
 		if (user) {
@@ -1074,7 +940,6 @@ function setInfoVerified(req, res) {
 }
 
 module.exports = {
-	activateUser,
 	recoverPass,
 	updatePass,
 	newPass,

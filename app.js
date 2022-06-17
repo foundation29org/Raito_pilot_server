@@ -8,7 +8,21 @@ const bodyParser = require('body-parser');
 const app = express()
 const api = require ('./routes')
 const path = require('path')
+var session = require('express-session')
+const config = require('./config')
 //CORS middleware
+
+
+// Set up a simple server side session store.
+// The session store will briefly cache issuance requests
+// to facilitate QR code scanning.
+var sessionStore = new session.MemoryStore();
+app.use(session({
+  secret: config.sessionsecret,
+  resave: false,
+  saveUninitialized: true,
+  store: sessionStore
+}))
 
 function setCrossDomain(req, res, next) {
   //instead of * you can define ONLY the sources that we allow.
@@ -40,4 +54,6 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', function (req, res, next) {
     res.sendFile('dist/index.html', { root: __dirname });
  });
+
+module.exports.sessionStore = sessionStore;
 module.exports = app

@@ -51,6 +51,8 @@ const heightCtrl = require('../controllers/user/patient/height')
 
 const openRaitoCtrl = require('../controllers/all/openraito')
 
+const vcServiceCtrl = require('../services/vc.js')
+
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
 const api = express.Router()
@@ -62,7 +64,6 @@ api.post('/signin', userCtrl.signIn)
 api.post('/signwith', userCtrl.signWith)
 
 // activarcuenta
-api.post('/activateuser', userCtrl.activateUser)
 api.post('/sendEmail', userCtrl.sendEmail)
 
 // recuperar password
@@ -292,6 +293,9 @@ api.get('/openraito/patient/customshare/:patientId', auth(roles.UserResearcher),
 api.post('/openraito/patient/customshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setCustomShare)
 api.get('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.getIndividualShare)
 api.post('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setIndividualShare)
+
+//vc
+api.get('/createissuer', vcServiceCtrl.requestVC)
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/
