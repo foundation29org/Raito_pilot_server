@@ -4,6 +4,8 @@ const config = require('../config')
 const request = require('request')
 const msal = require('@azure/msal-node');
 var mainApp = require('../app.js');
+const Session = require('../models/session')
+const crypt = require('./crypt')
 
 const msalConfig = {
   auth: {
@@ -73,42 +75,46 @@ function generatePin( digits ) {
 }
 
 async function requestVC (req, res){
-  var id = req.session.id;
-  mainApp.sessionStore.get( id, (error, session) => {
-    var sessionData = {
-      "status" : 0,
-      "message": "Waiting for QR code to be scanned"
-    };
-    if ( session ) {
-      session.sessionData = sessionData;
-      mainApp.sessionStore.set( id, session);  
-    }
-  });
-  var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
-  if(config.client_server=='http://localhost:4200'){
-    callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
-  }
-  var token = await getToken();
-  var auth = 'Bearer '+token;
-  var pin = generatePin(4);
-  var requestConfigFile = generateBodyRequestVC(callbackurl, id, pin);
-  var options = {
-    'method': 'POST',
-    'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
-    'headers': {
-      'Content-Type': 'Application/json',
-      'Authorization': auth
-    },
-    body: JSON.stringify(requestConfigFile)
-  
+  let patientId= crypt.decrypt(req.params.patientId);
+  //save new session
+  let session = new Session()
+  session.sessionData = {
+    "status" : 0,
+    "message": "Waiting for QR code to be scanned"
   };
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    var respJson = JSON.parse(response.body)
-      respJson.id = id;
-      respJson.pin = pin;
-      res.status(200).send(respJson)
-  });
+  session.createdBy = patientId;
+  session.save(async (err, sessionStored) => {
+    if (err) {
+			console.log(err);
+			console.log({ message: `Failed to save in the database: ${err} ` })
+		}
+    var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
+    if(config.client_server=='http://localhost:4200'){
+      callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
+    }
+    var token = await getToken();
+    var auth = 'Bearer '+token;
+    var pin = generatePin(4);
+    var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin);
+    var options = {
+      'method': 'POST',
+      'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+      'headers': {
+        'Content-Type': 'Application/json',
+        'Authorization': auth
+      },
+      body: JSON.stringify(requestConfigFile)
+    
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      var respJson = JSON.parse(response.body)
+        respJson.id = sessionStored._id;
+        respJson.pin = pin;
+        res.status(200).send(respJson)
+    });
+  })
+  
 }
 
 async function issuanceCallback (req, res){
@@ -131,54 +137,69 @@ async function issuanceCallback (req, res){
     // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
     if ( issuanceResponse.code == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for issuance to complete...";
-      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
-        var sessionData = {
-          "status" : "request_retrieved",
-          "message": message
-        };
-        session.sessionData = sessionData;
-        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.status(202).send({ message: 'QR Code is scanned. Waiting for issuance to complete..' })
-        });
-      })      
+
+      var sessionData = {
+        "status" : "request_retrieved",
+        "message": message
+      };
+      Session.findByIdAndUpdate(issuanceResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
+        if (err) {
+          console.log(err);
+          console.log({ message: `Error making the request: ${err} ` })
+          res.status(202).send({ message: 'Error QR Code..' })
+        }
+        res.status(202).send({ message: 'QR Code is scanned. Waiting for issuance to complete..' })
+      })
+          
     }
 
     if ( issuanceResponse.code == "issuance_successful" ) {
       message = "Credential successfully issued";
-      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
-        var sessionData = {
-          "status" : "issuance_successful",
-          "message": message
-        };
-        session.sessionData = sessionData;
-        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.status(202).send({ message: 'Credential successfully issued' })
-        });
-      })      
+      var sessionData = {
+        "status" : "issuance_successful",
+        "message": message
+      };
+      Session.findByIdAndUpdate(issuanceResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
+        if (err) {
+          console.log(err);
+          console.log({ message: `Error making the request: ${err} ` })
+          res.status(202).send({ message: 'Error Credential successfully issued' })
+        }
+        res.status(202).send({ message: 'Credential successfully issued' })
+      })     
     }
 
     if ( issuanceResponse.code == "issuance_error" ) {
-      mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
-        var sessionData = {
-          "status" : "issuance_error",
-          "message": issuanceResponse.error.message,
-          "payload" :issuanceResponse.error.code
-        };
-        session.sessionData = sessionData;
-        mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.status(202).send({ message: 'issuance_error', error: issuanceResponse.error.message })
-        });
+      var sessionData = {
+        "status" : "issuance_error",
+        "message": issuanceResponse.error.message,
+        "payload" :issuanceResponse.error.code
+      };
+      Session.findByIdAndUpdate(issuanceResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
+        if (err) {
+          console.log(err);
+          console.log({ message: `Error making the request: ${err} ` })
+          res.status(202).send({ message: 'Error issuance_error' })
+        }
+        res.status(202).send({ message: 'issuance_error' })
       })      
     }
 }
 
 async function issuanceResponse (req, res){
+  let patientId= crypt.decrypt(req.params.patientId);
   var id = req.query.id;
-  mainApp.sessionStore.get( id, (error, session) => {
-    if (session && session.sessionData) {
-      console.log(`status: ${session.sessionData.status}, message: ${session.sessionData.message}`);
+  Session.findById(id, (err, session) => {
+    if (err) {
+      console.log(err);
+      console.log({ message: `Error getting session: ${err} ` })
+      res.status(202).send({ message: 'Error getting session' })
+    }
+    if(!session){
+      res.status(202).send({ message: 'The sessions dont exist' })
+    }else{
       res.status(202).send({ data: session.sessionData })
-      }
+    }
   })
 }
 

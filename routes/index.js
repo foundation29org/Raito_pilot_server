@@ -295,9 +295,9 @@ api.get('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), o
 api.post('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setIndividualShare)
 
 //vc
-api.get('/createissuer', vcServiceCtrl.requestVC)
+api.get('/createissuer:patientId',auth(roles.UserResearcher), vcServiceCtrl.requestVC)
 api.post('/issuer/issuanceCallback', vcServiceCtrl.issuanceCallback)
-api.get('/issuer/issuance-response', vcServiceCtrl.issuanceResponse)
+api.get('/issuer/issuance-response:patientId',auth(roles.UserResearcher), vcServiceCtrl.issuanceResponse)
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/
