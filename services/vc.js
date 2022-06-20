@@ -85,9 +85,6 @@ async function requestVC (req, res){
     }
   });
   var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
-  console.log(callbackurl)
-  console.log(req.hostname);
-  console.log(config.client_server);
   if(config.client_server=='http://localhost:4200'){
     callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
   }
@@ -95,7 +92,6 @@ async function requestVC (req, res){
   var auth = 'Bearer '+token;
   var pin = generatePin(4);
   var requestConfigFile = generateBodyRequestVC(callbackurl, id, pin);
-  console.log(requestConfigFile);
   var options = {
     'method': 'POST',
     'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
@@ -108,7 +104,6 @@ async function requestVC (req, res){
   };
   request(options, function (error, response) {
     if (error) throw new Error(error);
-    console.log(response.body);
     var respJson = JSON.parse(response.body)
       respJson.id = id;
       respJson.pin = pin;
@@ -117,12 +112,7 @@ async function requestVC (req, res){
 }
 
 async function issuanceCallback (req, res){
-  console.log(req);
-  var body = '';
-  req.on('data', function (data) {
-    body += data;
-  });
-  req.on('end', function () {
+  var body = req.body;
     console.log( body );
     if ( req.headers['api-key'] != config.VC.API_KEY ) {
       res.status(401).json({
@@ -137,6 +127,7 @@ async function issuanceCallback (req, res){
     // the request will be deleted from the server immediately.
     // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
     // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
+    console.log(issuanceResponse);
     if ( issuanceResponse.code == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for issuance to complete...";
       mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
@@ -146,7 +137,7 @@ async function issuanceCallback (req, res){
         };
         session.sessionData = sessionData;
         mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.send();
+          res.status(202).send({ message: 'QR Code is scanned. Waiting for issuance to complete..' })
         });
       })      
     }
@@ -160,7 +151,7 @@ async function issuanceCallback (req, res){
         };
         session.sessionData = sessionData;
         mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.send();
+          res.status(202).send({ message: 'Credential successfully issued' })
         });
       })      
     }
@@ -174,14 +165,10 @@ async function issuanceCallback (req, res){
         };
         session.sessionData = sessionData;
         mainApp.sessionStore.set( issuanceResponse.state, session, (error) => {
-          res.send();
+          res.status(202).send({ message: 'issuance_error', error: issuanceResponse.error.message })
         });
       })      
     }
-    
-    res.send()
-  });  
-  res.send()
 }
 
 async function issuanceResponse (req, res){
@@ -189,7 +176,7 @@ async function issuanceResponse (req, res){
   mainApp.sessionStore.get( id, (error, session) => {
     if (session && session.sessionData) {
       console.log(`status: ${session.sessionData.status}, message: ${session.sessionData.message}`);
-      res.status(200).json(session.sessionData);   
+      res.status(202).send({ data: session.sessionData })
       }
   })
 }
