@@ -112,7 +112,8 @@ async function requestVC (req, res){
 }
 
 async function issuanceCallback (req, res){
-  var body = req.body;
+  var test = JSON.stringify(req.body).toString();
+  var body = test.replace(/'/g, '"');
     console.log( body );
     if ( req.headers['api-key'] != config.VC.API_KEY ) {
       res.status(401).json({
@@ -120,14 +121,14 @@ async function issuanceCallback (req, res){
         });  
       return; 
     }
-    var issuanceResponse = JSON.parse(body.toString());
+    var issuanceResponse = JSON.parse(body);
+    console.log(issuanceResponse);
     var message = null;
     // there are 2 different callbacks. 1 if the QR code is scanned (or deeplink has been followed)
     // Scanning the QR code makes Authenticator download the specific request from the server
     // the request will be deleted from the server immediately.
     // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
     // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
-    console.log(issuanceResponse);
     if ( issuanceResponse.code == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for issuance to complete...";
       mainApp.sessionStore.get(issuanceResponse.state, (error, session) => {
