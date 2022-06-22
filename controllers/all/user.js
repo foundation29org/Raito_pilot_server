@@ -827,9 +827,9 @@ function getUserName(req, res) {
 	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (user) {
-			res.status(200).send({ userName: user.userName, lastName: user.lastName, isUser: req.params.userId, email: user.email })
+			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email })
 		}else{
-			res.status(200).send({ userName: '', lastName: '', isUser: req.params.userId})
+			res.status(200).send({ userName: '', lastName: '', idUser: req.params.userId})
 		}
 	})
 }

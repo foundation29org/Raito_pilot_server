@@ -4,6 +4,8 @@
 const User = require('../../models/user')
 const Patient = require('../../models/patient')
 const crypt = require('../../services/crypt')
+const vcServiceCtrl = require('../../services/vc.js')
+const Session = require('../../models/session')
 
 function getGeneralShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
@@ -46,16 +48,87 @@ function getIndividualShare(req, res) {
 
 function setIndividualShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
-    console.log(req.body);
+    var info = {patientId: req.params.patientId, individualShare: req.body.individualShare[req.body.indexUpdated]}
     Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true }, (err, patientUpdated) => {
         if (err) {
             console.log(err);
         }
         if (patientUpdated) {
-            console.log(patientUpdated);
-            res.status(200).send({ message: 'individuals share updated' })
+            if( req.body.updateStatus){
+                Session.find({"createdBy": patientId},async (err, sessions) => {
+                    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+                    if(sessions.length>0){
+                        var foundSession = false;
+                        var infoSession = {};
+                      for (var i = 0; i < sessions.length; i++) {
+                        if(sessions[i].sharedWith==info.individualShare.idUser){
+                            foundSession = true;
+                            infoSession == sessions[i];
+                        }
+                      }
+                      if(!foundSession){
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                      }else{
+                        if(infoSession.sessionData.message!='Credential successfully issued'){
+                            res.status(200).send({infoSession})
+                        }else{
+                            res.status(200).send({ message: 'individuals share updated' })
+                        }
+                      }
+                    }else{
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                    }
+                  
+                  })
+            }else{
+                res.status(200).send({ message: 'individuals share updated' })
+            }
+            
         }
     })
+}
+
+async function generateQR(info) {
+	return new Promise(async function (resolve, reject) {
+
+        let userId = crypt.decrypt(info.individualShare.idUser);
+        //añado  {"_id" : false} para que no devuelva el _id
+        User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, async (err, user) => {
+            if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+            if (user) {
+                info.userInfo= { userName: user.userName, lastName: user.lastName, email: user.email };
+                var promises = [];
+                promises.push(vcServiceCtrl.createIssuer(info));
+                await Promise.all(promises)
+                    .then(async function (data) {
+                        console.log(data);
+                        console.log('termina')
+                        resolve(data)
+                    })
+                    .catch(function (err) {
+                        console.log('Manejar promesa rechazada (' + err + ') aquí.');
+                        reject('Manejar promesa rechazada (' + err + ') aquí.');
+                    });
+            }else{
+                reject("not user found");
+            }
+        })
+
+		
+
+	});
 }
 
 module.exports = {

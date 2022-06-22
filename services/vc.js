@@ -5,7 +5,8 @@ const request = require('request')
 const msal = require('@azure/msal-node');
 var mainApp = require('../app.js');
 const Session = require('../models/session')
-const crypt = require('./crypt')
+const crypt = require('./crypt');
+const { ConsoleReporter } = require('jasmine');
 
 const msalConfig = {
   auth: {
@@ -41,7 +42,8 @@ async function getToken (){
   
 }
 
-function generateBodyRequestVC(callbackurl, id, pin){
+function generateBodyRequestVC(callbackurl, id, pin, info){
+  var userId= info.individualShare.idUser;
   var body =  
   {
     "includeQRCode": true,
@@ -60,9 +62,10 @@ function generateBodyRequestVC(callbackurl, id, pin){
        "type": "VerifiedCredentialExpert", 
        "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedCredentialExpert`, 
        "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_name": "Megan","family_name": "Bowen"}
+       "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "id": id.toString()}
       }
     }
+    console.log(body)
     return body;
 }
 
@@ -72,6 +75,63 @@ function generatePin( digits ) {
   var min    = max/10; // Math.pow(10, n) basically
   var number = Math.floor( Math.random() * (max - min + 1) ) + min;
   return ("" + number).substring(add); 
+}
+
+
+function createIssuer(info) {
+	return new Promise(async function (resolve, reject) {
+    //console.log(info);
+    let patientId= crypt.decrypt(info.patientId);
+    let individualShare = info.individualShare;
+    console.log(individualShare);
+    let session = new Session()
+    session.sessionData = {
+      "status" : 0,
+      "message": "Waiting for QR code to be scanned"
+    };
+    session._idIndividualShare = individualShare._id;
+    session.sharedWith = individualShare.idUser;
+    session.createdBy = info.patientId;
+    session.save(async (err, sessionStored) => {
+      if (err) {
+        console.log(err);
+        console.log({ message: `Failed to save in the database: ${err} ` })
+      }
+      var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
+      if(config.client_server=='http://localhost:4200'){
+        callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
+      }
+      var token = await getToken();
+      var auth = 'Bearer '+token;
+      var pin = generatePin(4);
+      var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, info);
+      var options = {
+        'method': 'POST',
+        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'headers': {
+          'Content-Type': 'Application/json',
+          'Authorization': auth
+        },
+        body: JSON.stringify(requestConfigFile)
+      
+      };
+      request(options, function (error, response) {
+        if (error) throw new Error(error);
+        var respJson = JSON.parse(response.body)
+          //respJson.id = sessionStored._id;
+          respJson.pin = pin;
+
+          
+          Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+            if (err){
+              reject({ message: `Error making the request: ${err}` })
+            }else{
+              resolve(sessionUpdated);
+            } 
+          })
+      });
+    })
+	});
 }
 
 async function requestVC (req, res){
@@ -95,7 +155,7 @@ async function requestVC (req, res){
     var token = await getToken();
     var auth = 'Bearer '+token;
     var pin = generatePin(4);
-    var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin);
+    var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, null);
     var options = {
       'method': 'POST',
       'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
@@ -109,9 +169,17 @@ async function requestVC (req, res){
     request(options, function (error, response) {
       if (error) throw new Error(error);
       var respJson = JSON.parse(response.body)
-        respJson.id = sessionStored._id;
+        //respJson.id = sessionStored._id;
         respJson.pin = pin;
-        res.status(200).send(respJson)
+
+        
+        Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+          if (err){
+            return res.status(500).send({ message: `Error making the request: ${err}` })
+          }else{
+            res.status(200).send(sessionUpdated)
+          } 
+        })
     });
   })
   
@@ -148,7 +216,7 @@ async function issuanceCallback (req, res){
           console.log({ message: `Error making the request: ${err} ` })
           res.status(202).send({ message: 'Error QR Code..' })
         }
-        res.status(202).send({ message: 'QR Code is scanned. Waiting for issuance to complete..' })
+        res.status(202).send({ message: 'request_retrieved' })
       })
           
     }
@@ -165,7 +233,7 @@ async function issuanceCallback (req, res){
           console.log({ message: `Error making the request: ${err} ` })
           res.status(202).send({ message: 'Error Credential successfully issued' })
         }
-        res.status(202).send({ message: 'Credential successfully issued' })
+        res.status(202).send({ message: 'issuance_successful' })
       })     
     }
 
@@ -187,8 +255,7 @@ async function issuanceCallback (req, res){
 }
 
 async function issuanceResponse (req, res){
-  let patientId= crypt.decrypt(req.params.patientId);
-  var id = req.query.id;
+  var id = req.params.sessionId;
   Session.findById(id, (err, session) => {
     if (err) {
       console.log(err);
@@ -198,13 +265,34 @@ async function issuanceResponse (req, res){
     if(!session){
       res.status(202).send({ message: 'The sessions dont exist' })
     }else{
-      res.status(202).send({ data: session.sessionData })
+      res.status(202).send(session.sessionData)
     }
   })
 }
 
+async function getAllVC (req, res){
+  Session.find({"createdBy": req.params.patientId},(err, sessions) => {
+    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+    var listsessions = [];
+    if(sessions.length>0){
+      for (var i = 0; i < sessions.length; i++) {
+        listsessions.push(sessions[i]);
+      }
+      res.status(200).send({listsessions})
+    }else{
+      res.status(200).send({listsessions})
+    }
+  
+  
+  })
+}
+
+
+
 module.exports = {
+  createIssuer,
   requestVC,
   issuanceCallback,
-  issuanceResponse
+  issuanceResponse,
+  getAllVC
 }

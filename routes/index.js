@@ -52,6 +52,7 @@ const heightCtrl = require('../controllers/user/patient/height')
 const openRaitoCtrl = require('../controllers/all/openraito')
 
 const vcServiceCtrl = require('../services/vc.js')
+const verifierServiceCtrl = require('../services/verifier.js')
 
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
@@ -295,9 +296,18 @@ api.get('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), o
 api.post('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setIndividualShare)
 
 //vc
-api.get('/createissuer:patientId',auth(roles.UserResearcher), vcServiceCtrl.requestVC)
+api.get('/createissuer/:patientId',auth(roles.UserResearcher), vcServiceCtrl.requestVC)
 api.post('/issuer/issuanceCallback', vcServiceCtrl.issuanceCallback)
-api.get('/issuer/issuance-response:patientId',auth(roles.UserResearcher), vcServiceCtrl.issuanceResponse)
+api.get('/issuer/issuance-response/:sessionId',auth(roles.UserResearcher), vcServiceCtrl.issuanceResponse)
+api.get('/issuer/getAll/:patientId',auth(roles.UserResearcher), vcServiceCtrl.getAllVC)
+
+//verifier
+api.get('/verifier/:patientId',auth(roles.UserResearcher), verifierServiceCtrl.presentationRequest)
+api.post('/verifier/presentation-request-callback', verifierServiceCtrl.presentationRequestCallback)
+api.get('/verifier/presentation-response/:sessionId', verifierServiceCtrl.presentationResponse)
+api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentationResponseb2c)
+
+
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/

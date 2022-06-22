@@ -4,13 +4,17 @@
 const mongoose = require ('mongoose');
 const Schema = mongoose.Schema
 const Patient = require('./patient')
+const User = require('./user')
 
 const { conndbaccounts } = require('../db_connect')
 
 const SessionSchema = Schema({
 	sessionData: {type: Schema.Types.Mixed},
 	date: {type: Date, default: Date.now},
-	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
+	data: {type: Schema.Types.Mixed},
+	_idIndividualShare: {type: String, default: ''},
+	sharedWith: {type: String, default: ''},
+	createdBy: {type: String, default: ''}
 })
 
 module.exports = conndbaccounts.model('Session',SessionSchema)
