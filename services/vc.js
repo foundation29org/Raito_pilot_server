@@ -44,6 +44,14 @@ async function getToken (){
 
 function generateBodyRequestVC(callbackurl, id, pin, info){
   var userId= info.individualShare.idUser;
+  var infoPermissions = 'I give access to ';
+  if(info.individualShare.data.patientInfo &&info.individualShare.data.patientInfo){
+    infoPermissions = infoPermissions + 'personal data of the patient and medical information such as documents, seizures, drugs, symptoms, etc.'
+  }else if(!info.individualShare.data.patientInfo && info.individualShare.data.patientInfo){
+    infoPermissions = infoPermissions + 'medical information such as documents, seizures, drugs, symptoms, etc.'
+  }else if(info.individualShare.data.patientInfo && !info.individualShare.data.patientInfo){
+    infoPermissions = infoPermissions + 'personal data of the patient.'
+  }
   var body =  
   {
     "includeQRCode": true,
@@ -62,10 +70,9 @@ function generateBodyRequestVC(callbackurl, id, pin, info){
        "type": "VerifiedCredentialExpert", 
        "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedCredentialExpert`, 
        "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "id": id.toString()}
+       "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
       }
     }
-    console.log(body)
     return body;
 }
 
@@ -83,7 +90,6 @@ function createIssuer(info) {
     //console.log(info);
     let patientId= crypt.decrypt(info.patientId);
     let individualShare = info.individualShare;
-    console.log(individualShare);
     let session = new Session()
     session.sessionData = {
       "status" : 0,
