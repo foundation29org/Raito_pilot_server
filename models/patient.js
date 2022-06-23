@@ -41,7 +41,8 @@ const individualShareSchema = Schema({
 	token: {type: String, default: ''},
 	operations: {type: Object, default: []},
 	idUser: {type: String, default: null},
-	status: {type: String, default: 'Pending'}
+	status: {type: String, default: 'Pending'},
+	verified: {type: String, default: ''}
 })
 
 const PatientSchema = Schema({

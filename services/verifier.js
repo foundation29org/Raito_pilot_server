@@ -3,7 +3,6 @@
 const config = require('../config')
 const request = require('request')
 const msal = require('@azure/msal-node');
-var mainApp = require('../app.js');
 const Session = require('../models/session')
 const crypt = require('./crypt')
 
