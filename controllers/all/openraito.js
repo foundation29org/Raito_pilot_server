@@ -41,9 +41,66 @@ function setCustomShare(req, res) {
 
 function getIndividualShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
-        res.status(200).send({ individualShare: patient.individualShare })
+    Patient.findById(patientId, { "_id": false, "createdBy": false }, async (err, patient) => {
+        if(patient.individualShare.length>0){
+            var data = await getInfoUsers(patient.individualShare);
+            return res.status(200).send({ individualShare: data })
+        }else{
+            res.status(200).send({ individualShare: patient.individualShare })
+        }
+        
     })
+}
+
+async function getInfoUsers(individualShares) {
+	return new Promise(async function (resolve, reject) {
+
+                var promises = [];
+                for (var i = 0; i < individualShares.length; i++) {
+                    promises.push(getUserName(individualShares[i]));
+                }
+                await Promise.all(promises)
+                    .then(async function (data) {
+                        console.log(data);
+                        console.log('termina')
+                        resolve(data)
+                    })
+                    .catch(function (err) {
+                        console.log('Manejar promesa rechazada (' + err + ') aquí.');
+                        reject('Manejar promesa rechazada (' + err + ') aquí.');
+                    });
+
+		
+
+	});
+}
+
+function getUserName(individualShare) {
+    return new Promise(async function (resolve, reject) {
+        console.log(individualShare);
+        if(individualShare.idUser!=null){
+            let idUser = crypt.decrypt(individualShare.idUser);
+            //añado  {"_id" : false} para que no devuelva el _id
+            User.findById(idUser, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+                if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+                if (user) {
+                    var res = JSON.parse(JSON.stringify(individualShare))
+                    res.userInfo = { userName: user.userName, lastName: user.lastName, email: user.email }
+                    resolve(res)
+                }else{
+                    var res = JSON.parse(JSON.stringify(individualShare))
+                    res.userInfo = { userName: '', lastName: '', email: '' }
+                    resolve(res)
+                }
+            })
+        }else{
+            var res = JSON.parse(JSON.stringify(individualShare))
+            res.userInfo = { userName: '', lastName: '', email: '' }
+            resolve(res)
+        }
+        
+    });
+	
 }
 
 function setIndividualShare(req, res) {
