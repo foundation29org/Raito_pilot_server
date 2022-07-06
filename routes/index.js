@@ -14,6 +14,7 @@ const deleteAccountCtrl = require('../controllers/user/delete')
 const phenotypeCtrl = require('../controllers/user/patient/phenotype')
 
 const superAdmninLangCtrl = require('../controllers/superadmin/lang')
+const admninLangCtrl = require('../controllers/admin/lang')
 const superadmninUsersClinicalCtrl = require('../controllers/superadmin/users-clinical')
 
 const hpoServiceCtrl = require('../services/hpo-info')
@@ -132,6 +133,9 @@ api.put('/superadmin/lang/:userId', auth(roles.SuperAdmin), function(req, res){
   superAdmninLangCtrl.addlang(req, res)
 })
 api.delete('/superadmin/lang/:userIdAndLang', auth(roles.SuperAdmin), superAdmninLangCtrl.deletelang)
+
+api.post('/admin/lang/:userId', auth(roles.Admin), admninLangCtrl.requestLangFile)
+api.put('/admin/lang/:userId', auth(roles.Admin), admninLangCtrl.requestaddlang)
 
 //api.get('/superadmin/users/', auth(roles.SuperAdmin), superadmninUsersClinicalCtrl.getUsers) //no se usa
 //api.get('/superadmin/infopatients/:userId', auth, superadmninUsersClinicalCtrl.getInfoPatients) //no se usa
