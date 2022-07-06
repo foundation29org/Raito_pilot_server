@@ -135,7 +135,7 @@ UserSchema.statics.getAuthenticated = function (email, password, cb) {
 			return cb(null, null, reasons.NOT_FOUND);
 		}
 		console.log(user.role);
-		if (user.role != 'User' && user.role != 'Admin') {
+		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
 			return cb(null, null, reasons.WRONG_PLATFORM);
 		}
 		//Check if the account is activated.
