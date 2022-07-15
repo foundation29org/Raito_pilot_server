@@ -46,8 +46,8 @@ const individualShareSchema = Schema({
 })
 
 const PatientSchema = Schema({
-	patientName: String,
-	surname: String,
+	patientName: {type: String, default: ''},
+	surname: {type: String, default: ''},
 	birthDate: Date,
 	citybirth: String,
 	provincebirth: String,

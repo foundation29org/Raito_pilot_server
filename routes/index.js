@@ -16,6 +16,7 @@ const phenotypeCtrl = require('../controllers/user/patient/phenotype')
 const superAdmninLangCtrl = require('../controllers/superadmin/lang')
 const admninLangCtrl = require('../controllers/admin/lang')
 const superadmninUsersClinicalCtrl = require('../controllers/superadmin/users-clinical')
+const eoCtrl = require('../controllers/superadmin/eousers')
 
 const hpoServiceCtrl = require('../services/hpo-info')
 const f29ncrserviceCtrl = require('../services/f29ncr')
@@ -139,6 +140,15 @@ api.put('/admin/lang/:userId', auth(roles.Admin), admninLangCtrl.requestaddlang)
 
 //api.get('/superadmin/users/', auth(roles.SuperAdmin), superadmninUsersClinicalCtrl.getUsers) //no se usa
 //api.get('/superadmin/infopatients/:userId', auth, superadmninUsersClinicalCtrl.getInfoPatients) //no se usa
+api.get('/eo/patients/:groupId', auth(roles.Admin), eoCtrl.getPatients)
+api.get('/eo/patient/:patientId', auth(roles.Admin), eoCtrl.getInfoPatient)
+api.get('/eo/drugs/:groupId', auth(roles.Admin), eoCtrl.getDrugs)
+api.get('/eo/phenotypes/:groupId', auth(roles.Admin), eoCtrl.getPhenotypes)
+api.get('/eo/feels/:groupId', auth(roles.Admin), eoCtrl.getFeels)
+api.get('/eo/proms/:groupId', auth(roles.Admin), eoCtrl.getProms)
+api.get('/eo/seizures/:groupId', auth(roles.Admin), eoCtrl.getSeizures)
+api.get('/eo/weights/:groupId', auth(roles.Admin), eoCtrl.getWeights)
+api.get('/eo/consent/:patientId', auth(roles.Admin), eoCtrl.haveConsent)
 
 // lang routes, using the controller lang, this controller has methods
 api.get('/langs/',  langCtrl.getLangs)
@@ -234,11 +244,11 @@ api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveM
 
 //groups
 api.get('/groupsnames', groupCtrl.getGroupsNames)
-api.get('/groupadmin/:groupName', groupCtrl.getGroupAdmin)
 api.get('/groups', groupCtrl.getGroups)
 api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
+api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
 api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)

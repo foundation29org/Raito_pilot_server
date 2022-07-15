@@ -1,7 +1,7 @@
 [
   {
     "type": "post",
-    "url": "https://health29.org/api/api/signin",
+    "url": "https://raito.care/api/api/signin",
     "title": "Get the token (and the userId)",
     "name": "signIn",
     "version": "1.0.0",
@@ -10,7 +10,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"aa@aa.com\", password: passwordsha512 };\n this.http.post('https://health29.org/api/signin',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"You have successfully logged in\"){\n      console.log(res.lang);\n      console.log(res.token);\n    }else{\n      this.isloggedIn = false;\n    }\n }, (err) => {\n   this.isloggedIn = false;\n }",
+        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"aa@aa.com\", password: passwordsha512 };\n this.http.post('https://raito.care/api/signin',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"You have successfully logged in\"){\n      console.log(res.lang);\n      console.log(res.token);\n    }else{\n      this.isloggedIn = false;\n    }\n }, (err) => {\n   this.isloggedIn = false;\n }",
         "type": "js"
       }
     ],
@@ -89,7 +89,7 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/api/newPass",
+    "url": "https://raito.care/api/api/newPass",
     "title": "New password",
     "name": "newPass",
     "version": "1.0.0",
@@ -98,7 +98,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar newpasswordsha512 = sha512(\"jisd?87Tg\");\nvar formValue = { email: example@ex.com, actualpassword: passwordsha512, newpassword: newpasswordsha512 };\n this.http.post('https://health29.org/api/newPass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }else if(res.message == 'Login failed'){\n      console.log('The current password is incorrect');\n    }else if(res.message == 'Account is temporarily locked'){\n      console.log('Account is temporarily locked');\n    }else if(res.message == 'Account is unactivated'){\n      ...\n    }\n }, (err) => {\n   ...\n }",
+        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar newpasswordsha512 = sha512(\"jisd?87Tg\");\nvar formValue = { email: example@ex.com, actualpassword: passwordsha512, newpassword: newpasswordsha512 };\n this.http.post('https://raito.care/api/newPass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }else if(res.message == 'Login failed'){\n      console.log('The current password is incorrect');\n    }else if(res.message == 'Account is temporarily locked'){\n      console.log('Account is temporarily locked');\n    }else if(res.message == 'Account is unactivated'){\n      ...\n    }\n }, (err) => {\n   ...\n }",
         "type": "js"
       }
     ],
@@ -190,7 +190,7 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/api/recoverpass",
+    "url": "https://raito.care/api/api/recoverpass",
     "title": "Request password change",
     "name": "recoverPass",
     "version": "1.0.0",
@@ -199,7 +199,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var formValue = { email: \"example@ex.com\"};\nthis.http.post('https://health29.org/api/recoverpass',formValue)\n .subscribe( (res : any) => {\n   if(res.message == \"Email sent\"){\n     console.log(\"Account recovery email sent. Check the email to change the password\");\n   }\n}, (err) => {\n  if(err.error.message == 'Fail sending email'){\n     //contact with health29\n   }else if(err.error.message == 'user not exists'){\n    ...\n   }else if(err.error.message == 'account not activated'){\n    ...\n   }\n}",
+        "content": "var formValue = { email: \"example@ex.com\"};\nthis.http.post('https://raito.care/api/recoverpass',formValue)\n .subscribe( (res : any) => {\n   if(res.message == \"Email sent\"){\n     console.log(\"Account recovery email sent. Check the email to change the password\");\n   }\n}, (err) => {\n  if(err.error.message == 'Fail sending email'){\n     //contact with Raito\n   }else if(err.error.message == 'user not exists'){\n    ...\n   }else if(err.error.message == 'account not activated'){\n    ...\n   }\n}",
         "type": "js"
       }
     ],
@@ -257,16 +257,16 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/api/signUp",
+    "url": "https://raito.care/api/api/signUp",
     "title": "New account",
     "name": "signUp",
     "version": "1.0.0",
     "group": "Account",
-    "description": "<p>This method allows you to create a user account in health 29</p>",
+    "description": "<p>This method allows you to create a user account in Raito</p>",
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"example@ex.com\", userName: \"Peter\", password: passwordsha512, lang: \"en\", group: \"None\"};\n this.http.post('https://health29.org/api/signup',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"Account created\"){\n      console.log(\"Check the email to activate the account\");\n    }else if(res.message == 'Fail sending email'){\n      //contact with health29\n    }else if(res.message == 'user exists'){\n     ...\n    }\n }, (err) => {\n   ...\n }",
+        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"example@ex.com\", userName: \"Peter\", password: passwordsha512, lang: \"en\", group: \"None\"};\n this.http.post('https://raito.care/api/signup',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"Account created\"){\n      console.log(\"Check the email to activate the account\");\n    }else if(res.message == 'Fail sending email'){\n      //contact with Raito\n    }else if(res.message == 'user exists'){\n     ...\n    }\n }, (err) => {\n   ...\n }",
         "type": "js"
       }
     ],
@@ -343,7 +343,7 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/api/updatepass",
+    "url": "https://raito.care/api/api/updatepass",
     "title": "Update password",
     "name": "updatePass",
     "version": "1.0.0",
@@ -352,7 +352,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar param = this.router.parseUrl(this.router.url).queryParams;\nvar formValue = { email: param.email, password: passwordsha512, randomCodeRecoverPass: param.key };\n this.http.post('https://health29.org/api/updatepass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }\n }, (err) => {\n   if(err.error.message == 'invalid link'){\n      ...\n    }else if(err.error.message == 'link expired'){\n      console.log('The link has expired after more than 15 minutes since you requested it. Re-request a password change.');\n    }else if(err.error.message == 'Error saving the pass'){\n      ...\n    }\n }",
+        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar param = this.router.parseUrl(this.router.url).queryParams;\nvar formValue = { email: param.email, password: passwordsha512, randomCodeRecoverPass: param.key };\n this.http.post('https://raito.care/api/updatepass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }\n }, (err) => {\n   if(err.error.message == 'invalid link'){\n      ...\n    }else if(err.error.message == 'link expired'){\n      console.log('The link has expired after more than 15 minutes since you requested it. Re-request a password change.');\n    }else if(err.error.message == 'Error saving the pass'){\n      ...\n    }\n }",
         "type": "js"
       }
     ],
@@ -424,16 +424,16 @@
   },
   {
     "type": "get",
-    "url": "https://health29.org/api/genotypes/:patientId",
-    "title": "Get genotype",
-    "name": "getGenotype",
-    "description": "<p>This method read Genotype of a patient</p>",
-    "group": "Genotype",
+    "url": "https://raito.care/api/group/",
+    "title": "Get specific group information",
+    "name": "getGroup",
+    "description": "<p>This method return the information of one group of Raito.</p>",
+    "group": "Groups",
     "version": "1.0.0",
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/genotypes/'+patientId)\n .subscribe( (res : any) => {\n   console.log('genotype: '+ res.genotype);\n  }, (err) => {\n   ...\n  }",
+        "content": "var groupName = \"GroupName\"\nthis.http.get('https://raito.care/api/group/'+groupName)\n .subscribe( (res : any) => {\n   console.log('result Ok');\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -464,8 +464,8 @@
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "patientId",
-            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+            "field": "groupName",
+            "description": "<p>The name of the group of patients. More info here:  <a href=\"#api-Groups-getGroupsNames\">Get groupName</a></p>"
           }
         ]
       }
@@ -478,274 +478,682 @@
             "type": "String",
             "optional": false,
             "field": "_id",
-            "description": "<p>Genotype unique ID.</p>"
+            "description": "<p>Group unique ID.</p>"
           },
           {
             "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": "<p>Patient's genotype. For each variant, you set the gene, mutation, codingsequencechange, aminoacidchange, isoform, and genomiccoordinates</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Date",
-            "optional": false,
-            "field": "date",
-            "description": "<p>Date on which the diagnosis was saved.</p>"
-          }
-        ],
-        "Success 202": [
-          {
-            "group": "Success 202",
             "type": "String",
             "optional": false,
-            "field": "message",
-            "description": "<p>If there is no genotype for the patient, it will return: &quot;There are no genotype&quot;</p>"
+            "field": "email",
+            "description": "<p>Group admin email address</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "subscription",
+            "description": "<p>Type of subscription of the group in Raito</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "name",
+            "description": "<p>Group name.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "medications",
+            "description": "<p>Group medications.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "phenotype",
+            "description": "<p>Group symptoms.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "defaultLang",
+            "description": "<p>Group default lang.</p>"
           }
         ]
       },
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\"genotype\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"data\":[\n      {\"gen\":\"DMD\",\"mutation\":\"deletion\", \"codingsequencechange\":\"\", \"aminoacidchange\":\"\", \"isoform\":\"\", \"genomiccoordinates\":\"\"}\n    ],\n   \"date\":\"2018-02-27T17:55:48.261Z\"\n  }\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no genotype'}",
+          "content": "HTTP/1.1 200 OK\n{\n\t  \"_id\" : <id>,\n\t  \"email\" : <admin_email>,\n\t  \"subscription\" : \"Premium\",\n\t  \"name\" : \"GroupName\",\n \t\"medications\" : [ {\n\t\t  \"drugs\" : [\n\t\t\t  {\n\t\t\t\t  \"drugsSideEffects\" : [\n\t\t\t\t\t  \"Cushingoid\",\n\t\t\t\t\t  \"Weight gain\",\n\t\t\t\t\t  \"Growth stunting\",\n\t\t\t\t\t  \"Delayed puberty\",\n\t\t\t\t  \t\"Mood changes\",\n\t\t\t\t  \t\"Fungal infections\",\n\t\t\t  \t\t\"Other dermatologic complications\",\n\t\t\t\t  \t\"Cataract\",\n\t\t\t\t  \t\"Adrenal surpression\",\n\t\t\t\t  \t\"Bone density\"\n\t\t\t  \t],\n\t\t\t  \t\"translations\" : [\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"es\"\n\t\t\t\t  \t},\n\t\t\t\t  \t{\n\t\t\t\t\t  \t\"name\" : \"Corticosteroïden - Prednison\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Prednisolone\"\n\t\t\t  }\n     ]\n\t\t  \"sideEffects\" : [\n\t\t\t  {\n\t\t\t\t  \"translationssideEffect\" : [\n\t\t\t\t  \t{\n\t\t\t\t\t\t  \"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"es\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t\t  \"name\" : \"Botdichtheid\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Bone density\"\n\t\t\t  }\n\t\t  ],\n\t\t  \"adverseEffects\" : [ ]\n\t  ],\n\t  \"phenotype\" : [\n\t\t  {\n\t\t\t  \"id\" : \"HP:0001250\",\n\t\t\t  \"name\" : \"seizures\"\n\t\t  }\n\t  ],\n\t  \"__v\" : 0,\n\t  \"defaultLang\" : \"es\"\n}",
           "type": "json"
         }
       ]
     },
-    "filename": "controllers/user/patient/genotype.js",
-    "groupTitle": "Genotype"
-  },
-  {
-    "type": "post",
-    "url": "https://health29.org/api/Genotypes/:patientId",
-    "title": "New genotype",
-    "name": "saveGenotype",
-    "description": "<p>This method create a genotype of a patient</p>",
-    "group": "Genotype",
-    "version": "1.0.0",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var genotype = {data: [{\"gen\":\"DMD\",\"mutation\":\"deletion\", \"codingsequencechange\":\"\", \"aminoacidchange\":\"\", \"isoform\":\"\", \"genomiccoordinates\":\"\"}]};\nthis.http.post('https://health29.org/api/genotypes/'+patientId, genotype)\n .subscribe( (res : any) => {\n   console.log('genotype: '+ res.genotype);\n  }, (err) => {\n   ...\n  }",
-        "type": "js"
-      }
-    ],
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "authorization",
-            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Header-Example:",
-          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "patientId",
-            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
-          }
-        ],
-        "body": [
-          {
-            "group": "body",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": "<p>Patient's genotype. For each variant, you set the gene, mutation, codingsequencechange, aminoacidchange, isoform, and genomiccoordinates</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "_id",
-            "description": "<p>Genotype unique ID.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": "<p>Patient's genotype. For each variant, you set the gene, mutation, codingsequencechange, aminoacidchange, isoform, and genomiccoordinates</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Date",
-            "optional": false,
-            "field": "date",
-            "description": "<p>Date on which the diagnosis was saved.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Boolean",
-            "optional": false,
-            "field": "validated",
-            "description": "<p>If the genotype is validated by a clinician, it will be true.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>If the genotype has been created correctly, it returns the message 'Genotype created'.</p>"
-          }
-        ],
-        "Success 202": [
-          {
-            "group": "Success 202",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>If there is no genotype for the patient, it will return: &quot;There are no genotype&quot;</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\"genotype\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"data\":[\n      {\"gen\":\"DMD\",\"mutation\":\"deletion\", \"codingsequencechange\":\"\", \"aminoacidchange\":\"\", \"isoform\":\"\", \"genomiccoordinates\":\"\"}\n    ],\n   \"date\":\"2018-02-27T17:55:48.261Z\"\n  },\nmessage: \"Genotype created\"\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no genotype'}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/user/patient/genotype.js",
-    "groupTitle": "Genotype"
-  },
-  {
-    "type": "put",
-    "url": "https://health29.org/api/genotypes/:genotypeId",
-    "title": "Update genotype",
-    "name": "updateGenotype",
-    "description": "<p>This method update the genotype of a patient</p>",
-    "group": "Genotype",
-    "version": "1.0.0",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var genotype = {data: [{\"gen\":\"DMD\",\"mutation\":\"deletion\", \"codingsequencechange\":\"\", \"aminoacidchange\":\"\", \"isoform\":\"\", \"genomiccoordinates\":\"\"}]};\nthis.http.put('https://health29.org/api/genotypes/'+genotypeId, genotype)\n .subscribe( (res : any) => {\n   console.log('genotype: '+ res.genotype);\n  }, (err) => {\n   ...\n  }",
-        "type": "js"
-      }
-    ],
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "authorization",
-            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Header-Example:",
-          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "genotypeId",
-            "description": "<p>Genotype unique ID. More info here:  <a href=\"#api-Genotype-getGenotype\">Get genotypeId</a></p>"
-          }
-        ],
-        "body": [
-          {
-            "group": "body",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": "<p>Patient's genotype. For each variant, you set the gene, mutation, codingsequencechange, aminoacidchange, isoform, and genomiccoordinates</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "_id",
-            "description": "<p>Genotype unique ID.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": "<p>Patient's phenotype. For each variant, you set the gene, mutation, codingsequencechange, aminoacidchange, isoform, and genomiccoordinates</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Date",
-            "optional": false,
-            "field": "date",
-            "description": "<p>Date on which the diagnosis was saved.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>If the genotype has been updated correctly, it returns the message 'Genotype updated'.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\"genotype\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"data\":[\n      {\"gen\":\"DMD\",\"mutation\":\"deletion\", \"codingsequencechange\":\"\", \"aminoacidchange\":\"\", \"isoform\":\"\", \"genomiccoordinates\":\"\"}\n    ],\n   \"date\":\"2018-02-27T17:55:48.261Z\",\n   \"validated\":false\n  },\nmessage: \"Genotype updated\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/user/patient/genotype.js",
-    "groupTitle": "Genotype"
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
   },
   {
     "type": "get",
-    "url": "https://health29.org/api/langs/",
+    "url": "https://raito.care/api/groups/",
+    "title": "Get groups",
+    "name": "getGroups",
+    "description": "<p>This method return the groups of Raito. you get a list of groups, and for each one you have: name, and the symptoms associated with the group.</p>",
+    "group": "Groups",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/groups)\n .subscribe( (res : any) => {\n   console.log('groups: '+ res.groups);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"name\":\"Duchenne Parent Project Netherlands\",\n    \"data\":[\n      {\"id\":\"HP:0100543\",\"name\":\"Cognitive impairment\"},\n      {\"id\":\"HP:0002376\",\"name\":\"Developmental regression\"}\n    ]\n  },\n  {\n    \"name\":\"None\",\n    \"data\":[]\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/groupsnames/",
+    "title": "Get groups names",
+    "name": "getGroupsNames",
+    "description": "<p>This method return the groups of Raito. you get a list of groups, and for each one you have the name and the id.</p>",
+    "group": "Groups",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/groupsnames)\n .subscribe( (res : any) => {\n   console.log('groups: '+ res.groups);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"name\":\"Duchenne Parent Project Netherlands\",\n    \"_id\":\"2038sdfsdf74u82034dsfh5\"\n  },\n  {\n    \"name\":\"None\",\n    \"_id\":\"2033245sdggbf82034dsfh2\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/group/medications/:groupName",
+    "title": "Get medications",
+    "name": "getMedicationsGroup",
+    "description": "<p>This method return the medications associated with a group</p>",
+    "group": "Groups",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/group/medications/'+\"None\")\n .subscribe( (res : any) => {\n   console.log('Get medications ok ');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupName",
+            "description": "<p>The name of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "medications",
+            "description": "<p>An object with the information abour the medications associated with the group of patients.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is group name, it will return: &quot;The group does not exist&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n {\"data\":\n   {\n\t\t  \"drugs\" : [\n\t\t\t  {\n\t\t\t\t  \"drugsSideEffects\" : [\n\t\t\t\t\t  \"Cushingoid\",\n\t\t\t\t\t  \"Weight gain\",\n\t\t\t\t\t  \"Growth stunting\",\n\t\t\t\t\t  \"Delayed puberty\",\n\t\t\t\t  \t\"Mood changes\",\n\t\t\t\t  \t\"Fungal infections\",\n\t\t\t  \t\t\"Other dermatologic complications\",\n\t\t\t\t  \t\"Cataract\",\n\t\t\t\t  \t\"Adrenal surpression\",\n\t\t\t\t  \t\"Bone density\"\n\t\t\t  \t],\n\t\t\t  \t\"translations\" : [\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"es\"\n\t\t\t\t  \t},\n\t\t\t\t  \t{\n\t\t\t\t\t  \t\"name\" : \"Corticosteroïden - Prednison\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Prednisolone\"\n\t\t\t  }\n     ]\n\t\t  \"sideEffects\" : [\n\t\t\t  {\n\t\t\t\t  \"translationssideEffect\" : [\n\t\t\t\t  \t{\n\t\t\t\t\t\t  \"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"es\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t\t  \"name\" : \"Botdichtheid\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Bone density\"\n\t\t\t  }\n\t\t  ],\n\t\t  \"adverseEffects\" : [ ]\n\t  ]\n }\n}\n\nHTTP/1.1 202 OK\n{message: 'The group does not exist'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/group/phenotype/:groupName",
+    "title": "Get phenotype",
+    "name": "getPhenotypeGroup",
+    "description": "<p>This method return the phenotype associated with a group</p>",
+    "group": "Groups",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/group/phenotype/'+\"None\")\n .subscribe( (res : any) => {\n   console.log('Phenotype info: '+ res.infoPhenotype.data);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupName",
+            "description": "<p>The name of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "infoPhenotype",
+            "description": "<p>The symptoms associated with the group. For each symptom, you get the <a href=\"https://en.wikipedia.org/wiki/Human_Phenotype_Ontology\" target=\"_blank\">HPO</a> and the name</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is group name, it will return: &quot;The group does not exist&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\"infoPhenotype\":\n {\"data\":\n   [\n     {\"name\":\"Cognitive impairment\",\"id\":\"HP:0100543\"},{\"name\":\"Developmental regression\",\"id\":\"HP:0002376\"}\n   ]\n }\n}\n\nHTTP/1.1 202 OK\n{message: 'The group does not exist'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
+  },
+  {
+    "type": "delete",
+    "url": "https://raito.care/api/height/:heightId",
+    "title": "Delete height",
+    "name": "deleteHeight",
+    "description": "<p>This method delete Height of a patient</p>",
+    "group": "Height",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.delete('https://raito.care/api/heights/'+heightId)\n .subscribe( (res : any) => {\n   console.log('Delete height ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "heightId",
+            "description": "<p>Height unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the height has been deleted correctly, it returns the message 'The height has been eliminated'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\tmessage: \"The height has been eliminated\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/height.js",
+    "groupTitle": "Height"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/height/:patientId",
+    "title": "Get height",
+    "name": "getHeight",
+    "description": "<p>This method read Height of a patient</p>",
+    "group": "Height",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/height/'+patientId)\n .subscribe( (res : any) => {\n   console.log('height: '+ res.height);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Height unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's height.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date",
+            "description": "<p>on which the height was saved.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no height for the patient, it will return: &quot;There are no height&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\"height\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"value\":\"43\",\n    \"date\":\"2018-02-27T17:55:48.261Z\"\n  }\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no height'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/height.js",
+    "groupTitle": "Height"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/heights/:patientId",
+    "title": "Get history height",
+    "name": "getHistoryHeight",
+    "description": "<p>This method read History Height of a patient</p>",
+    "group": "Height",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/heights/'+patientId)\n .subscribe( (res : any) => {\n   console.log('Get history heights ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>History Height unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>For each height: Patient's height.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date",
+            "description": "<p>For each height: on which the height was saved.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"_id\":<history height id>,\n    \"value\":\"43\",\n    \"date\":\"2018-02-27T17:55:48.261Z\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/height.js",
+    "groupTitle": "Height"
+  },
+  {
+    "type": "post",
+    "url": "https://raito.care/api/height/:patientId",
+    "title": "New height",
+    "name": "saveHeight",
+    "description": "<p>This method create a height of a patient</p>",
+    "group": "Height",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var height = {value: \"43\", date: \"2018-02-27T17:55:48.261Z\"};\nthis.http.post('https://raito.care/api/height/'+patientId, height)\n .subscribe( (res : any) => {\n   console.log('height: '+ res.height);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's height. You set the date and the height</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Height unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's height. You get the height</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the height has been created correctly, it returns the message 'Height created'.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no height for the patient, it will return: &quot;There are no height&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\"height\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"value\":\"43\",\n   \"date\":\"2018-02-27T17:55:48.261Z\"\n  },\nmessage: \"Height created\"\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no height'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/height.js",
+    "groupTitle": "Height"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/langs/",
     "title": "Get languages",
     "name": "getLangs",
-    "description": "<p>This method return the languages available in health 29. you get a list of languages, and for each one you have the name and the code. We currently have 5 languages, but we will include more. The current languages are:</p> <ul> <li>English: en</li> <li>Spanish: es</li> <li>German: de</li> <li>Dutch: nl</li> <li>Portuguese: pt</li> </ul>",
+    "description": "<p>This method return the languages available in Raito. you get a list of languages, and for each one you have the name and the code. We currently have 5 languages, but we will include more. The current languages are:</p> <ul> <li>English: en</li> <li>Spanish: es</li> <li>German: de</li> <li>Dutch: nl</li> <li>Portuguese: pt</li> </ul>",
     "group": "Languages",
     "version": "1.0.0",
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/langs)\n .subscribe( (res : any) => {\n   console.log('languages: '+ res.listLangs);\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/api/langs)\n .subscribe( (res : any) => {\n   console.log('languages: '+ res.listLangs);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -762,8 +1170,1862 @@
     "groupTitle": "Languages"
   },
   {
+    "type": "put",
+    "url": "https://raito.care/api/admin/lang/",
+    "title": "Request new language for the platform texts",
+    "name": "requestaddlang",
+    "description": "<p>This method request by email a new language for the platform texts. Only admins could make this request.</p>",
+    "group": "Languages",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var params = userId\nvar body = { code: <lang_code>, name: <lang_name> }\nthis.http.put('https://raito.care/api/admin/lang'+params,body)\n .subscribe( (res : any) => {\n   console.log('Request new language ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Object",
+            "optional": false,
+            "field": "userId",
+            "description": "<p>The user unique id.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "String",
+            "optional": false,
+            "field": "code",
+            "description": "<p>The language code, i.e &quot;en&quot; or &quot;nl&quot;.</p>"
+          },
+          {
+            "group": "body",
+            "type": "String",
+            "optional": false,
+            "field": "name",
+            "description": "<p>The language name, i.e &quot;English&quot;.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns a message with information about the execution</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n {\n\t\t\"message\":'request for new language sent'\n\t}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/admin/lang.js",
+    "groupTitle": "Languages"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/medication/changenotes/:medicationId",
+    "title": "Change notes of a medication",
+    "name": "changenotes",
+    "description": "<p>This method updates the notes of a dose for a medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var medication ={\"notes\":\"note1\"};\nthis.http.put('https://raito.care/api/medication/changenotes/'+medicationId, medication)\n .subscribe( (res : any) => {\n   console.log('Change notes ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the dose of medication has been updated correctly, it returns the message 'stop takin the drug'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t},\n\t\t\"message\": \"notes changed\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "delete",
+    "url": "https://raito.care/api/medication/:medicationId",
+    "title": "Delete dose of medication",
+    "name": "deleteDose",
+    "description": "<p>This method deletes dose of medication of a patient.</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.delete('https://raito.care/medication/'+medicationId)\n .subscribe( (res : any) => {\n   console.log('medication: '+ res.medication);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the dose has been deleted correctly, it returns the message 'he dose has been eliminated'.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no dose for the patient, it will return: &quot;The dose does not exist&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n\t\t{\n\t\t\t\"message\" : 'he dose has been eliminated'\n\t\t}\n\nHTTP/1.1 202 OK\n{message: 'The dose does not exist'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "delete",
+    "url": "https://raito.care/api//medications/:drugNameAndPatient",
+    "title": "Delete medication of a patient by name",
+    "name": "deleteMedication",
+    "description": "<p>This method deletes a medication of a patient by name.</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.delete('https://raito.care//medications/'+drugName-code-PatientId)\n .subscribe( (res : any) => {\n   console.log('medication: '+ res.medication);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "drugName-code-PatientId",
+            "description": "<p>Medication and patient unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the medication has been deleted correctly, it returns the message 'The medication has been eliminated'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n\t\t{\n\t\t\t\"message\" : 'The medication has been eliminated'\n\t\t}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "delete",
+    "url": "https://raito.care/api/medications/update/:PatientIdAndMedicationId",
+    "title": "Delete medication input for a patient by identifier and update previous if exists",
+    "name": "deleteMedicationByIDAndUpdateStateForThePrevious",
+    "description": "<p>This method delete medication input for a patient by identifier and update state to current taking for the previous input if exists</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.delete('https://raito.care/api/medications/update/'+PatientId-code-MedicationId)\n .subscribe( (res : any) => {\n   console.log('Delete medication and update previous if exists ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId-code-medicationId",
+            "description": "<p>Patient and Other medication unique IDs</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If Other medication has been deleted correctly and there is not any medication previous, it returns the message 'The medication has been eliminated and there are not other medications'. If Other medication has been deleted correctly and there is a medication previous, it returns the message 'Medication has been eliminated, and previous has been updated to current taking'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n  {\n    \"message\":\"Medication has been eliminated, and previous has been updated to current taking\",\n  }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
     "type": "get",
-    "url": "https://health29.org/api/patients/:patientId",
+    "url": "https://raito.care/api/medications/all/:drugNameAndPatient",
+    "title": "Get medication list by name",
+    "name": "getAllMedicationByNameForPatient",
+    "description": "<p>This method read Medication of a patient by name of medication</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/medications/all/'+drugName-code-PatientId)\n .subscribe( (res : any) => {\n   console.log('medication: '+ res);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "drugName-code-PatientId",
+            "description": "<p>Patient unique ID and name of the medication/drug.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>For each medication: Medication unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "dose",
+            "description": "<p>For each medication: Other medication dose.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "drug",
+            "description": "<p>For each medication: Other medication name.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "notes",
+            "description": "<p>For each medication: Medication notes.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "endDate",
+            "description": "<p>For each medication: on which the patient ends with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "startDate",
+            "description": "<p>For each medication: on which the patient starts with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "sideEffects",
+            "description": "<p>For each medication: Medication side Effects.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no medication with the name provided for the patient, it will return: &quot;TNo medications found&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t}\n]\n\nHTTP/1.1 202 OK\n{message: 'No medications found'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/medication/:medicationId",
+    "title": "Get medication",
+    "name": "getMedication",
+    "description": "<p>This method read Medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/medication/'+medicationId)\n .subscribe( (res : any) => {\n   console.log('medication: '+ res.medication);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Medication unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "dose",
+            "description": "<p>Other medication dose.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "drug",
+            "description": "<p>Other medication name.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "notes",
+            "description": "<p>Medication notes.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "endDate",
+            "description": "<p>on which the patient ends with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "startDate",
+            "description": "<p>on which the patient starts with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "sideEffects",
+            "description": "<p>Medication side Effects.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no medication for the patient, it will return: &quot;There are no medication&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t}\nHTTP/1.1 202 OK\n{message: 'There are no medication'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/medications/:patientId",
+    "title": "Get medication list",
+    "name": "getMedications",
+    "description": "<p>This method read Medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/medications/'+patientId)\n .subscribe( (res : any) => {\n   console.log('medication: '+ res.medication);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>For each medication: Medication unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "dose",
+            "description": "<p>For each medication: Other medication dose.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "drug",
+            "description": "<p>For each medication: Other medication name.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "notes",
+            "description": "<p>For each medication: Medication notes.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "endDate",
+            "description": "<p>For each medication: on which the patient ends with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "startDate",
+            "description": "<p>For each medication: on which the patient starts with other medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "sideEffects",
+            "description": "<p>For each medication: Medication side Effects.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no medication for the patient, it will return: &quot;There are no medication&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t}\n]\n\nHTTP/1.1 202 OK\n{message: 'There are no medication'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/medication/newdose/:medicationIdAndPatient",
+    "title": "Update medication dose",
+    "name": "newDose",
+    "description": "<p>This method updates the dose for a medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "  var medication ={\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t};\n  this.http.put('https://raito.care/api/medication/newdose/'+medicationId-code-Patient, medication)\n   .subscribe( (res : any) => {\n     console.log('medication: '+ res.medication);\n    }, (err) => {\n     ...\n    }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId-code-Patient",
+            "description": "<p>Medication and Patient unique ID.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the dose of medication has been created correctly, it returns the message 'Dose changed'.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no medication for the patient, it will return: &quot;There are no medication&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t},\n\t\t\"message\": \"Dose changed\"\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no medication'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "post",
+    "url": "https://raito.care/api/medication/:patientId",
+    "title": "New medication",
+    "name": "saveMedication",
+    "description": "<p>This method create a medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "  var medication ={\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t};\n  this.http.post('https://raito.care/api/medication/'+patientId, medication)\n   .subscribe( (res : any) => {\n     console.log('medication: '+ res.medication);\n    }, (err) => {\n     ...\n    }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the medication has been created correctly, it returns the message 'Medication created'.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no medication for the patient, it will return: &quot;There are no medication&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t},\n\t\t\"message\": \"Medication created\"\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no medication'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/medication/sideeffect/:medicationId",
+    "title": "Change side effect of a medication",
+    "name": "sideeffect",
+    "description": "<p>This method updates the side effect of a dose for a medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var medication ={\"sideEffects\":[\"Cushingoid\",\"Weight gain\"]};\nthis.http.put('https://raito.care/api/medication/sideeffect/'+medicationId, medication)\n .subscribe( (res : any) => {\n   console.log('Change side effect ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the dose of medication has been updated correctly, it returns the message 'stop takin the drug'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\": [\"Cushingoid\",\"Weight gain\"]\n\t\t},\n\t\t\"message\": \"notes changed\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/medication/stoptaking/:medicationId",
+    "title": "Stop taking medication",
+    "name": "stoptaking",
+    "description": "<p>This method updates the end date of a dose for a medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "  var medication ={\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t}\n\t };\n  this.http.put('https://raito.care/api/medication/stoptaking/'+medicationId, medication)\n   .subscribe( (res : any) => {\n     console.log('medication: '+ res.medication);\n    }, (err) => {\n     ...\n    }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the dose of medication has been updated correctly, it returns the message 'stop takin the drug'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t},\n\t\t\"message\": \"stop takin the drug\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/medication/:medicationId",
+    "title": "Update medication",
+    "name": "updateMedication",
+    "description": "<p>This method update the medication of a patient</p>",
+    "group": "Medication",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "  var medication = {\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t };\n  this.http.put('https://raito.care/api/medication/'+medicationId, medication)\n   .subscribe( (res : any) => {\n     console.log('medication: '+ res.medication);\n    }, (err) => {\n     ...\n    }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "medicationId",
+            "description": "<p>Medication unique ID.</p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's medication.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "medication",
+            "description": "<p>Patient's medication.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the medication has been updated correctly, it returns the message 'Medication updated'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\t\"medication\":\n\t\t{\n\t\t\t\"_id\" : <medicationId>,\n\t\t\t\"dose\" : \"32\",\n\t\t\t\"drug\" : \"Endocrinology - Metformin\",\n\t\t\t\"notes\":\"note1\",\n\t\t\t\"endDate\" : null,\n\t\t\t\"startDate\" : {\n\t\t\t\t\"$date\" : 1610406000000\n\t\t\t},\n\t\t\t\"sideEffects\":{}\n\t\t},\n\t\t\"message\": \"Medication updated\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/medication.js",
+    "groupTitle": "Medication"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/drugs/:groupId",
+    "title": "Get drugs",
+    "name": "getDrugs",
+    "description": "<p>This method return the drugs of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/drugs/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the drugs of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/feels/:groupId",
+    "title": "Get feels",
+    "name": "getFeels",
+    "description": "<p>This method return the feels of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/feels/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the feels of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/patient/:patientId",
+    "title": "Get patient",
+    "name": "getInfoPatient",
+    "description": "<p>This method return the information of a patient.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/patient/'+patientId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the information of a patient in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"patientID\":\"7bc32c840a9dae512ert32f2vs4e34d7717ad9095f70d9d47444c6a5668edca5545c\",\n  \"result\":{\n     \"resourceType\": \"Bundle\",\n     \"id\": \"bundle-references\",\n     \"type\": \"collection\",\n     \"entry\": [...]\n   }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/patients/:groupId",
+    "title": "Get patients",
+    "name": "getPatients",
+    "description": "<p>This method return the information of all the patients of an organization.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/patients/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the information of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"patientID\":\"7bc32c840a9dae512ert32f2vs4e34d7717ad9095f70d9d47444c6a5668edca5545c\",\n    \"result\":{\n       \"resourceType\": \"Bundle\",\n       \"id\": \"bundle-references\",\n       \"type\": \"collection\",\n       \"entry\": [...]\n\t\t}\n  },\n  {\n    ...\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/phenotypes/:groupId",
+    "title": "Get phenotypes",
+    "name": "getPhenotypes",
+    "description": "<p>This method return the phenotypes of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/phenotypes/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the phenotypes of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/proms/:groupId",
+    "title": "Get proms",
+    "name": "getProms",
+    "description": "<p>This method return the proms of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/proms/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the proms of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/seizures/:groupId",
+    "title": "Get seizures",
+    "name": "getSeizures",
+    "description": "<p>This method return the seizures of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/seizures/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the seizures of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/weights/:groupId",
+    "title": "Get weights",
+    "name": "getWeights",
+    "description": "<p>This method return the weights of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/weights/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the weights of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/consent/:patientId",
+    "title": "Have consent",
+    "name": "haveConsent",
+    "description": "<p>This method return the consent of the patient in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/consent/'+patientId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the consent of the patient in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/patients/:patientId",
     "title": "Get patient",
     "name": "getPatient",
     "description": "<p>This method read data of a Patient</p>",
@@ -772,7 +3034,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/patients/'+patientId)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patient);\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/api/patients/'+patientId)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patient);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -943,7 +3205,7 @@
   },
   {
     "type": "get",
-    "url": "https://health29.org/api/patients-all/:userId",
+    "url": "https://raito.care/api/patients-all/:userId",
     "title": "Get patient list of a user",
     "name": "getPatientsUser",
     "description": "<p>This method read the patient list of a user. For each patient you have, you will get: patientId, name, and last name.</p>",
@@ -952,7 +3214,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/patients-all/'+userId)\n .subscribe( (res : any) => {\n   console.log('patient list: '+ res.listpatients);\n   if(res.listpatients.length>0){\n     console.log(\"patientId\" + res.listpatients[0].sub +\", Patient Name: \"+ res.listpatients[0].patientName+\", Patient surname: \"+ res.listpatients[0].surname);\n   }\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/api/patients-all/'+userId)\n .subscribe( (res : any) => {\n   console.log('patient list: '+ res.listpatients);\n   if(res.listpatients.length>0){\n     console.log(\"patientId\" + res.listpatients[0].sub +\", Patient Name: \"+ res.listpatients[0].patientName+\", Patient surname: \"+ res.listpatients[0].surname);\n   }\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1014,7 +3276,7 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/patients/:userId",
+    "url": "https://raito.care/api/patients/:userId",
     "title": "New Patient",
     "name": "savePatient",
     "description": "<p>This method allows to create a new Patient</p>",
@@ -1023,7 +3285,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};\nthis.http.post('https://health29.org/api/patients/'+userId, patient)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patientInfo);\n  }, (err) => {\n   ...\n  }",
+        "content": "var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};\nthis.http.post('https://raito.care/api/patients/'+userId, patient)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patientInfo);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1210,7 +3472,7 @@
   },
   {
     "type": "put",
-    "url": "https://health29.org/api/patients/:patientId",
+    "url": "https://raito.care/api/patients/:patientId",
     "title": "Update Patient",
     "name": "updatePatient",
     "description": "<p>This method allows to change the data of a patient.</p>",
@@ -1219,7 +3481,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};\nthis.http.put('https://health29.org/api/patients/'+patientId, patient)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patientInfo);\n  }, (err) => {\n   ...\n  }",
+        "content": "var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};\nthis.http.put('https://raito.care/api/patients/'+patientId, patient)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patientInfo);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1406,7 +3668,7 @@
   },
   {
     "type": "get",
-    "url": "https://health29.org/api/phenotypes/:patientId",
+    "url": "https://raito.care/api/phenotypes/:patientId",
     "title": "Get phenotype",
     "name": "getPhenotype",
     "description": "<p>This method read Phenotype of a patient</p>",
@@ -1415,7 +3677,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/phenotypes/'+patientId)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/api/phenotypes/'+patientId)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1507,7 +3769,7 @@
   },
   {
     "type": "post",
-    "url": "https://health29.org/api/phenotypes/:patientId",
+    "url": "https://raito.care/api/phenotypes/:patientId",
     "title": "New phenotype",
     "name": "savePhenotype",
     "description": "<p>This method create a phenotype of a patient</p>",
@@ -1516,7 +3778,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var phenotype = {data: [{\"id\":\"HP:0100543\",\"name\":\"Cognitive impairment\"},{\"id\":\"HP:0002376\",\"name\":\"Developmental regression\"}]};\nthis.http.post('https://health29.org/api/phenotypes/'+patientId, phenotype)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
+        "content": "var phenotype = {data: [{\"id\":\"HP:0100543\",\"name\":\"Cognitive impairment\"},{\"id\":\"HP:0002376\",\"name\":\"Developmental regression\"}]};\nthis.http.post('https://raito.care/api/phenotypes/'+patientId, phenotype)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1624,7 +3886,7 @@
   },
   {
     "type": "put",
-    "url": "https://health29.org/api/phenotypes/:phenotypeId",
+    "url": "https://raito.care/api/phenotypes/:phenotypeId",
     "title": "Update phenotype",
     "name": "updatePhenotype",
     "description": "<p>This method update the phenotype of a patient</p>",
@@ -1633,7 +3895,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var phenotype = {data: [{\"id\":\"HP:0100543\",\"name\":\"Cognitive impairment\"},{\"id\":\"HP:0002376\",\"name\":\"Developmental regression\"}]};\nthis.http.put('https://health29.org/api/phenotypes/'+phenotypeId, phenotype)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
+        "content": "var phenotype = {data: [{\"id\":\"HP:0100543\",\"name\":\"Cognitive impairment\"},{\"id\":\"HP:0002376\",\"name\":\"Developmental regression\"}]};\nthis.http.put('https://raito.care/api/phenotypes/'+phenotypeId, phenotype)\n .subscribe( (res : any) => {\n   console.log('phenotype: '+ res.phenotype);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1732,7 +3994,7 @@
   },
   {
     "type": "get",
-    "url": "https://health29.org/api/users/:id",
+    "url": "https://raito.care/api/users/:id",
     "title": "Get user",
     "name": "getUser",
     "version": "1.0.0",
@@ -1741,7 +4003,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://health29.org/api/users/'+userId)\n .subscribe( (res : any) => {\n   console.log(res.userName);\n}, (err) => {\n  ...\n}",
+        "content": "this.http.get('https://raito.care/api/users/'+userId)\n .subscribe( (res : any) => {\n   console.log(res.userName);\n}, (err) => {\n  ...\n}",
         "type": "js"
       }
     ],
@@ -1850,7 +4112,7 @@
   },
   {
     "type": "put",
-    "url": "https://health29.org/api/users/:id",
+    "url": "https://raito.care/api/users/:id",
     "title": "Update user",
     "name": "updateUser",
     "version": "1.0.0",
@@ -1859,7 +4121,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.put('https://health29.org/api/users/'+userId, this.user)\n .subscribe( (res : any) => {\n   console.log('User update: '+ res.user);\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.put('https://raito.care/api/users/'+userId, this.user)\n .subscribe( (res : any) => {\n   console.log('User update: '+ res.user);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -1981,5 +4243,358 @@
     },
     "filename": "controllers/all/user.js",
     "groupTitle": "Users"
+  },
+  {
+    "type": "delete",
+    "url": "https://raito.care/api/weight/:heightId",
+    "title": "Delete weight",
+    "name": "deleteWeight",
+    "description": "<p>This method delete Weight of a patient</p>",
+    "group": "Weight",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.delete('https://raito.care/api/weight/'+weightId)\n .subscribe( (res : any) => {\n   console.log('Delete weight ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "weightId",
+            "description": "<p>Weight unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the weight has been deleted correctly, it returns the message 'The weight has been eliminated'.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\t\tmessage: \"The weight has been eliminated\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/weight.js",
+    "groupTitle": "Weight"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/weights/:patientId",
+    "title": "Get history weight",
+    "name": "getHistoryWeight",
+    "description": "<p>This method read History Weight of a patient</p>",
+    "group": "Weight",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/weights/'+patientId)\n .subscribe( (res : any) => {\n   console.log('Get History weight ok');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Weight unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>For each weight: Patient's weight.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date",
+            "description": "<p>For each weight: on which the weight was saved.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"value\":\"43\",\n    \"date\":\"2018-02-27T17:55:48.261Z\"\n  }\n]",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/weight.js",
+    "groupTitle": "Weight"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/weight/:patientId",
+    "title": "Get weight",
+    "name": "getWeight",
+    "description": "<p>This method read Weight of a patient</p>",
+    "group": "Weight",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/weight/'+patientId)\n .subscribe( (res : any) => {\n   console.log('weight: '+ res.weight);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Weight unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's weight.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date",
+            "description": "<p>on which the weight was saved.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no weight for the patient, it will return: &quot;There are no weight&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\"weight\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"value\":\"43\",\n    \"date\":\"2018-02-27T17:55:48.261Z\"\n  }\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no weight'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/weight.js",
+    "groupTitle": "Weight"
+  },
+  {
+    "type": "post",
+    "url": "https://raito.care/api/weight/:patientId",
+    "title": "New weight",
+    "name": "saveWeight",
+    "description": "<p>This method create a weight of a patient</p>",
+    "group": "Weight",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var weight = {value: \"43\"};\nthis.http.post('https://raito.care/api/weight/'+patientId, weight)\n .subscribe( (res : any) => {\n   console.log('weight: '+ res.weight);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "patientId",
+            "description": "<p>Patient unique ID. More info here:  <a href=\"#api-Patients-getPatientsUser\">Get patientId</a></p>"
+          }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "Object",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's weight. You set weight</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>Weight unique ID.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "value",
+            "description": "<p>Patient's weight. You get the weight</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If the weight has been created correctly, it returns the message 'Weight created'.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is no weight for the patient, it will return: &quot;There are no weight&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\"weight\":\n  {\n    \"_id\":\"5a6f4b83f440d806744f3ef6\",\n    \"value\":\"43\"\n  },\nmessage: \"Weight created\"\n}\n\nHTTP/1.1 202 OK\n{message: 'There are no weight'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/user/patient/weight.js",
+    "groupTitle": "Weight"
   }
 ]

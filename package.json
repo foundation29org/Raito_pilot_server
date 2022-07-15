@@ -38,19 +38,19 @@
     "nodemon": "^1.12.1"
   },
   "apidoc": {
-    "name": "Health29",
+    "name": "Raito",
     "version": "1.0.0",
     "description": "API docs",
     "apidoc": {
-      "title": "API for Health29",
-      "url": "https://health29.org/api"
+      "title": "API for Raito",
+      "url": "https://raito.care/api"
     },
     "header": {
       "title": "Introduction",
       "filename": "apidoc/header.md"
     },
     "footer": {
-      "title": "About Health29",
+      "title": "About Raito",
       "filename": "apidoc/footer.md"
     }
   }

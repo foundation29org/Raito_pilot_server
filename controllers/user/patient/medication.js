@@ -36,13 +36,13 @@ function getMedicationsDate (req, res){
 }
 
 /**
- * @api {get} https://health29.org/api/medications/:patientId Get medication list
+ * @api {get} https://raito.care/api/medications/:patientId Get medication list
  * @apiName getMedications
  * @apiDescription This method read Medication of a patient
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/medications/'+patientId)
+ *   this.http.get('https://raito.care/api/medications/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -99,13 +99,13 @@ function getMedications (req, res){
 }
 
 /**
- * @api {get} https://health29.org/api/medication/:medicationId Get medication
+ * @api {get} https://raito.care/api/medication/:medicationId Get medication
  * @apiName getMedication
  * @apiDescription This method read Medication of a patient
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/medication/'+medicationId)
+ *   this.http.get('https://raito.care/api/medication/'+medicationId)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -152,7 +152,7 @@ function getMedication (req, res){
 }
 
 /**
- * @api {post} https://health29.org/api/medication/:patientId New medication
+ * @api {post} https://raito.care/api/medication/:patientId New medication
  * @apiName saveMedication
  * @apiDescription This method create a medication of a patient
  * @apiGroup Medication
@@ -168,7 +168,7 @@ function getMedication (req, res){
  * 			},
  * 			"sideEffects":{}
  *		};
- *   this.http.post('https://health29.org/api/medication/'+patientId, medication)
+ *   this.http.post('https://raito.care/api/medication/'+patientId, medication)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -281,7 +281,7 @@ function saveMedication (req, res){
 }
 
 /**
- * @api {put} https://health29.org/api/medication/:medicationId Update medication
+ * @api {put} https://raito.care/api/medication/:medicationId Update medication
  * @apiName updateMedication
  * @apiDescription This method update the medication of a patient
  * @apiGroup Medication
@@ -297,7 +297,7 @@ function saveMedication (req, res){
  * 			},
  * 			"sideEffects":{}
  *	 };
- *   this.http.put('https://health29.org/api/medication/'+medicationId, medication)
+ *   this.http.put('https://raito.care/api/medication/'+medicationId, medication)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -349,13 +349,13 @@ function updateMedication (req, res){
 }
 
 /**
- * @api {delete} https://health29.org/api/medication/:medicationId Delete dose of medication
+ * @api {delete} https://raito.care/api/medication/:medicationId Delete dose of medication
  * @apiName deleteDose
  * @apiDescription This method deletes dose of medication of a patient.
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.delete('https://health29.org/medication/'+medicationId)
+ *   this.http.delete('https://raito.care/medication/'+medicationId)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -396,13 +396,13 @@ function deleteDose (req, res){
 }
 
 /**
- * @api {get} https://health29.org/api/medications/all/:drugNameAndPatient Get medication list by name
+ * @api {get} https://raito.care/api/medications/all/:drugNameAndPatient Get medication list by name
  * @apiName getAllMedicationByNameForPatient
  * @apiDescription This method read Medication of a patient by name of medication
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/medications/all/'+drugName-code-PatientId)
+ *   this.http.get('https://raito.care/api/medications/all/'+drugName-code-PatientId)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res);
  *     }, (err) => {
@@ -456,13 +456,13 @@ function getAllMedicationByNameForPatient(req,res){
 }
 
 /**
- * @api {delete} https://health29.org/api//medications/:drugNameAndPatient Delete medication of a patient by name
+ * @api {delete} https://raito.care/api//medications/:drugNameAndPatient Delete medication of a patient by name
  * @apiName deleteMedication
  * @apiDescription This method deletes a medication of a patient by name.
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.delete('https://health29.org//medications/'+drugName-code-PatientId)
+ *   this.http.delete('https://raito.care//medications/'+drugName-code-PatientId)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -509,13 +509,13 @@ function deleteMedication (req, res){
 }
 
 /**
- * @api {delete} https://health29.org/api/medications/update/:PatientIdAndMedicationId Delete medication input for a patient by identifier and update previous if exists
+ * @api {delete} https://raito.care/api/medications/update/:PatientIdAndMedicationId Delete medication input for a patient by identifier and update previous if exists
  * @apiName deleteMedicationByIDAndUpdateStateForThePrevious
  * @apiDescription This method delete medication input for a patient by identifier and update state to current taking for the previous input if exists
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.delete('https://health29.org/api/medications/update/'+PatientId-code-MedicationId)
+ *   this.http.delete('https://raito.care/api/medications/update/'+PatientId-code-MedicationId)
  *    .subscribe( (res : any) => {
  *      console.log('Delete medication and update previous if exists ok');
  *     }, (err) => {
@@ -603,7 +603,7 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
 }
 
 /**
- * @api {put} https://health29.org/api/medication/newdose/:medicationIdAndPatient Update medication dose
+ * @api {put} https://raito.care/api/medication/newdose/:medicationIdAndPatient Update medication dose
  * @apiName newDose
  * @apiDescription This method updates the dose for a medication of a patient
  * @apiGroup Medication
@@ -618,7 +618,7 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
  * 			},
  * 			"sideEffects":{}
  *		};
- *   this.http.put('https://health29.org/api/medication/newdose/'+medicationId-code-Patient, medication)
+ *   this.http.put('https://raito.care/api/medication/newdose/'+medicationId-code-Patient, medication)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -696,7 +696,7 @@ function newDose (req, res){
 }
 
 /**
- * @api {put} https://health29.org/api/medication/stoptaking/:medicationId Stop taking medication
+ * @api {put} https://raito.care/api/medication/stoptaking/:medicationId Stop taking medication
  * @apiName stoptaking
  * @apiDescription This method updates the end date of a dose for a medication of a patient
  * @apiGroup Medication
@@ -707,7 +707,7 @@ function newDose (req, res){
  * 				"$date" : 1610406000000
  * 			}
  *	 };
- *   this.http.put('https://health29.org/api/medication/stoptaking/'+medicationId, medication)
+ *   this.http.put('https://raito.care/api/medication/stoptaking/'+medicationId, medication)
  *    .subscribe( (res : any) => {
  *      console.log('medication: '+ res.medication);
  *     }, (err) => {
@@ -755,14 +755,14 @@ function stoptaking (req, res){
 }
 
 /**
- * @api {put} https://health29.org/api/medication/changenotes/:medicationId Change notes of a medication
+ * @api {put} https://raito.care/api/medication/changenotes/:medicationId Change notes of a medication
  * @apiName changenotes
  * @apiDescription This method updates the notes of a dose for a medication of a patient
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var medication ={"notes":"note1"};
- *   this.http.put('https://health29.org/api/medication/changenotes/'+medicationId, medication)
+ *   this.http.put('https://raito.care/api/medication/changenotes/'+medicationId, medication)
  *    .subscribe( (res : any) => {
  *      console.log('Change notes ok');
  *     }, (err) => {
@@ -810,14 +810,14 @@ function changenotes (req, res){
 }
 
 /**
- * @api {put} https://health29.org/api/medication/sideeffect/:medicationId Change side effect of a medication
+ * @api {put} https://raito.care/api/medication/sideeffect/:medicationId Change side effect of a medication
  * @apiName sideeffect
  * @apiDescription This method updates the side effect of a dose for a medication of a patient
  * @apiGroup Medication
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var medication ={"sideEffects":["Cushingoid","Weight gain"]};
- *   this.http.put('https://health29.org/api/medication/sideeffect/'+medicationId, medication)
+ *   this.http.put('https://raito.care/api/medication/sideeffect/'+medicationId, medication)
  *    .subscribe( (res : any) => {
  *      console.log('Change side effect ok');
  *     }, (err) => {

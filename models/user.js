@@ -33,7 +33,7 @@ const UserSchema = Schema({
 		trim: true,
 		lowercase: true,
 		default: '',
-		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22})+$/, 'Please fill a valid email address']
 	},
 	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
 	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },

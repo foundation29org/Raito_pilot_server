@@ -31,8 +31,9 @@ function callTextAnalyticsFhir (req, res){
     if(body=='Missing authentication token.'){
       res.status(401).send(body)
     }else{
-      console.log(response);
-      res.status(200).send(body)
+      console.log(response.headers["operation-location"]);
+      console.log(body);
+      res.status(200).send(response.headers)
     }
 
   });
