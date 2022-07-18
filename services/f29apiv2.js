@@ -23,7 +23,7 @@ function callTextAnalytics (req, res){
 
 function callTextAnalyticsFhir (req, res){
   var jsonText = req.body;
-  request.post({url:endpoint+'/text/analytics/v3.1-private-preview.5/entities/health/jobs/?structureFHIR=true',json: true,headers: {'Ocp-Apim-Subscription-Key': key},body:jsonText}, (error, response, body) => {
+  request.post({url:endpoint+'/language/analyze-text/jobs?api-version=2022-04-01-preview',json: true,headers: {'Ocp-Apim-Subscription-Key': key, 'api-version': '2022-04-01-preview'},body:jsonText}, (error, response, body) => {
     if (error) {
       console.error(error)
       res.status(500).send(error)

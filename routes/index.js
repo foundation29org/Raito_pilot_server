@@ -141,7 +141,7 @@ api.put('/admin/lang/:userId', auth(roles.Admin), admninLangCtrl.requestaddlang)
 //api.get('/superadmin/users/', auth(roles.SuperAdmin), superadmninUsersClinicalCtrl.getUsers) //no se usa
 //api.get('/superadmin/infopatients/:userId', auth, superadmninUsersClinicalCtrl.getInfoPatients) //no se usa
 api.get('/eo/patients/:groupId', auth(roles.Admin), eoCtrl.getPatients)
-api.get('/eo/patient/:patientId', auth(roles.Admin), eoCtrl.getInfoPatient)
+api.get('/eo/patient/:patientId', auth(roles.All), eoCtrl.getInfoPatient)
 api.get('/eo/drugs/:groupId', auth(roles.Admin), eoCtrl.getDrugs)
 api.get('/eo/phenotypes/:groupId', auth(roles.Admin), eoCtrl.getPhenotypes)
 api.get('/eo/feels/:groupId', auth(roles.Admin), eoCtrl.getFeels)

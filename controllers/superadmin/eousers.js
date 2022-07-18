@@ -123,7 +123,7 @@ async function getAllPatientInfo(patient, infoGroup) {
 		promises3.push(getProm(patientId));
 		promises3.push(getSeizure(patientId));
 		promises3.push(getHistoryWeight(patientId));
-		promises3.push(getConsent(patient));
+		promises3.push(getConsent(patient, false));
 
 		await Promise.all(promises3)
 			.then(async function (data) {
@@ -178,6 +178,53 @@ async function getAllPatientInfo(patient, infoGroup) {
 						"name" : "", // A name associated with the contact person
 						"telecom" : [], // A contact detail for the person
 						}]
+					}
+				}
+			);
+
+			// add condition
+			result.entry.push(
+				{
+					"fullUrl": "Condition/"+infoGroup._id,
+					"resource": {
+						"resourceType": "Condition",
+						"id": infoGroup._id,
+						"meta": {
+							"profile": [
+								"http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition"
+							]
+						},
+						"verificationStatus": {
+							"coding": [
+								{
+									"system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+									"code": "confirmed",
+									"display": "Confirmed"
+								}
+							],
+							"text": "Confirmed"
+						},
+						"category": [
+							{
+								"coding": [
+									{
+										"system": "http://terminology.hl7.org/CodeSystem/condition-category",
+										"code": "encounter-diagnosis",
+										"display": "Encounter Diagnosis"
+									}
+								],
+								"text": "Encounter Diagnosis"
+							}
+						],
+						"code": {
+							"coding": [
+							],
+							"text": infoGroup.name
+						},
+						"subject": {
+							"reference": "Patient/"+patientIdEnc,
+							"type": "Patient"
+						}
 					}
 				}
 			);
@@ -585,67 +632,6 @@ async function getHistoryWeight (patientId){
 			
 			resolve(listWeights);
 		});
-	
-	});
-
-}
-
-async function getConsent (patient){
-	return new Promise(async function (resolve, reject) {
-		let patientIdEnc = crypt.encrypt((patient._id).toString());
-		var actualConsent = {
-			"fullUrl": "Consent/" +patient._id,
-			"resource": {
-				"resourceType": "Consent",
-				"id": patient._id,
-				"status": "active",
-				"scope": {
-					"coding": [
-					  {
-						"system": "http://terminology.hl7.org/CodeSystem/consentscope",
-						"code": "patient-privacy"
-					  }
-					]
-				  },
-				  "category": [
-					{
-					  "coding": [
-						{
-						  "system": "http://loinc.org",
-						  "code": "59284-0"
-						}
-					  ]
-					}
-				  ],
-				"subject": {
-					"reference": "Patient/"+patientIdEnc
-				},
-				"datetime": patient.lastAccess,
-				"organization": [
-					{
-					  "reference": "Organization/"+patient.group
-					}
-				  ],
-				  "sourceAttachment": {
-					"title": "The terms of the consent in lawyer speak."
-				  },
-				  "policyRule": {
-					"coding": [
-					  {
-						"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-						"code": "OPTIN"
-					  }
-					]
-				  },
-				  "provision": {
-					"period": {
-					  "start": "1964-01-01",
-					  "end": "2016-01-01"
-					}
-				  }
-			  }
-		};
-		resolve(actualConsent);
 	
 	});
 
@@ -1235,13 +1221,13 @@ function haveConsent (req, res){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var data = {};
 		if(patient.consentgroup){
-			data = await getConsent(patient);
+			data = await getConsent(patient, true);
 		}
 		res.status(200).send(data)
 	})
 }
 
-async function getConsent (patient){
+async function getConsent (patient, isBundle){
 	return new Promise(async function (resolve, reject) {
 		let patientIdEnc = crypt.encrypt((patient._id).toString());
 		var actualConsent = {
@@ -1302,7 +1288,12 @@ async function getConsent (patient){
 			"type": "collection",
 			"entry": [actualConsent]
 		};
-		resolve(result);
+		if(isBundle){
+			resolve(result);
+		}else{
+			resolve(actualConsent);
+		}
+		
 	
 	});
 
