@@ -120,7 +120,7 @@ async function getAllPatientInfo(patient, infoGroup) {
 		promises3.push(getMedications(patientId, infoGroup, patient));
 		promises3.push(getPhenotype(patientId));
 		promises3.push(getFeel(patientId));
-		promises3.push(getProm(patientId));
+		promises3.push(getProm(patient));
 		promises3.push(getSeizure(patientId));
 		promises3.push(getHistoryWeight(patientId));
 		promises3.push(getConsent(patient, false));
@@ -244,10 +244,9 @@ async function getAllPatientInfo(patient, infoGroup) {
 					result.entry.push(data[2][index]);
 				}
 			}
-			if (data[3].length > 0) {
-				for (var index in data[3]) {
-					result.entry.push(data[3][index]);
-				}
+			//proms - questionnaire
+			if (data[3]) {
+				result.entry.push(data[3]);
 			}
 			if (data[4].length > 0) {
 				for (var index in data[4]) {
@@ -424,10 +423,7 @@ async function getPhenotype(patientId) {
 									"reference": "Patient/"+patientIdEnc
 								},
 								"effectiveDateTime": symptom.onset,
-								"valueQuantity": {
-									"value": symptom.id,
-									"unit": ""
-								}
+								"valueString": symptom.id
 							}
 						};
 						listSeizures.push(actualsymptom);
@@ -481,19 +477,107 @@ async function getFeel(patientId) {
 	});
 }
 
-async function getProm(patientId) {
+async function getProm(patient) {
 	return new Promise(async function (resolve, reject) {
-		await Prom.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, proms) {
+		await Prom.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, proms) {
 			if (err) {
 				console.log(err);
 				resolve(err)
 			}
 			//console.log('Proms done.');
-			var listProms = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
+			let patientIdEnc = crypt.encrypt((patient._id).toString());
+			var questionnaire = {
+				"fullUrl": "QuestionnaireResponse/q1dravet",
+				"resource": {
+					"resourceType": "QuestionnaireResponse",
+					"id": "q1dravet",
+					"status": "completed",
+					"subject": {
+						"reference": "Patient/"+patientIdEnc,
+						"display": patient.patientName
+					},
+					"authored": "2013-06-18T00:00:00+01:00",
+					"source": {
+						"reference": "Practitioner/q1dravet"
+					},
+					"item": [
+					]
+					}
+				};
+			
 			if (proms) {
 				proms.forEach(function (prom) {
+					
+					var question = '';
+					if(prom.idProm=='1'){
+						question = 'Is the number of seizures the most relevant problem for you?'
+					}else if(prom.idProm=='2'){
+						question = 'Does your child have problems walking or with movement?'
+					}else if(prom.idProm=='3'){
+						question = 'How does your child’s appetite change due to their treatment?'
+					}else if(prom.idProm=='4'){
+						question = 'Can your child understand verbal instructions?'
+					}else if(prom.idProm=='5'){
+						question = 'Does your child always experience seizures in the same way or do they vary?'
+					}else if(prom.idProm=='6'){
+						question = 'Is there anything you think triggers your child’s seizures?'
+					}else if(prom.idProm=='7'){
+						question = 'Are you or your child able to predict when they will have a seizure?'
+					}else if(prom.idProm=='8'){
+						question = 'If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?'
+					}
+
+
 					var actualprom = {
+						"linkId": prom.idProm,
+						"text": question,
+						"answer": [
+						  {
+							"valueString": prom.data
+						  }
+						]
+					  }
+
+					  if(prom.idProm=='6'){
+						var answers = '';
+						if(prom.data.Brightorpatternedlights){
+							answers = answers+'Bright or patterned lights, ';
+						}
+						if(prom.data.Warmorcoldtemperatures){
+							answers = answers+'Warm or cold temperatures, ';
+						}
+						if(prom.data.Physicalmovementoractivity){
+							answers = answers+'Physical movement or activity, ';
+						}
+						if(prom.data.Noise){
+							answers = answers+'Noise, ';
+						}
+						if(prom.data.Geometricpatterns){
+							answers = answers+'Geometric patterns, ';
+						}
+						if(prom.data.Changesinemotionalstate){
+							answers = answers+'Changes in emotional state, ';
+						}
+						if(prom.data.Tiredness){
+							answers = answers+'Tiredness, ';
+						}
+						if(prom.data.Other){
+							answers = answers+'Other, ';
+						}
+						actualprom = {
+							"linkId": prom.idProm,
+							"text": question,
+							"answer": [
+							  {
+								"valueString": answers
+							  }
+							]
+						  }
+					  }
+
+					questionnaire.resource.item.push(actualprom);
+
+					/*var actualprom = {
 						"fullUrl": "Observation/" +prom._id,
 						"resource": {
 							"resourceType": "Observation",
@@ -512,11 +596,10 @@ async function getProm(patientId) {
 							}
 						}
 					};
-					listProms.push(actualprom);
+					listProms.push(actualprom);*/
 				});
 			}
-
-			resolve(listProms);
+			resolve(questionnaire);
 		})
 	});
 }
@@ -540,15 +623,15 @@ async function getSeizure(patientId) {
 							"id": seizure._id,
 							"status": "final",
 							"code": {
-								"text": "Seizure"
+								"text": "Seizure - "+ seizure.type
 							},
 							"subject": {
 								"reference": "Patient/"+patientIdEnc
 							},
 							"effectiveDateTime": seizure.start,
 							"valueQuantity": {
-								"value": seizure.type,
-								"unit": seizure.duracion + " seconds"
+								"value": seizure.duracion,
+								"unit": "Seconds"
 							},
 							"note": seizure.notes
 						}
@@ -984,7 +1067,7 @@ async function getPromsPatients(patients) {
 		if (patients.length > 0) {
 			for (var index in patients) {
 				if(patients[index].consentgroup){
-					promises.push(getProm(patients[index]._id));
+					promises.push(getProm(patients[index]));
 				}
 			}
 		} else {
@@ -994,11 +1077,7 @@ async function getPromsPatients(patients) {
 			.then(async function (data) {
 				var res = [];
 				data.forEach(function(onePatient) {
-					if(onePatient.length>0){
-						onePatient.forEach(function (dataPatient) {
-							res.push(dataPatient);
-						});
-					}
+					res.push(onePatient);
 				});
 				var result = {
 					"resourceType": "Bundle",
@@ -1254,10 +1333,11 @@ async function getConsent (patient, isBundle){
 					  ]
 					}
 				  ],
-				"subject": {
-					"reference": "Patient/"+patientIdEnc
+				"patient": {
+					"reference": "Patient/"+patientIdEnc,
+					"display": patient.patientName
 				},
-				"datetime": patient.lastAccess,
+				"dateTime": patient.lastAccess,
 				"organization": [
 					{
 					  "reference": "Organization/"+patient.group
