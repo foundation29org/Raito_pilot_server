@@ -150,6 +150,12 @@ api.get('/eo/seizures/:groupId', auth(roles.Admin), eoCtrl.getSeizures)
 api.get('/eo/weights/:groupId', auth(roles.Admin), eoCtrl.getWeights)
 api.get('/eo/consent/:patientId', auth(roles.Admin), eoCtrl.haveConsent)
 
+api.post('/eo/backup/:patientId', auth(roles.OnlyUser), eoCtrl.saveBackup)
+api.get('/eo/checkipfs/:userId', auth(roles.OnlyUser), eoCtrl.checkIPFS)
+api.get('/eo/backupipfs/:userId', auth(roles.OnlyUser), eoCtrl.getIPFS)
+api.get('/eo/checkf29/:userId', auth(roles.OnlyUser), eoCtrl.checkF29)
+api.get('/eo/backupf29/:userId', auth(roles.OnlyUser), eoCtrl.getF29)
+
 // lang routes, using the controller lang, this controller has methods
 api.get('/langs/',  langCtrl.getLangs)
 

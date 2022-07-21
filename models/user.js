@@ -20,6 +20,11 @@ const ParentSchema = Schema({
 	profession: String
 })
 
+const backupIPFSSchema = Schema({
+	url: { type: String, default: '' },
+	date: { type: Date, default: Date.now },
+})
+
 const InfoVerifiedSchema = Schema({
 	isVerified: {type: Boolean, default: false},
 	status: { type: String, default: 'Not started' },
@@ -61,6 +66,13 @@ const UserSchema = Schema({
 	countryselectedPhoneCode: { type: String, default: '' },
 	phone: { type: String, default: '' },
 	provider: { type: String, default: '' },
+	backupIPFS: {
+		type: backupIPFSSchema, default:{
+			url:'',
+			date: null
+		}
+	},
+	backupF29: { type: Date, default: null },
 	infoVerified:{
 		type: InfoVerifiedSchema, default:{
 			isVerified:false,

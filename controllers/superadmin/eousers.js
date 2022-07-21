@@ -6,6 +6,7 @@
 const User = require('../../models/user')
 const Patient = require('../../models/patient')
 const crypt = require('../../services/crypt')
+const f29azureService = require("../../services/f29azure")
 
 const Group = require('../../models/group')
 const Medication = require('../../models/medication')
@@ -15,6 +16,18 @@ const Prom = require('../../models/prom')
 const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
+const config = require('../../config')
+
+/* import moralis */
+const Moralis = require("moralis/node");
+var https = require('follow-redirects').https;
+var fs = require('fs');
+
+/* Moralis init code */
+const serverUrl = config.MORALIS.SERVER_URL;
+const appId = config.MORALIS.APP_ID;
+const masterKey = config.MORALIS.MARTER_KEY;
+Moralis.start({ serverUrl, appId, masterKey });
 
 /**
  * @api {get} https://raito.care/api/eo/patients/:groupId Get patients
@@ -113,10 +126,8 @@ async function getInfoPatients(patients, infoGroup) {
 
 async function getAllPatientInfo(patient, infoGroup) {
 	return new Promise(async function (resolve, reject) {
-		//console.log(patient);
 		let patientId = patient._id;
 		var promises3 = [];
-		console.log(patientId);
 		promises3.push(getMedications(patientId, infoGroup, patient));
 		promises3.push(getPhenotype(patientId));
 		promises3.push(getFeel(patientId));
@@ -514,13 +525,13 @@ async function getProm(patient) {
 					}else if(prom.idProm=='2'){
 						question = 'Does your child have problems walking or with movement?'
 					}else if(prom.idProm=='3'){
-						question = 'How does your child’s appetite change due to their treatment?'
+						question = 'How does your childs appetite change due to their treatment?'
 					}else if(prom.idProm=='4'){
 						question = 'Can your child understand verbal instructions?'
 					}else if(prom.idProm=='5'){
 						question = 'Does your child always experience seizures in the same way or do they vary?'
 					}else if(prom.idProm=='6'){
-						question = 'Is there anything you think triggers your child’s seizures?'
+						question = 'Is there anything you think triggers your childs seizures?'
 					}else if(prom.idProm=='7'){
 						question = 'Are you or your child able to predict when they will have a seizure?'
 					}else if(prom.idProm=='8'){
@@ -1379,6 +1390,173 @@ async function getConsent (patient, isBundle){
 
 }
 
+function saveBackup (req, res){
+	let patientId = crypt.decrypt(req.params.patientId);
+	let location = req.body.location;
+	Patient.findById(patientId, async (err, patient) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		if(patient){
+			var infoGroup = await geInfoGroup(patient.group);
+			var data = await getAllPatientInfo(patient, infoGroup);
+			var userId = crypt.encrypt((patient.createdBy).toString());
+			if(location=='IPFS'){
+				var data2 = await saveIPFS(data, userId);
+				if(data2){
+					res.status(200).send({message: "Done"})
+				}else{
+					res.status(500).send({message: `Error: ${err}`})
+				}
+			}else if(location=='F29'){
+				var data2 = await saveF29(data, userId);
+				if(data2){
+					res.status(200).send({message: "Done"})
+				}else{
+					res.status(500).send({message: `Error: ${err}`})
+				}
+				
+			}
+			
+		}else{
+			res.status(404).send({message: 'The patient does not exist'})
+		}
+	})
+}
+
+const btoa = (text) => {
+    return Buffer.from(text, 'binary').toString('base64');
+};
+
+async function saveIPFS (data, userId){
+	return new Promise(async function (resolve, reject) {
+		
+
+		// Save file input to IPFS
+		const fileName = userId+'.json';
+		const file = new Moralis.File(fileName, {
+		base64: btoa(JSON.stringify(data.result)),
+		});
+		try {
+			await file.saveIPFS({useMasterKey:true});
+
+			// Save file reference to DDBB
+			let userIdDecrypt = crypt.decrypt(userId);
+			var dataToSave = {url:file.hash(), date: Date.now()} ;
+			User.findByIdAndUpdate(userIdDecrypt, { backupIPFS: dataToSave}, {new: true}, (err,userUpdated) => {
+				
+			})
+			resolve(true);
+		} catch (error) {
+			console.log(error);
+			resolve(false);
+		}
+		
+	});
+
+}
+
+async function getIPFS(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	User.findById(userId, async (err, user) => {
+		if(user.backupIPFS.url!=''){
+			var options = {
+				'method': 'GET',
+				'hostname': 'gateway.moralisipfs.com',
+				'path': `/ipfs/${user.backupIPFS.url}`,
+				'headers': {
+				},
+				'maxRedirects': 20
+			  };
+			  
+			  var req = https.request(options, function (res1) {
+				var chunks = [];
+			  
+				res1.on("data", function (chunk) {
+				  chunks.push(chunk);
+				});
+			  
+				res1.on("end", function (chunk) {
+				  var body = Buffer.concat(chunks);
+				  return res.status(200).send({result: JSON.parse(body.toString())})
+				});
+			  
+				res1.on("error", function (error) {
+				  console.error(error);
+				  res.status(500).send({message: error})
+				});
+			  });
+			  
+			  req.end();
+			/*const url = `https://gateway.moralisipfs.com/ipfs/${user.backupIPFS}`;
+			const response = await fetch(url);
+			return await response.json();*/
+		}else{
+			return res.status(200).send({message: 'Not available'})
+		}
+		
+	})
+	
+  }
+
+  async function checkIPFS(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	User.findById(userId, async (err, user) => {
+		if(user.backupIPFS.url!=''){
+			return res.status(200).send({message: 'Available', date: user.backupIPFS.date})
+		}else{
+			return res.status(200).send({message: 'Not available', date: null})
+		}
+		
+	})
+	
+  }
+
+
+  async function saveF29 (data, userId){
+	return new Promise(async function (resolve, reject) {
+		// Save file to Blob
+		const fileName = userId+'.json';
+		var result = await f29azureService.createBlobSimple('backups', data, fileName);
+		if (result) {
+			let userIdDecrypt = crypt.decrypt(userId);
+			var dataToSave = Date.now() ;
+			User.findByIdAndUpdate(userIdDecrypt, { backupF29: dataToSave}, {new: true}, (err,userUpdated) => {
+				resolve(true);
+			})
+		}else{
+			resolve(false);
+		}
+	});
+}
+
+  async function getF29(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	User.findById(userId, async (err, user) => {
+		if(user.backupF29!=null){
+			const fileName = req.params.userId+'.json';
+			var result = await f29azureService.downloadBlob('backups', fileName);
+
+			return res.status(200).send({result: JSON.parse(result.toString())})
+		}else{
+			return res.status(200).send({message: 'Not available'})
+		}
+		
+	})
+	
+  }
+
+async function checkF29(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	User.findById(userId, async (err, user) => {
+		if(user.backupF29!=null){
+			return res.status(200).send({message: 'Available', date: user.backupF29})
+		}else{
+			return res.status(200).send({message: 'Not available', date: null})
+		}
+		
+	})
+	
+  }
+
 module.exports = {
 	getPatients,
 	getInfoPatient,
@@ -1388,5 +1566,10 @@ module.exports = {
 	getProms,
 	getSeizures,
 	getWeights,
-	haveConsent
+	haveConsent,
+	saveBackup,
+	checkIPFS,
+	getIPFS,
+	checkF29,
+	getF29
 }
