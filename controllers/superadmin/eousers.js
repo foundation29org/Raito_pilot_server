@@ -1407,7 +1407,7 @@ function saveBackup (req, res){
 					res.status(500).send({message: `Error: ${err}`})
 				}
 			}else if(location=='F29'){
-				var data2 = await saveF29(data, userId);
+				var data2 = await saveF29(data.result, userId);
 				if(data2){
 					res.status(200).send({message: "Done"})
 				}else{
