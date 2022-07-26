@@ -194,7 +194,7 @@ async function requestVC (req, res){
 async function issuanceCallback (req, res){
   var test = JSON.stringify(req.body).toString();
   var body = test.replace(/'/g, '"');
-    console.log( body );
+    //console.log( body );
     if ( req.headers['api-key'] != config.VC.API_KEY ) {
       res.status(401).json({
         'error': 'api-key wrong or missing'
@@ -202,7 +202,7 @@ async function issuanceCallback (req, res){
       return; 
     }
     var issuanceResponse = JSON.parse(body);
-    console.log(issuanceResponse);
+    //console.log(issuanceResponse);
     var message = null;
     // there are 2 different callbacks. 1 if the QR code is scanned (or deeplink has been followed)
     // Scanning the QR code makes Authenticator download the specific request from the server

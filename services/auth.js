@@ -26,8 +26,6 @@ function decodeToken(token, roles){
 	const decoded = new Promise(async (resolve, reject) => {
 		try{
 			const payload = jwt.decode(token, config.SECRET_TOKEN)
-			console.log(roles);
-			console.log(payload.role);
 			if(roles.includes(payload.role)){
 				let userId= crypt.decrypt(payload.sub);
 				await User.findById(userId, {"password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
