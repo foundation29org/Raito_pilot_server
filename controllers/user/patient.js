@@ -6,7 +6,10 @@
 const Patient = require('../../models/patient')
 const User = require('../../models/user')
 const Phenotype = require ('../../models/phenotype')
+const Group = require('../../models/group')
+const Session = require('../../models/session')
 const crypt = require('../../services/crypt')
+const vcServiceCtrl = require('../../services/vc.js')
 const f29azureService = require("../../services/f29azure")
 
 /**
@@ -248,7 +251,6 @@ function savePatient (req, res){
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
   patient.previousDiagnosis = req.body.previousDiagnosis
-  patient.consentgroup = req.body.consentgroup
   patient.group = req.body.group
   patient.avatar = req.body.avatar
 	patient.createdBy = userId
@@ -515,13 +517,103 @@ function updateLastAccess (req, res){
 function consentgroup (req, res){
 
 	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-
-	Patient.findByIdAndUpdate(patientId, { consentgroup: req.body.consentgroup }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
+	var newConsent = req.body.consentgroup;
+	if(req.body.consentgroup == 'Pending'){
+		newConsent = 'true'
+	}else if(req.body.consentgroup == 'true'){
+		newConsent = 'Pending'
+	}
+	Patient.findByIdAndUpdate(patientId, { consentgroup: newConsent }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'notes changed', patient: patientUpdated})
+		if(req.body.consentgroup == 'true'){
+			//get group name
+			Group.findOne({ '_id': patientUpdated.group }, function (err, group) {
+				console.log(group.name);
+				var info = {patientId: req.params.patientId, groupName: group.name, type: 'Clinician'}
+				Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+                    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+                    if(sessions.length>0){
+                        var foundSession = false;
+                        var infoSession = {};
+                      for (var i = 0; i < sessions.length; i++) {
+                        if(sessions[i].sharedWith==group.name){
+                            foundSession = true;
+                            infoSession == sessions[i];
+                        }
+                      }
+                      if(!foundSession){
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                      }else{
+                        //delete and create new one
+                        sessions.forEach(function(session) {
+                            session.remove(err => {
+                                if(err) console.log({message: `Error deleting the feels: ${err}`})
+                            })
+                        });
+                        console.log('delete sessions');
+                        var data = await generateQR(info);
+                        return res.status(200).send({ message: 'qrgenerated', data: data })
+                        /*if(infoSession.sessionData.message!='Credential successfully issued'){
+                            res.status(200).send({infoSession})
+                        }else{
+                            res.status(200).send({ message: 'individuals share updated' })
+                        }*/
+                      }
+                    }else{
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                    }
+                  
+                  })
+			})
+		}else{
+			//delete session
+			Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+				//delete and create new one
+				sessions.forEach(function(session) {
+					session.remove(err => {
+						if(err) console.log({message: `Error deleting the feels: ${err}`})
+					})
+				});
+				console.log('delete sessions');
+				res.status(200).send({message: 'notes changed', patient: patientUpdated})
+			})
+		}
+		
 
 	})
+}
+
+async function generateQR(info) {
+	return new Promise(async function (resolve, reject) {
+
+        var promises = [];
+		promises.push(vcServiceCtrl.createIssuerOrganization(info));
+		await Promise.all(promises)
+			.then(async function (data) {
+				//console.log(data);
+				//console.log('termina')
+				resolve(data)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				reject('Manejar promesa rechazada (' + err + ') aquí.');
+			});
+
+		
+
+	});
 }
 
 function getConsentGroup (req, res){

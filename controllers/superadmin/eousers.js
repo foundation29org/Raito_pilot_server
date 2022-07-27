@@ -98,7 +98,7 @@ async function getInfoPatients(patients, infoGroup) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getAllPatientInfo(patients[index], infoGroup));
 				}
 			}
@@ -833,7 +833,7 @@ async function getDrugsPatients(patients, infoGroup) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getMedications(patients[index]._id, infoGroup, patients[index]));
 				}
 			}
@@ -914,7 +914,7 @@ async function getPhenotypesPatients(patients) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getPhenotype(patients[index]._id));
 				}
 			}
@@ -995,7 +995,7 @@ async function getFeelsPatients(patients) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getFeel(patients[index]._id));
 				}
 			}
@@ -1077,7 +1077,7 @@ async function getPromsPatients(patients) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getProm(patients[index]));
 				}
 			}
@@ -1155,7 +1155,7 @@ async function getSeizuresPatients(patients) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getSeizure(patients[index]._id));
 				}
 			}
@@ -1236,7 +1236,7 @@ async function getWeightsPatients(patients) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
-				if(patients[index].consentgroup){
+				if(patients[index].consentgroup=='true'){
 					promises.push(getHistoryWeight(patients[index]._id));
 				}
 			}
@@ -1310,7 +1310,7 @@ function haveConsent (req, res){
     Patient.findById(patientId, async (err, patient) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var data = {};
-		if(patient.consentgroup){
+		if(patient.consentgroup=='true'){
 			data = await getConsent(patient, true);
 		}
 		res.status(200).send(data)

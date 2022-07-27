@@ -105,14 +105,14 @@ function getUserName(individualShare) {
 
 function setIndividualShare(req, res) {
     let patientId = crypt.decrypt(req.params.patientId);
-    var info = {patientId: req.params.patientId, individualShare: req.body.individualShare[req.body.indexUpdated]}
+    var info = {patientId: req.params.patientId, individualShare: req.body.individualShare[req.body.indexUpdated], type: 'Clinician'}
     Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true }, (err, patientUpdated) => {
         if (err) {
             console.log(err);
         }
         if (patientUpdated) {
             if( req.body.updateStatus){
-                Session.find({"createdBy": req.params.patientId},async (err, sessions) => {
+                Session.find({"createdBy": req.params.patientId, "type": 'Clinician'},async (err, sessions) => {
                     if (err) return res.status(500).send({message: `Error making the request: ${err}`})
                     if(sessions.length>0){
                         var foundSession = false;

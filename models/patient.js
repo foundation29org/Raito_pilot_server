@@ -79,7 +79,7 @@ const PatientSchema = Schema({
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
 	group: { type: String, default: null},
-	consentgroup: {type: Boolean, default: false},
+	consentgroup: {type: String, default: 'false'},
 	checks: {type: checksSchema, default: {
 		check1: false,
 		check2: false,

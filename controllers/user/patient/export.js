@@ -171,7 +171,7 @@ async function getPatientInfo(group) {
 		var promises2 = [];
 		await Patient.find({ "group": group.name }, (err, patientsFound) => {
 			for (var indexPatient in patientsFound) {
-				if (patientsFound[indexPatient].consentgroup) {
+				if (patientsFound[indexPatient].consentgroup=='true') {
 					promises2.push(getAllPatientInfo(patientsFound[indexPatient], indexPatient, group.name));
 				}
 

@@ -98,6 +98,7 @@ function createIssuer(info) {
     session._idIndividualShare = individualShare._id;
     session.sharedWith = individualShare.idUser;
     session.createdBy = info.patientId;
+    session.type = info.type;
     session.save(async (err, sessionStored) => {
       if (err) {
         console.log(err);
@@ -138,6 +139,85 @@ function createIssuer(info) {
       });
     })
 	});
+}
+
+
+function createIssuerOrganization(info) {
+	return new Promise(async function (resolve, reject) {
+    //console.log(info);
+    let session = new Session()
+    session.sessionData = {
+      "status" : 0,
+      "message": "Waiting for QR code to be scanned"
+    };
+    session.sharedWith = info.groupName;
+    session.createdBy = info.patientId;
+    session.type = info.type;
+    session.save(async (err, sessionStored) => {
+      if (err) {
+        console.log(err);
+        console.log({ message: `Failed to save in the database: ${err} ` })
+      }
+      var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
+      if(config.client_server=='http://localhost:4200'){
+        callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
+      }
+      var token = await getToken();
+      var auth = 'Bearer '+token;
+      var pin = generatePin(4);
+      var requestConfigFile = generateBodyRequestOrganizationVC(callbackurl, sessionStored._id, pin, info);
+      var options = {
+        'method': 'POST',
+        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'headers': {
+          'Content-Type': 'Application/json',
+          'Authorization': auth
+        },
+        body: JSON.stringify(requestConfigFile)
+      
+      };
+      request(options, function (error, response) {
+        if (error) throw new Error(error);
+        var respJson = JSON.parse(response.body)
+          //respJson.id = sessionStored._id;
+          respJson.pin = pin;
+
+          
+          Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+            if (err){
+              reject({ message: `Error making the request: ${err}` })
+            }else{
+              resolve(sessionUpdated);
+            } 
+          })
+      });
+    })
+	});
+}
+
+function generateBodyRequestOrganizationVC(callbackurl, id, pin, info){
+  var body =  
+  {
+    "includeQRCode": true,
+    "callback":{
+      "url": `${callbackurl}`,
+      "state": id,
+      "headers": {
+        "api-key": config.VC.API_KEY
+      }
+    },
+    "authority": config.VC.AUTHORITY_DID, 
+    "registration": {
+      "clientName": "Verifiable Credential Expert Sample"
+    },
+    "issuance": {
+       "type": "VerifiedCredentialExpert", 
+       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientOrganization`, 
+       "pin": {"value": `${pin}`,"length": 4}, 
+       "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
+      }
+    }
+    return body;
 }
 
 async function requestVC (req, res){
@@ -297,6 +377,7 @@ async function getAllVC (req, res){
 
 module.exports = {
   createIssuer,
+  createIssuerOrganization,
   requestVC,
   issuanceCallback,
   issuanceResponse,

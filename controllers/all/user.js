@@ -419,7 +419,6 @@ function savePatient(userId, req) {
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
 	patient.previousDiagnosis = req.body.previousDiagnosis
-	patient.consentgroup = req.body.consentgroup
 	patient.avatar = req.body.avatar
 	patient.createdBy = userId
 	if (req.body.avatar == undefined) {
