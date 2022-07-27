@@ -12,6 +12,7 @@ const SessionSchema = Schema({
 	sessionData: {type: Schema.Types.Mixed},
 	date: {type: Date, default: Date.now},
 	data: {type: Schema.Types.Mixed},
+	type: {type: String, default: 'Clinician'},
 	_idIndividualShare: {type: String, default: ''},
 	sharedWith: {type: String, default: ''},
 	createdBy: {type: String, default: ''}

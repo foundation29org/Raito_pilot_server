@@ -68,7 +68,7 @@ function generateBodyRequestVC(callbackurl, id, pin, info){
     },
     "issuance": {
        "type": "VerifiedCredentialExpert", 
-       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedCredentialExpert`, 
+       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientClinician`, 
        "pin": {"value": `${pin}`,"length": 4}, 
        "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
       }
