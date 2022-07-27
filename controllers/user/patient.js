@@ -529,7 +529,7 @@ function consentgroup (req, res){
 			//get group name
 			Group.findOne({ '_id': patientUpdated.group }, function (err, group) {
 				console.log(group.name);
-				var info = {patientId: req.params.patientId, groupName: group.name, type: 'Clinician'}
+				var info = {patientId: req.params.patientId, groupName: group.name, type: 'Organization'}
 				Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
                     if (err) return res.status(500).send({message: `Error making the request: ${err}`})
                     if(sessions.length>0){
@@ -583,14 +583,14 @@ function consentgroup (req, res){
 				//delete and create new one
 				sessions.forEach(function(session) {
 					session.remove(err => {
-						if(err) console.log({message: `Error deleting the feels: ${err}`})
+						if(err) console.log({message: `Error deleting the sessions: ${err}`})
 					})
 				});
 				console.log('delete sessions');
-				res.status(200).send({message: 'notes changed', patient: patientUpdated})
+				res.status(200).send({message: 'consent changed', consent: newConsent})
 			})
 		}else{
-			res.status(200).send({message: 'notes changed', patient: patientUpdated})
+			res.status(200).send({message: 'consent changed', consent: newConsent})
 		}
 		
 
