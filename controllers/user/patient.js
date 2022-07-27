@@ -577,7 +577,7 @@ function consentgroup (req, res){
                   
                   })
 			})
-		}else{
+		}else if(req.body.consentgroup == 'false'){
 			//delete session
 			Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
 				//delete and create new one
@@ -589,6 +589,8 @@ function consentgroup (req, res){
 				console.log('delete sessions');
 				res.status(200).send({message: 'notes changed', patient: patientUpdated})
 			})
+		}else{
+			res.status(200).send({message: 'notes changed', patient: patientUpdated})
 		}
 		
 
