@@ -15,13 +15,12 @@ const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
 const Prom = require('../../models/prom')
+const eoCtrl = require('../../controllers/superadmin/eousers')
 
 const f29azureService = require("../../services/f29azure")
 
 function deleteAccount (req, res){
-	console.log(req.body);
-	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+	User.getAuthenticatedUserId(req.params.userId, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
@@ -42,9 +41,10 @@ function deleteAccount (req, res){
 					deletePhenotype(patientId);
 					deletePhenotypeHistory(patientId);
 					deleteProms(patientId);
+					deleteBackups(req.params.userId);
 					deletePatient(res, patientId, containerName, userId);
 				});
-				//deleteUser(res, userId);
+				deleteUser(res, userId);
 			})
 		}else{
 			res.status(200).send({message: `fail`})
@@ -153,6 +153,18 @@ function deleteProms (patientId){
 	})
 }
 
+async function deleteBackups (userId){
+	const fileName = userId+'.json';
+	var result = await f29azureService.deleteBlob('backups', fileName);
+	console.log(result);
+
+	let userIdDecrypt = crypt.decrypt(userId);
+	var dataToSave = {url:'', date: null} ;
+	User.findByIdAndUpdate(userIdDecrypt, { backupIPFS: dataToSave, backupF29: null}, {new: true}, (err,userUpdated) => {
+		
+	})
+}
+
 function deletePatient (res, patientId, containerName, userId){
 	Patient.findById(patientId, (err, patient) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
@@ -160,13 +172,13 @@ function deletePatient (res, patientId, containerName, userId){
 			patient.remove(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 				f29azureService.deleteContainers(containerName)
-				savePatient(userId);
-				res.status(200).send({message: `The case has been eliminated`})
+				//savePatient(userId);
+				//res.status(200).send({message: `The case has been eliminated`})
 			})
 		}else{
 				f29azureService.deleteContainers(containerName);
-				savePatient(userId);
-				return res.status(202).send({message: 'The case has been eliminated'})
+				//savePatient(userId);
+				//return res.status(202).send({message: 'The case has been eliminated'})
 		}
 	})
 }
@@ -175,13 +187,16 @@ function deleteUser (res, userId){
 	User.findById(userId, (err, user) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 		if(user){
+			/*if(user.moralisId!=''){
+				eoCtrl.deleteMoralis(user.moralisId)
+			}*/
 			user.remove(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
-				savePatient(userId);
+				//savePatient(userId);
 				res.status(200).send({message: `The case has been eliminated`})
 			})
 		}else{
-			savePatient(userId);
+			//savePatient(userId);
 			 return res.status(202).send({message: 'The case has been eliminated'})
 		}
 	})

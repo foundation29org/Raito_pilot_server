@@ -7,10 +7,6 @@ const Patient = require('./patient')
 
 const { conndbdata } = require('../db_connect')
 
-const Permissions = Schema({
-	shareWithCommunity: {type: Boolean, default: false}
-}, {_id: false})
-
 const symptomSchema = Schema({
 	onset: {type: String, default: null},
 	polarity: {type: String, default: '0'},
@@ -25,7 +21,6 @@ const PhenotypeSchema = Schema({
 	date: {type: Date, default: Date.now},
 	data: [symptomSchema],
 	discarded: {type: Object, default: []},
-	permissions: [Permissions],
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
 })
 

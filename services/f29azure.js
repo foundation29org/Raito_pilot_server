@@ -165,6 +165,18 @@ async function createBlobSimple(containerName, data, fileName) {
   
 }
 
+async function deleteBlob(containerName, blobName) {
+  return new Promise((resolve, reject) => {
+    blobService.deleteBlobIfExists(containerName,blobName,function(error){
+      if (error != null) {
+        resolve(false)
+      } else {
+        resolve(true)
+      }
+    })
+  });
+}
+
 async function downloadBlob(containerName, blobName) {
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
   const blobClient = containerClient.getBlobClient(blobName);
@@ -176,6 +188,7 @@ async function downloadBlob(containerName, blobName) {
   ).toString();
   return downloaded;
 }
+
 
 async function streamToBuffer(readableStream) {
   return new Promise((resolve, reject) => {
@@ -253,6 +266,7 @@ module.exports = {
   createContainerIfNotExists,
   createBlob,
   createBlobSimple,
+  deleteBlob,
   downloadBlob,
   seeSharing
 }

@@ -64,15 +64,9 @@ const api = express.Router()
 //routes for login-logout
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
-api.post('/signwith', userCtrl.signWith)
 
 // activarcuenta
 api.post('/sendEmail', userCtrl.sendEmail)
-
-// recuperar password
-api.post('/recoverpass', userCtrl.recoverPass)
-api.post('/updatepass', userCtrl.updatePass)
-api.post('/newpass', auth(roles.All), userCtrl.newPass)
 
 api.get('/users/:userId', auth(roles.All), userCtrl.getUser)
 api.get('/users/settings/:userId', auth(roles.All), userCtrl.getSettings)
@@ -120,9 +114,6 @@ api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotyp
 api.delete('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotype)//de momento no se usa
 api.get('/phenotypes/history/:patientId', auth(roles.All), phenotypeCtrl.getPhenotypeHistory)//de momento no se usa
 api.delete('/phenotypes/history/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotypeHistoryRecord)//de momento no se usa
-
-api.put('/symptoms/changesharewithcommunity/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.setShareWithCommunity)
-api.get('/symptoms/permissions/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.getPermissionsPhenotype)
 
 //superadmin routes, using the controllers of folder Admin, this controller has methods
 api.post('/superadmin/lang/:userId', auth(roles.SuperAdmin), superAdmninLangCtrl.updateLangFile)

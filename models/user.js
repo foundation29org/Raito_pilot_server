@@ -4,6 +4,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const bcrypt = require('bcrypt-nodejs')
+const crypt = require('../services/crypt')
 
 const { conndbaccounts } = require('../db_connect')
 
@@ -37,8 +38,7 @@ const UserSchema = Schema({
 		type: String,
 		trim: true,
 		lowercase: true,
-		default: '',
-		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22})+$/, 'Please fill a valid email address']
+		default: ''
 	},
 	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
 	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },
@@ -139,6 +139,69 @@ var reasons = UserSchema.statics.failedLogin = {
 
 UserSchema.statics.getAuthenticated = function (moralisId, password, cb) {
 	this.findOne({ moralisId: moralisId}, function (err, user) {
+		if (err) return cb(err);
+
+		// make sure the user exists
+		if (!user) {
+			return cb(null, null, reasons.NOT_FOUND);
+		}
+		console.log(user.role);
+		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
+			return cb(null, null, reasons.WRONG_PLATFORM);
+		}
+		if (user.blockedaccount) {
+			return cb(null, null, reasons.BLOCKED);
+		}
+		// check if the account is currently locked
+		if (user.isLocked) {
+			// just increment login attempts if account is already locked
+			return user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.MAX_ATTEMPTS);
+			});
+		}
+
+		// test for a matching password
+		user.comparePassword(password, function (err, isMatch) {
+			if (err) return cb(err);
+
+
+			// check if the password was a match
+			if (isMatch) {
+				// if there's no lock or failed attempts, just return the user
+				if (!user.loginAttempts && !user.lockUntil) {
+					var updates = {
+						$set: { lastLogin: Date.now() }
+					};
+					return user.update(updates, function (err) {
+						if (err) return cb(err);
+						return cb(null, user);
+					});
+					return cb(null, user)
+				}
+				// reset attempts and lock info
+				var updates = {
+					$set: { loginAttempts: 0, lastLogin: Date.now() },
+					$unset: { lockUntil: 1 }
+				};
+				return user.update(updates, function (err) {
+					if (err) return cb(err);
+					return cb(null, user);
+				});
+			}
+
+			// password is incorrect, so increment login attempts before responding
+			user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.PASSWORD_INCORRECT);
+			});
+		});
+	}).select('_id email moralisId +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+};
+
+UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
+	let userIdDecrypt = crypt.decrypt(userId);
+	this.findOne({ _id: userIdDecrypt}, function (err, user) {
 		if (err) return cb(err);
 
 		// make sure the user exists

@@ -266,36 +266,11 @@ function deletePhenotypeHistoryRecord (req, res){
 	})
 }
 
-
-function setShareWithCommunity (req, res){
-  let phenotypeId=req.params.phenotypeId;
-  Phenotype.findByIdAndUpdate(phenotypeId, { permissions: req.body }, (err,patientUpdated) => {
-    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-      res.status(200).send({message: 'case name changed'})
-
-	})
-}
-
-function getPermissionsPhenotype (req, res){
-  let patientId= crypt.decrypt(req.params.patientId);
-	Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!phenotype){
-      return res.status(202).send({message: 'There are no phenotype'})
-    }else{
-      var response = phenotype.permissions;
-  		res.status(200).send({_id: phenotype._id ,permissions: response})
-    }
-	})
-}
-
 module.exports = {
 	getPhenotype,
 	getPhenotypeHistory,
 	savePhenotype,
 	updatePhenotype,
 	deletePhenotype,
-	deletePhenotypeHistoryRecord,
-  setShareWithCommunity,
-  getPermissionsPhenotype
+	deletePhenotypeHistoryRecord
 }

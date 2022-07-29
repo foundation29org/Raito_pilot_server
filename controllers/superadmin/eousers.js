@@ -1557,6 +1557,26 @@ async function checkF29(req, res) {
 	
   }
 
+  async function deleteMoralis (moralisId){
+	return new Promise(async function (resolve, reject) {
+		const query = new Moralis.Query('_EthAddress')
+		console.log(moralisId);
+		query.equalTo('user', moralisId)
+		const object = await query.first({useMasterKey:true}) // just get 1 item, not array of items
+		if (object) {
+			console.log(object);
+			resolve (object);
+			/*object.destroy().then(() => {
+			console.log('The object was deleted from ItemsForSale.');
+			}, (error) => {
+			console.log(error);
+			});*/
+		}
+		
+	});
+
+}
+
 module.exports = {
 	getPatients,
 	getInfoPatient,
@@ -1571,5 +1591,6 @@ module.exports = {
 	checkIPFS,
 	getIPFS,
 	checkF29,
-	getF29
+	getF29, 
+	deleteMoralis
 }
