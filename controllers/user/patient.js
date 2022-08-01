@@ -363,6 +363,21 @@ function updatePatient (req, res){
   }else{
     avatar = req.body.avatar;
   }
+  if(req.body.deleteConsent!=undefined){
+	if(req.body.deleteConsent){
+		req.body.consentgroup='false';
+		Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+			if (err) console.log({message: `Error deleting the feels: ${err}`})
+			if(sessions.length>0){
+				sessions.forEach(function(session) {
+					session.remove(err => {
+						if(err) console.log({message: `Error deleting the feels: ${err}`})
+					})
+				});
+			}
+		})
+	}
+  }
 
   Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup }, {new: true}, async (err,patientUpdated) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})

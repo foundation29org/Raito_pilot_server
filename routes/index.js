@@ -82,8 +82,8 @@ api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
 api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
 
 //export data
-api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
-api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
+//api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
+//api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
 
 //delete account
 api.post('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
