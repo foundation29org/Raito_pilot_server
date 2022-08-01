@@ -1733,7 +1733,7 @@ module.exports = {
 	getProms,
 	getSeizures,
 	getWeights,
-	getHeights
+	getHeights,
 	haveConsent,
 	saveBackup,
 	checkIPFS,
