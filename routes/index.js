@@ -139,6 +139,7 @@ api.get('/eo/feels/:groupId', auth(roles.Admin), eoCtrl.getFeels)
 api.get('/eo/proms/:groupId', auth(roles.Admin), eoCtrl.getProms)
 api.get('/eo/seizures/:groupId', auth(roles.Admin), eoCtrl.getSeizures)
 api.get('/eo/weights/:groupId', auth(roles.Admin), eoCtrl.getWeights)
+api.get('/eo/heights/:groupId', auth(roles.Admin), eoCtrl.getHeights)
 api.get('/eo/consent/:patientId', auth(roles.Admin), eoCtrl.haveConsent)
 
 api.post('/eo/backup/:patientId', auth(roles.OnlyUser), eoCtrl.saveBackup)

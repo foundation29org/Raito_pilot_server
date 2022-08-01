@@ -134,6 +134,7 @@ async function getAllPatientInfo(patient, infoGroup) {
 		promises3.push(getProm(patient));
 		promises3.push(getSeizure(patientId));
 		promises3.push(getHistoryWeight(patientId));
+		promises3.push(getHistoryHeight(patientId));
 		promises3.push(getConsent(patient, false));
 
 		await Promise.all(promises3)
@@ -269,8 +270,13 @@ async function getAllPatientInfo(patient, infoGroup) {
 					result.entry.push(data[5][index]);
 				}
 			}
-			if (data[6]) {
-				result.entry.push(data[6]);
+			if (data[6].length > 0) {
+				for (var index in data[6]) {
+					result.entry.push(data[6][index]);
+				}
+			}
+			if (data[7]) {
+				result.entry.push(data[7]);
 			}
 			/*result.entry.push(data[0]);
 			result.entry.push(data[1]);
@@ -725,6 +731,66 @@ async function getHistoryWeight (patientId){
 			}
 			
 			resolve(listWeights);
+		});
+	
+	});
+
+}
+
+async function getHistoryHeight (patientId){
+	return new Promise(async function (resolve, reject) {
+		await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+	
+			var listHeights = [];
+			let patientIdEnc = crypt.encrypt((patientId).toString());
+			if(heights){
+				heights.forEach(function(height) {
+					var actualheight = {
+						"fullUrl": "Observation/" +height._id,
+						"resource": {
+							"resourceType": "Observation",
+							"id": height._id,
+							"status": "final",
+							"category": [
+							  {
+								"coding": [
+								  {
+									"system": "http://terminology.hl7.org/CodeSystem/observation-category",
+									"code": "vital-signs",
+									"display": "Vital Signs"
+								  }
+								]
+							  }
+							],
+							"code": {
+								"coding": [
+								  {
+									"system": "http://loinc.org",
+									"code": "8302-2",
+									"display": "Body height"
+								  }
+								],
+								"text": "Body height"
+							},
+							"subject": {
+								"reference": "Patient/"+patientIdEnc
+							},
+							"effectiveDateTime": height.date,
+							"valueQuantity": {
+							  "value": height.value,
+							  "unit": "cm"
+							}
+						  }
+					};
+					listHeights.push(actualheight);
+				});
+			}
+			
+			resolve(listHeights);
 		});
 	
 	});
@@ -1271,6 +1337,87 @@ async function getWeightsPatients(patients) {
 
 
 /**
+ * @api {get} https://raito.care/api/eo/heights/:groupId Get heights
+ * @apiName getHeights
+ * @apiDescription This method return the heights of all the patients of an organization in FHIR.
+ * @apiGroup Organizations
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/eo/heights/'+groupId)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result Returns the heights of all the patients of an organization in FHIR.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *    "resourceType": "Bundle",
+ *    "id": "bundle-references",
+ *    "type": "collection",
+ *    "entry": [...]
+ * }
+ *
+ */
+
+ function getHeights (req, res){
+	Patient.find({group: req.params.groupId}, async (err, patients) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		var data = await getHeightsPatients(patients);
+		res.status(200).send(data)
+	})
+}
+
+async function getHeightsPatients(patients) {
+	return new Promise(async function (resolve, reject) {
+		var promises = [];
+		if (patients.length > 0) {
+			for (var index in patients) {
+				if(patients[index].consentgroup=='true'){
+					promises.push(getHistoryHeight(patients[index]._id));
+				}
+			}
+		} else {
+			resolve('No data')
+		}
+		await Promise.all(promises)
+			.then(async function (data) {
+				var res = [];
+				data.forEach(function(onePatient) {
+					if(onePatient.length>0){
+						onePatient.forEach(function (dataPatient) {
+							res.push(dataPatient);
+						});
+					}
+				});
+				var result = {
+					"resourceType": "Bundle",
+					"id": "bundle-references",
+					"type": "collection",
+					"entry": res
+				};
+				resolve(result)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+
+	});
+}
+
+/**
  * @api {get} https://raito.care/api/eo/consent/:patientId Have consent
  * @apiName haveConsent
  * @apiDescription This method return the consent of the patient in FHIR.
@@ -1586,6 +1733,7 @@ module.exports = {
 	getProms,
 	getSeizures,
 	getWeights,
+	getHeights
 	haveConsent,
 	saveBackup,
 	checkIPFS,
