@@ -2422,7 +2422,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "https://raito.care/api/eo/onlypatients/:groupId",
-    "title": "Get patients",
+    "title": "Get only patients",
     "name": "getOnlyPatients",
     "description": "<p>This method return the general information of all the patients of an organization.</p>",
     "group": "Organizations",

@@ -30,7 +30,7 @@ const masterKey = config.MORALIS.MARTER_KEY;
 Moralis.start({ serverUrl, appId, masterKey });
 
 /**
- * @api {get} https://raito.care/api/eo/onlypatients/:groupId Get patients
+ * @api {get} https://raito.care/api/eo/onlypatients/:groupId Get only patients
  * @apiName getOnlyPatients
  * @apiDescription This method return the general information of all the patients of an organization.
  * @apiGroup Organizations
