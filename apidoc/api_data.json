@@ -89,174 +89,6 @@
   },
   {
     "type": "post",
-    "url": "https://raito.care/api/api/newPass",
-    "title": "New password",
-    "name": "newPass",
-    "version": "1.0.0",
-    "group": "Account",
-    "description": "<p>This method allows you to change the password of an account. It is another way to change the password, but in this case, you need to provide the current and the new password, and it does not require validation through the mail account. In this case, it requires authentication in the header.</p>",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar newpasswordsha512 = sha512(\"jisd?87Tg\");\nvar formValue = { email: example@ex.com, actualpassword: passwordsha512, newpassword: newpasswordsha512 };\n this.http.post('https://raito.care/api/newPass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }else if(res.message == 'Login failed'){\n      console.log('The current password is incorrect');\n    }else if(res.message == 'Account is temporarily locked'){\n      console.log('Account is temporarily locked');\n    }else if(res.message == 'Account is unactivated'){\n      ...\n    }\n }, (err) => {\n   ...\n }",
-        "type": "js"
-      }
-    ],
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "authorization",
-            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Header-Example:",
-          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "parameter": {
-      "fields": {
-        "body": [
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>User email. In the link to request a change of password sent to the email, there is an email parameter. The value of this parameter will be the one to be assigned to email.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "actualpassword",
-            "description": "<p>Actual password using hash <a href=\"https://es.wikipedia.org/wiki/SHA-2\" target=\"_blank\">sha512</a></p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "newpassword",
-            "description": "<p>New password using hash <a href=\"https://es.wikipedia.org/wiki/SHA-2\" target=\"_blank\">sha512</a></p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Request-Example:",
-          "content": "{\n  \"email\": \"example@ex.com\",\n  \"actualpassword\": \"f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f\",\n  \"newpassword\": \"k847y603939a53656948480ce71f1ce46457b4745fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe45t\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. If everything went correctly, return 'password changed'</p>"
-          }
-        ],
-        "Success 202": [
-          {
-            "group": "Success 202",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:</p> <ul> <li>Not found</li> <li>Login failed (if the current password is incorrect)</li> <li>Account is temporarily locked</li> <li>Account is unactivated</li> </ul>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n \"message\": \"password changed\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/all/user.js",
-    "groupTitle": "Account"
-  },
-  {
-    "type": "post",
-    "url": "https://raito.care/api/api/recoverpass",
-    "title": "Request password change",
-    "name": "recoverPass",
-    "version": "1.0.0",
-    "group": "Account",
-    "description": "<p>This method allows you to send a request to change the password. At the end of this call, you need to check the email account to call <a href=\"#api-Account-updatePass\">update password</a>.</p>",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var formValue = { email: \"example@ex.com\"};\nthis.http.post('https://raito.care/api/recoverpass',formValue)\n .subscribe( (res : any) => {\n   if(res.message == \"Email sent\"){\n     console.log(\"Account recovery email sent. Check the email to change the password\");\n   }\n}, (err) => {\n  if(err.error.message == 'Fail sending email'){\n     //contact with Raito\n   }else if(err.error.message == 'user not exists'){\n    ...\n   }else if(err.error.message == 'account not activated'){\n    ...\n   }\n}",
-        "type": "js"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "body": [
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>User email</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Request-Example:",
-          "content": "{\n  \"email\": \"example@ex.com\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. If everything went correctly, return 'Email sent'</p>"
-          }
-        ],
-        "Eror 500": [
-          {
-            "group": "Eror 500",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:</p> <ul> <li>Fail sending email</li> <li>user not exists</li> <li>account not activated</li> </ul>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n \"message\": \"Email sent\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/all/user.js",
-    "groupTitle": "Account"
-  },
-  {
-    "type": "post",
     "url": "https://raito.care/api/api/signUp",
     "title": "New account",
     "name": "signUp",
@@ -334,87 +166,6 @@
         {
           "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n{\n \"message\": \"Account created\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/all/user.js",
-    "groupTitle": "Account"
-  },
-  {
-    "type": "post",
-    "url": "https://raito.care/api/api/updatepass",
-    "title": "Update password",
-    "name": "updatePass",
-    "version": "1.0.0",
-    "group": "Account",
-    "description": "<p>This method allows you to change the password of an account. Before changing the password, you previously had to make a <a href=\"#api-Account-recoverPass\">request for password change</a>.</p>",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar param = this.router.parseUrl(this.router.url).queryParams;\nvar formValue = { email: param.email, password: passwordsha512, randomCodeRecoverPass: param.key };\n this.http.post('https://raito.care/api/updatepass',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"password changed\"){\n      console.log(\"Password changed successfully\");\n    }\n }, (err) => {\n   if(err.error.message == 'invalid link'){\n      ...\n    }else if(err.error.message == 'link expired'){\n      console.log('The link has expired after more than 15 minutes since you requested it. Re-request a password change.');\n    }else if(err.error.message == 'Error saving the pass'){\n      ...\n    }\n }",
-        "type": "js"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "body": [
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>User email. In the link to request a change of password sent to the email, there is an email parameter. The value of this parameter will be the one to be assigned to email.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "password",
-            "description": "<p>User password using hash <a href=\"https://es.wikipedia.org/wiki/SHA-2\" target=\"_blank\">sha512</a></p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "randomCodeRecoverPass",
-            "description": "<p>In the password change request link sent to the email, there is a key parameter. The value of this parameter will be the one that must be assigned to randomCodeRecoverPass.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Request-Example:",
-          "content": "{\n  \"email\": \"example@ex.com\",\n  \"password\": \"f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f\",\n  \"randomCodeRecoverPass\": \"0.xkwta99hoy\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. If everything went correctly, return 'password changed'</p>"
-          }
-        ],
-        "Eror 500": [
-          {
-            "group": "Eror 500",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:</p> <ul> <li>invalid link</li> <li>link expired (The link has expired after more than 15 minutes since you requested it. Re-request a password change.)</li> <li>Account is temporarily locked</li> <li>Error saving the pass</li> </ul>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n \"message\": \"password changed\"\n}",
           "type": "json"
         }
       ]
@@ -2528,6 +2279,77 @@
   },
   {
     "type": "get",
+    "url": "https://raito.care/api/eo/heights/:groupId",
+    "title": "Get heights",
+    "name": "getHeights",
+    "description": "<p>This method return the heights of all the patients of an organization in FHIR.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/heights/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the heights of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Bundle\",\n   \"id\": \"bundle-references\",\n   \"type\": \"collection\",\n   \"entry\": [...]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
     "url": "https://raito.care/api/eo/patient/:patientId",
     "title": "Get patient",
     "name": "getInfoPatient",
@@ -2590,6 +2412,77 @@
         {
           "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n{\n  \"patientID\":\"7bc32c840a9dae512ert32f2vs4e34d7717ad9095f70d9d47444c6a5668edca5545c\",\n  \"result\":{\n     \"resourceType\": \"Bundle\",\n     \"id\": \"bundle-references\",\n     \"type\": \"collection\",\n     \"entry\": [...]\n   }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/superadmin/eousers.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/eo/onlypatients/:groupId",
+    "title": "Get patients",
+    "name": "getOnlyPatients",
+    "description": "<p>This method return the general information of all the patients of an organization.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/eo/onlypatients/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>Returns the general information of all the patients of an organization in FHIR.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n  {\n    \"patientID\":\"7bc32c840a9dae512ert32f2vs4e34d7717ad9095f70d9d47444c6a5668edca5545c\",\n    \"result\":{\n       \"resourceType\": \"Bundle\",\n       \"id\": \"bundle-references\",\n       \"type\": \"collection\",\n       \"entry\": [...]\n\t\t}\n  },\n  {\n    ...\n  }\n]",
           "type": "json"
         }
       ]

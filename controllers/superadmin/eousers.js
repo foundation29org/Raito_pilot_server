@@ -30,6 +30,148 @@ const masterKey = config.MORALIS.MARTER_KEY;
 Moralis.start({ serverUrl, appId, masterKey });
 
 /**
+ * @api {get} https://raito.care/api/eo/onlypatients/:groupId Get patients
+ * @apiName getOnlyPatients
+ * @apiDescription This method return the general information of all the patients of an organization.
+ * @apiGroup Organizations
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/eo/onlypatients/'+groupId)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result Returns the general information of all the patients of an organization in FHIR.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *   {
+ *     "patientID":"7bc32c840a9dae512ert32f2vs4e34d7717ad9095f70d9d47444c6a5668edca5545c",
+ *     "result":{
+ *        "resourceType": "Bundle",
+ *        "id": "bundle-references",
+ *        "type": "collection",
+ *        "entry": [...]
+ * 		}
+ *   },
+ *   {
+ *     ...
+ *   }
+ * ]
+ *
+ */
+
+function getOnlyPatients (req, res){
+	Patient.find({group: req.params.groupId}, async (err, patients) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		var infoGroup = await geInfoGroup(req.params.groupId);
+		var data = await getBasicInfoPatients(patients, infoGroup);
+		res.status(200).send(data)
+	})
+}
+
+async function getBasicInfoPatients(patients, infoGroup) {
+	return new Promise(async function (resolve, reject) {
+		var promises = [];
+		if (patients.length > 0) {
+			for (var index in patients) {
+				if(patients[index].consentgroup=='true'){
+					promises.push(getAllBacicPatientInfo(patients[index], infoGroup));
+				}
+			}
+		} else {
+			resolve('No data')
+		}
+		await Promise.all(promises)
+			.then(async function (data) {
+				/*var dataRes = [];
+				data.forEach(function (dataPatientsUser) {
+					dataPatientsUser.forEach(function (dataPatient) {
+						dataRes.push(dataPatient);
+					});
+				});
+				console.log('termina')*/
+				resolve(data)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+
+	});
+}
+
+async function getAllBacicPatientInfo(patient, infoGroup) {
+	return new Promise(async function (resolve, reject) {
+		let patientId = patient._id;
+		let patientIdEnc = crypt.encrypt(patientId.toString());
+				var result = {
+					"resourceType": "Bundle",
+					"id": "bundle-references",
+					"type": "collection",
+					"entry": [
+					]
+				};
+
+				result.entry.push(
+					{
+					"fullUrl": "Patient/"+patientIdEnc,
+      				"resource": {
+						"resourceType" : "Patient",
+						"id" : patientIdEnc,
+						"active" : true, // Whether this patient's record is in active use
+						"name" :
+						{
+							"use": "usual",
+							"given": [
+								patient.patientName
+							]
+						},
+						"telecom" :[
+							{
+								"system":"phone",
+								"value": patient.phone1
+							},
+							{
+								"system":"phone",
+								"value": patient.phone2
+							}
+						], // A contact detail for the individual
+
+						"gender" : patient.gender, // male | female | other | unknown
+						"birthDate" : patient.birthDate, // The date of birth for the individual
+						"address" : [{
+							"line":patient.street,
+							"city":patient.city,
+							"state": patient.province,
+							"postalCode":patient.postalCode,
+							"country":patient.country
+						}], // An address for the individual
+						"contact" : [{ // A contact party (e.g. guardian, partner, friend) for the patient
+						"relationship" : "", // The kind of relationship
+						"name" : "", // A name associated with the contact person
+						"telecom" : [], // A contact detail for the person
+						}]
+					}
+				}
+			);
+
+			resolve({ patientId: patientIdEnc, result: result})
+	});
+}
+
+/**
  * @api {get} https://raito.care/api/eo/patients/:groupId Get patients
  * @apiName getPatients
  * @apiDescription This method return the information of all the patients of an organization.
@@ -1725,6 +1867,7 @@ async function checkF29(req, res) {
 }
 
 module.exports = {
+	getOnlyPatients,
 	getPatients,
 	getInfoPatient,
 	getDrugs,
