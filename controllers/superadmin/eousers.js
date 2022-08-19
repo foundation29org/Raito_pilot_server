@@ -30,13 +30,13 @@ const masterKey = config.MORALIS.MARTER_KEY;
 Moralis.start({ serverUrl, appId, masterKey });
 
 /**
- * @api {get} https://raito.care/api/eo/onlypatients/:groupId Get only patients
+ * @api {post} https://raito.care/api/eo/onlypatients/:groupId Get only patients
  * @apiName getOnlyPatients
  * @apiDescription This method return the general information of all the patients of an organization.
  * @apiGroup Organizations
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://raito.care/eo/onlypatients/'+groupId)
+ *   this.http.post('https://raito.care/eo/onlypatients/'+groupId, {meta: true})
  *    .subscribe( (res : any) => {
  *      ...
  *     }, (err) => {
@@ -73,21 +73,22 @@ Moralis.start({ serverUrl, appId, masterKey });
  */
 
 function getOnlyPatients (req, res){
+	let meta = req.body.meta;
+	console.log(meta);
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		var infoGroup = await geInfoGroup(req.params.groupId);
-		var data = await getBasicInfoPatients(patients, infoGroup);
+		var data = await getBasicInfoPatients(patients, meta);
 		res.status(200).send(data)
 	})
 }
 
-async function getBasicInfoPatients(patients, infoGroup) {
+async function getBasicInfoPatients(patients, meta) {
 	return new Promise(async function (resolve, reject) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
 				if(patients[index].consentgroup=='true'){
-					promises.push(getAllBacicPatientInfo(patients[index], infoGroup));
+					promises.push(getAllBacicPatientInfo(patients[index], meta));
 				}
 			}
 		} else {
@@ -112,9 +113,148 @@ async function getBasicInfoPatients(patients, infoGroup) {
 	});
 }
 
-async function getAllBacicPatientInfo(patient, infoGroup) {
+async function getNumMedications(patientId) {
 	return new Promise(async function (resolve, reject) {
-		let patientId = patient._id;
+		await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+			var numMedications = 0;
+			if (medications) {
+				numMedications = medications.length;
+			}
+			var info = {"drugs": numMedications};
+			resolve(info);
+		})
+	});
+}
+
+async function getNumPhenotype(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
+			//console.log('Phenotype done.');
+			var numSeizures = 0;
+			if (phenotype) {
+				if (phenotype.data.length > 0) {
+					numSeizures = phenotype.data.length;
+				}
+			}
+			var info = {"seizures": numSeizures};
+			resolve(info);
+		})
+	});
+}
+
+async function getNumFeel(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+			//console.log('Feel done.');
+			var numFeels = 0;
+			if (feels) {
+				numFeels = feels.length;
+			}
+
+			var info = {"feels": numFeels};
+			resolve(info);
+		})
+	});
+}
+
+async function getNumProm(patient) {
+	return new Promise(async function (resolve, reject) {
+		await Prom.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, proms) {
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+			var numProms = 0;
+			if (proms) {
+				numProms = proms.length;
+			}
+			var info = {"proms": numProms};
+			resolve(info);
+		})
+	});
+}
+
+async function getNumSeizure(patientId) {
+	return new Promise(async function (resolve, reject) {
+		await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+			var numSeizures = 0;
+			if (seizures) {
+				numSeizures = seizures.length;
+			}
+			var info = {"seizures": numSeizures};
+			resolve(info);
+		})
+	});
+}
+
+async function getNumWeight (patientId){
+	return new Promise(async function (resolve, reject) {
+		await Weight.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, weights){
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+	
+			var numWeights = 0;
+			if(weights){
+				numWeights = weights.length;
+			}
+			var info = {"weight": numWeights};
+			resolve(info);
+		});
+	
+	});
+}
+
+async function getNumHeight (patientId){
+	return new Promise(async function (resolve, reject) {
+		await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+	
+			var numHeights = 0;
+			if(heights){
+				numHeights = heights.length;
+			}
+			var info = {"height": numHeights};
+			resolve(info);
+		});
+	
+	});
+
+}
+
+async function getAllBacicPatientInfo(patient, meta) {
+	return new Promise(async function (resolve, reject) {
+
+		var promises = [];
+		if(meta){
+			console.log('entra');
+			promises.push(getNumMedications(patient.id));
+			promises.push(getNumPhenotype(patient.id));
+			promises.push(getNumFeel(patient.id));
+			promises.push(getNumProm(patient.id));
+			promises.push(getNumSeizure(patient.id));
+			promises.push(getNumWeight(patient.id));
+			promises.push(getNumHeight(patient.id));
+		}
+		await Promise.all(promises)
+			.then(async function (data) {
+				let patientId = patient._id;
 		let patientIdEnc = crypt.encrypt(patientId.toString());
 				var result = {
 					"resourceType": "Bundle",
@@ -167,7 +307,15 @@ async function getAllBacicPatientInfo(patient, infoGroup) {
 				}
 			);
 
-			resolve({ patientId: patientIdEnc, result: result})
+			resolve({ patientId: patientIdEnc, result: result, metaInfo: data });
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+
+
+		
 	});
 }
 

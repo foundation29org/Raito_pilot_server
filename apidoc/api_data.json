@@ -2420,7 +2420,7 @@
     "groupTitle": "Organizations"
   },
   {
-    "type": "get",
+    "type": "post",
     "url": "https://raito.care/api/eo/onlypatients/:groupId",
     "title": "Get only patients",
     "name": "getOnlyPatients",
@@ -2430,7 +2430,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://raito.care/eo/onlypatients/'+groupId)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.post('https://raito.care/eo/onlypatients/'+groupId, {meta: true})\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
