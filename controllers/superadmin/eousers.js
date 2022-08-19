@@ -134,13 +134,13 @@ async function getNumPhenotype(patientId) {
 	return new Promise(async function (resolve, reject) {
 		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
 			//console.log('Phenotype done.');
-			var numSeizures = 0;
+			var numPhenotypes = 0;
 			if (phenotype) {
 				if (phenotype.data.length > 0) {
-					numSeizures = phenotype.data.length;
+					numPhenotypes = phenotype.data.length;
 				}
 			}
-			var info = {"seizures": numSeizures};
+			var info = {"phenotypes": numPhenotypes};
 			resolve(info);
 		})
 	});
@@ -305,13 +305,12 @@ async function getAllBacicPatientInfo(patient, meta) {
 					}
 				}
 			);
-			console.log(data);
 			var metaInfo = {};
 			metaInfo["drugs"] = data[0].drugs;
 			metaInfo["seizures"] = data[1].seizures;
 			metaInfo["feels"] = data[2].feels;
 			metaInfo["proms"] = data[3].proms;
-			metaInfo["seizures"] = data[4].seizures;
+			metaInfo["phenotypes"] = data[4].phenotypes;
 			metaInfo["weight"] = data[5].weight;
 			metaInfo["height"] = data[6].height;
 			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });
