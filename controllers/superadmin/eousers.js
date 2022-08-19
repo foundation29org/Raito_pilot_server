@@ -243,7 +243,6 @@ async function getAllBacicPatientInfo(patient, meta) {
 
 		var promises = [];
 		if(meta){
-			console.log('entra');
 			promises.push(getNumMedications(patient.id));
 			promises.push(getNumPhenotype(patient.id));
 			promises.push(getNumFeel(patient.id));
@@ -306,8 +305,16 @@ async function getAllBacicPatientInfo(patient, meta) {
 					}
 				}
 			);
-
-			resolve({ patientId: patientIdEnc, result: result, metaInfo: data });
+			console.log(data);
+			var metaInfo = {};
+			metaInfo["drugs"] = data[0].drugs;
+			metaInfo["seizures"] = data[1].seizures;
+			metaInfo["feels"] = data[2].feels;
+			metaInfo["proms"] = data[3].proms;
+			metaInfo["seizures"] = data[4].seizures;
+			metaInfo["weight"] = data[5].weight;
+			metaInfo["height"] = data[6].height;
+			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });
 			})
 			.catch(function (err) {
 				console.log('Manejar promesa rechazada (' + err + ') aquí.');
