@@ -307,10 +307,10 @@ async function getAllBacicPatientInfo(patient, meta) {
 			);
 			var metaInfo = {};
 			metaInfo["drugs"] = data[0].drugs;
-			metaInfo["seizures"] = data[1].seizures;
+			metaInfo["phenotypes"] = data[1].phenotypes;
 			metaInfo["feels"] = data[2].feels;
 			metaInfo["proms"] = data[3].proms;
-			metaInfo["phenotypes"] = data[4].phenotypes;
+			metaInfo["seizures"] = data[4].seizures;
 			metaInfo["weight"] = data[5].weight;
 			metaInfo["height"] = data[6].height;
 			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });
