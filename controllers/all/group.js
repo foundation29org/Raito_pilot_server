@@ -759,6 +759,54 @@ function updateMedicationsGroup (req, res){
 }
 
 
+/**
+ * @api {get} https://raito.care/api/group/questionnaires/:groupId Get medications
+ * @apiName geQuestionnairesGroup
+ * @apiDescription This method return the questionnaires associated with a group
+ * @apiGroup Groups
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/group/questionnaires/'+"None")
+ *    .subscribe( (res : any) => {
+ *      console.log('Get questionnaires ok ');
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * @apiParam {String} groupName The name of a group.  More info here:  [Get groupName](doc/#api-Groups-getGroupsNames)
+ * @apiSuccess {Object} questionnaires An object with the information abour the questionnaires associated with the group of patients.
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *  {"data":
+ *    {
+ * 		  "questionnaires" : [
+ * 			  {
+ * 				  "id": "8da7u8uhjs89d"
+ *        }
+ * 	  ]
+ *  }
+ * }
+ *
+ * HTTP/1.1 202 OK
+ * {message: 'The group does not exist'}
+ * @apiSuccess (Success 202) {String} message If there is group name, it will return: "The group does not exist"
+ */
+
+ function getQuestionnairesGroup (req, res){
+	let groupId= req.params.groupId;
+  Group.findOne({ '_id': groupId }, function (err, group) {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
+
+    var questionnaires = group.questionnaires;
+		res.status(200).send({questionnaires})
+	})
+}
 
 /*function getPromsGroup (req, res){
 	let groupName= req.params.groupName;
@@ -804,5 +852,6 @@ module.exports = {
   getPhenotypeGroup,
   updatePhenotypeGroup,
   getMedicationsGroup,
-  updateMedicationsGroup
+  updateMedicationsGroup,
+  getQuestionnairesGroup
 }

@@ -8,6 +8,7 @@ const Patient = require('./patient')
 const { conndbdata } = require('../db_connect')
 
 const PromSchema = Schema({
+	idQuestionnaire: String,
 	idProm: String,
 	data: {type: Schema.Types.Mixed},
 	other: {type: Schema.Types.Mixed},

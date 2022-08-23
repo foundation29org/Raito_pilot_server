@@ -175,6 +175,86 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "https://raito.care/api/group/questionnaires/:groupId",
+    "title": "Get medications",
+    "name": "geQuestionnairesGroup",
+    "description": "<p>This method return the questionnaires associated with a group</p>",
+    "group": "Groups",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/group/questionnaires/'+\"None\")\n .subscribe( (res : any) => {\n   console.log('Get questionnaires ok ');\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupName",
+            "description": "<p>The name of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "questionnaires",
+            "description": "<p>An object with the information abour the questionnaires associated with the group of patients.</p>"
+          }
+        ],
+        "Success 202": [
+          {
+            "group": "Success 202",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is group name, it will return: &quot;The group does not exist&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n {\"data\":\n   {\n\t\t  \"questionnaires\" : [\n\t\t\t  {\n\t\t\t\t  \"id\": \"8da7u8uhjs89d\"\n       }\n\t  ]\n }\n}\n\nHTTP/1.1 202 OK\n{message: 'The group does not exist'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/group.js",
+    "groupTitle": "Groups"
+  },
+  {
+    "type": "get",
     "url": "https://raito.care/api/group/",
     "title": "Get specific group information",
     "name": "getGroup",

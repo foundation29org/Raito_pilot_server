@@ -27,6 +27,7 @@ const GroupSchema = Schema({
 	email: String,
 	defaultLang: {type: String, default: 'en'},
 	phenotype: {type: Object, default: []},
+	questionnaires: {type: Object, default: []},
 	medications: {
 		type: medicationSchema, default:{
 			adverseEffects:[],

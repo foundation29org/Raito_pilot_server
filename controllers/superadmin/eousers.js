@@ -74,7 +74,6 @@ Moralis.start({ serverUrl, appId, masterKey });
 
 function getOnlyPatients (req, res){
 	let meta = req.body.meta;
-	console.log(meta);
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var data = await getBasicInfoPatients(patients, meta);
