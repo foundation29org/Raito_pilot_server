@@ -552,9 +552,14 @@ async function getAllPatientInfo(patient, infoGroup) {
 				}
 			}
 			//proms - questionnaire
-			if (data[3]) {
-				result.entry.push(data[3]);
+			if (data[3].length > 0) {
+				for (var index in data[3]) {
+					result.entry.push(data[3][index]);
+				}
 			}
+			/*if (data[3]) {
+				result.entry.push(data[3]);
+			}*/
 			if (data[4].length > 0) {
 				for (var index in data[4]) {
 					result.entry.push(data[4][index]);
@@ -796,122 +801,116 @@ async function getProm(patient) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Proms done.');
-			let patientIdEnc = crypt.encrypt((patient._id).toString());
-			var questionnaire = {
-				"fullUrl": "QuestionnaireResponse/q1dravet",
-				"resource": {
-					"resourceType": "QuestionnaireResponse",
-					"id": "q1dravet",
-					"status": "completed",
-					"subject": {
-						"reference": "Patient/"+patientIdEnc,
-						"display": patient.patientName
-					},
-					"authored": "2013-06-18T00:00:00+01:00",
-					"source": {
-						"reference": "Practitioner/q1dravet"
-					},
-					"item": [
-					]
-					}
-				};
-			
-			if (proms) {
-				proms.forEach(function (prom) {
-					
-					var question = '';
-					if(prom.idProm=='1'){
-						question = 'Is the number of seizures the most relevant problem for you?'
-					}else if(prom.idProm=='2'){
-						question = 'Does your child have problems walking or with movement?'
-					}else if(prom.idProm=='3'){
-						question = 'How does your childs appetite change due to their treatment?'
-					}else if(prom.idProm=='4'){
-						question = 'Can your child understand verbal instructions?'
-					}else if(prom.idProm=='5'){
-						question = 'Does your child always experience seizures in the same way or do they vary?'
-					}else if(prom.idProm=='6'){
-						question = 'Is there anything you think triggers your childs seizures?'
-					}else if(prom.idProm=='7'){
-						question = 'Are you or your child able to predict when they will have a seizure?'
-					}else if(prom.idProm=='8'){
-						question = 'If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?'
-					}
-
-
-					var actualprom = {
-						"linkId": prom.idProm,
-						"text": question,
-						"answer": [
-						  {
-							"valueString": prom.data
-						  }
-						]
-					  }
-
-					  if(prom.idProm=='6'){
-						var answers = '';
-						if(prom.data.Brightorpatternedlights){
-							answers = answers+'Bright or patterned lights, ';
-						}
-						if(prom.data.Warmorcoldtemperatures){
-							answers = answers+'Warm or cold temperatures, ';
-						}
-						if(prom.data.Physicalmovementoractivity){
-							answers = answers+'Physical movement or activity, ';
-						}
-						if(prom.data.Noise){
-							answers = answers+'Noise, ';
-						}
-						if(prom.data.Geometricpatterns){
-							answers = answers+'Geometric patterns, ';
-						}
-						if(prom.data.Changesinemotionalstate){
-							answers = answers+'Changes in emotional state, ';
-						}
-						if(prom.data.Tiredness){
-							answers = answers+'Tiredness, ';
-						}
-						if(prom.data.Other){
-							answers = answers+'Other, ';
-						}
-						actualprom = {
-							"linkId": prom.idProm,
-							"text": question,
-							"answer": [
-							  {
-								"valueString": answers
-							  }
-							]
-						  }
-					  }
-
-					questionnaire.resource.item.push(actualprom);
-
-					/*var actualprom = {
-						"fullUrl": "Observation/" +prom._id,
+			const result = proms.reduce(function (r, a) {
+				r[a.idQuestionnaire] = r[a.idQuestionnaire] || [];
+				r[a.idQuestionnaire].push(a);
+				return r;
+			}, Object.create(null));
+			console.log(Object.keys(result).length)
+			var listQuestionnaires= [];
+			if(Object.keys(result).length>0){
+				Object.keys(result).forEach(function(key) {
+					var questionnarire = result[key];
+					let patientIdEnc = crypt.encrypt((patient._id).toString());
+					var questionnaireRes = {
+						"fullUrl": "QuestionnaireResponse/"+key,
 						"resource": {
-							"resourceType": "Observation",
-							"id": prom._id,
-							"status": "final",
-							"code": {
-								"text": "Prom"
-							},
+							"resourceType": "QuestionnaireResponse",
+							"id": key,
+							"status": "completed",
 							"subject": {
-								"reference": "Patient/"+patientIdEnc
+								"reference": "Patient/"+patientIdEnc,
+								"display": patient.patientName
 							},
-							"effectiveDateTime": prom.date,
-							"valueQuantity": {
-								"value": prom.idProm+':'+JSON.stringify(prom.data),
-								"unit": ""
+							"authored": "2013-06-18T00:00:00+01:00",
+							"source": {
+								"reference": "Practitioner/"+key
+							},
+							"item": [
+							]
 							}
-						}
-					};
-					listProms.push(actualprom);*/
-				});
+						};
+					
+					if (questionnarire) {
+						questionnarire.forEach(function (prom) {
+							
+							var question = '';
+							if(prom.idProm=='1'){
+								question = 'Is the number of seizures the most relevant problem for you?'
+							}else if(prom.idProm=='2'){
+								question = 'Does your child have problems walking or with movement?'
+							}else if(prom.idProm=='3'){
+								question = 'How does your childs appetite change due to their treatment?'
+							}else if(prom.idProm=='4'){
+								question = 'Can your child understand verbal instructions?'
+							}else if(prom.idProm=='5'){
+								question = 'Does your child always experience seizures in the same way or do they vary?'
+							}else if(prom.idProm=='6'){
+								question = 'Is there anything you think triggers your childs seizures?'
+							}else if(prom.idProm=='7'){
+								question = 'Are you or your child able to predict when they will have a seizure?'
+							}else if(prom.idProm=='8'){
+								question = 'If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?'
+							}
+	
+	
+							var actualprom = {
+								"linkId": prom.idProm,
+								"text": question,
+								"answer": [
+								{
+									"valueString": prom.data
+								}
+								]
+							}
+	
+							if(prom.idProm=='6'){
+								var answers = '';
+								if(prom.data.Brightorpatternedlights){
+									answers = answers+'Bright or patterned lights, ';
+								}
+								if(prom.data.Warmorcoldtemperatures){
+									answers = answers+'Warm or cold temperatures, ';
+								}
+								if(prom.data.Physicalmovementoractivity){
+									answers = answers+'Physical movement or activity, ';
+								}
+								if(prom.data.Noise){
+									answers = answers+'Noise, ';
+								}
+								if(prom.data.Geometricpatterns){
+									answers = answers+'Geometric patterns, ';
+								}
+								if(prom.data.Changesinemotionalstate){
+									answers = answers+'Changes in emotional state, ';
+								}
+								if(prom.data.Tiredness){
+									answers = answers+'Tiredness, ';
+								}
+								if(prom.data.Other){
+									answers = answers+'Other, ';
+								}
+								actualprom = {
+									"linkId": prom.idProm,
+									"text": question,
+									"answer": [
+									{
+										"valueString": answers
+									}
+									]
+								}
+							}
+	
+							questionnaireRes.resource.item.push(actualprom);
+						});
+					}
+					listQuestionnaires.push(questionnaireRes);
+				  });
 			}
-			resolve(questionnaire);
+			
+			  
+			
+			resolve(listQuestionnaires);
 		})
 	});
 }
@@ -1449,7 +1448,10 @@ async function getPromsPatients(patients) {
 			.then(async function (data) {
 				var res = [];
 				data.forEach(function(onePatient) {
-					res.push(onePatient);
+					if(onePatient.length>0){
+						res.push(onePatient);
+					}
+					
 				});
 				var result = {
 					"resourceType": "Bundle",
