@@ -22,6 +22,7 @@ const config = require('../../config')
 const Moralis = require("moralis/node");
 var https = require('follow-redirects').https;
 var fs = require('fs');
+const request = require("request");
 
 /* Moralis init code */
 const serverUrl = config.MORALIS.SERVER_URL;
@@ -371,7 +372,8 @@ function getPatients (req, res){
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var infoGroup = await geInfoGroup(req.params.groupId);
-		var data = await getInfoPatients(patients, infoGroup);
+		var questionnaires = await getQuestionnairesGroup(req.params.groupId);
+		var data = await getInfoPatients(patients, infoGroup, questionnaires);
 		res.status(200).send(data)
 	})
 }
@@ -388,13 +390,13 @@ function geInfoGroup(groupId) {
 	});
 }
 
-async function getInfoPatients(patients, infoGroup) {
+async function getInfoPatients(patients, infoGroup, questionnaires) {
 	return new Promise(async function (resolve, reject) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
 				if(patients[index].consentgroup=='true'){
-					promises.push(getAllPatientInfo(patients[index], infoGroup));
+					promises.push(getAllPatientInfo(patients[index], infoGroup, questionnaires));
 				}
 			}
 		} else {
@@ -419,14 +421,14 @@ async function getInfoPatients(patients, infoGroup) {
 	});
 }
 
-async function getAllPatientInfo(patient, infoGroup) {
+async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 	return new Promise(async function (resolve, reject) {
 		let patientId = patient._id;
 		var promises3 = [];
 		promises3.push(getMedications(patientId, infoGroup, patient));
 		promises3.push(getPhenotype(patientId));
 		promises3.push(getFeel(patientId));
-		promises3.push(getProm(patient));
+		promises3.push(getProm(patient, questionnaires));
 		promises3.push(getSeizure(patientId));
 		promises3.push(getHistoryWeight(patientId));
 		promises3.push(getHistoryHeight(patientId));
@@ -794,7 +796,7 @@ async function getFeel(patientId) {
 	});
 }
 
-async function getProm(patient) {
+async function getProm(patient, questionnaires) {
 	return new Promise(async function (resolve, reject) {
 		await Prom.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, proms) {
 			if (err) {
@@ -806,7 +808,6 @@ async function getProm(patient) {
 				r[a.idQuestionnaire].push(a);
 				return r;
 			}, Object.create(null));
-			console.log(Object.keys(result).length)
 			var listQuestionnaires= [];
 			if(Object.keys(result).length>0){
 				Object.keys(result).forEach(function(key) {
@@ -833,75 +834,55 @@ async function getProm(patient) {
 					
 					if (questionnarire) {
 						questionnarire.forEach(function (prom) {
+							questionnaires.forEach(function (questionnaire) {
+								if(key == questionnaire.id){
+									questionnaire.items.forEach(function (item) {
+										var question = '';
+										if(prom.idProm==item.idProm){
+											question = item.text
+											var actualprom = {
+												"linkId": prom.idProm,
+												"text": question,
+												"answer": [
+												{
+													"valueString": prom.data
+												}
+												]
+											}
+											if(prom.other && item.type!='ChoiceSet'){
+												actualprom.answer[0].valueString = actualprom.answer[0].valueString + ': '+ prom.other;
+											}
+											if(item.type=='ChoiceSet'){
+												var answers = '';
+												Object.keys(prom.data).forEach(function(key2) {
+													item.answers.forEach(function (answer){
+														if(key2 == answer.value && prom.data[key2]){
+															
+															if(item.other==key2){
+																answers = answers+ answer.text+': '+prom.other+', ';
+															}else{
+																answers = answers+ answer.text+', ';
+															}
+														}
+													})
+												})
+												actualprom = {
+													"linkId": prom.idProm,
+													"text": question,
+													"answer": [
+													{
+														"valueString": answers
+													}
+													]
+												}
+											}
+											questionnaireRes.resource.item.push(actualprom);
+										}	
+									});
+									
+								}
+							});
 							
-							var question = '';
-							if(prom.idProm=='1'){
-								question = 'Is the number of seizures the most relevant problem for you?'
-							}else if(prom.idProm=='2'){
-								question = 'Does your child have problems walking or with movement?'
-							}else if(prom.idProm=='3'){
-								question = 'How does your childs appetite change due to their treatment?'
-							}else if(prom.idProm=='4'){
-								question = 'Can your child understand verbal instructions?'
-							}else if(prom.idProm=='5'){
-								question = 'Does your child always experience seizures in the same way or do they vary?'
-							}else if(prom.idProm=='6'){
-								question = 'Is there anything you think triggers your childs seizures?'
-							}else if(prom.idProm=='7'){
-								question = 'Are you or your child able to predict when they will have a seizure?'
-							}else if(prom.idProm=='8'){
-								question = 'If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?'
-							}
-	
-	
-							var actualprom = {
-								"linkId": prom.idProm,
-								"text": question,
-								"answer": [
-								{
-									"valueString": prom.data
-								}
-								]
-							}
-	
-							if(prom.idProm=='6'){
-								var answers = '';
-								if(prom.data.Brightorpatternedlights){
-									answers = answers+'Bright or patterned lights, ';
-								}
-								if(prom.data.Warmorcoldtemperatures){
-									answers = answers+'Warm or cold temperatures, ';
-								}
-								if(prom.data.Physicalmovementoractivity){
-									answers = answers+'Physical movement or activity, ';
-								}
-								if(prom.data.Noise){
-									answers = answers+'Noise, ';
-								}
-								if(prom.data.Geometricpatterns){
-									answers = answers+'Geometric patterns, ';
-								}
-								if(prom.data.Changesinemotionalstate){
-									answers = answers+'Changes in emotional state, ';
-								}
-								if(prom.data.Tiredness){
-									answers = answers+'Tiredness, ';
-								}
-								if(prom.data.Other){
-									answers = answers+'Other, ';
-								}
-								actualprom = {
-									"linkId": prom.idProm,
-									"text": question,
-									"answer": [
-									{
-										"valueString": answers
-									}
-									]
-								}
-							}
-	
-							questionnaireRes.resource.item.push(actualprom);
 						});
 					}
 					listQuestionnaires.push(questionnaireRes);
@@ -1136,7 +1117,8 @@ function getInfoPatient (req, res){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(patient){
 			var infoGroup = await geInfoGroup(patient.group);
-			var data = await getAllPatientInfo(patient, infoGroup);
+			var questionnaires = await getQuestionnairesGroup(patient.group);
+			var data = await getAllPatientInfo(patient, infoGroup, questionnaires);
 			res.status(200).send(data)
 		}else{
 			res.status(404).send({message: 'The patient does not exist'})
@@ -1427,18 +1409,66 @@ async function getFeelsPatients(patients) {
 function getProms (req, res){
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		var data = await getPromsPatients(patients);
+		var questionnaires = await getQuestionnairesGroup(req.params.groupId);
+		var data = await getPromsPatients(patients, questionnaires);
 		res.status(200).send(data)
 	})
 }
 
-async function getPromsPatients(patients) {
+function getQuestionnairesGroup(groupId) {
+	return new Promise(resolve => {
+		Group.findOne({ '_id': groupId }, async function (err, group) {
+			if (err) resolve({message: `Error making the request: ${err}`})
+			if(!group.questionnaires) resolve({code: 208, message: 'The group does not exist'}) 
+			if (group) {
+				var promises = [];
+				if (group.questionnaires.length > 0) {
+					for (var index in group.questionnaires) {
+						promises.push(getQuestionnaire(group.questionnaires[index].id));
+					}
+				}else {
+					resolve('No data')
+				}
+
+				await Promise.all(promises)
+				.then(async function (data) {
+					resolve(data)
+				})
+				.catch(function (err) {
+					console.log('Manejar promesa rechazada (' + err + ') aquí.');
+					return null;
+				});
+			}
+		});
+	});
+}
+
+async function getQuestionnaire(questionnaireId) {
+	return new Promise(async function (resolve, reject) {
+		let url = 'https://raw.githubusercontent.com/foundation29org/raito_resources/main/questionnaires/'+questionnaireId+'.json';
+		let options = {json: true};
+		request(url, options, (error, res, body) => {
+			if (error) {
+				return  console.log(error)
+			};
+
+			if (!error && res.statusCode == 200) {
+				//console.log(body);
+				resolve (body)
+				// do something with JSON, using the 'body' variable
+			};
+		});
+	});
+}
+
+
+async function getPromsPatients(patients, questionnaires) {
 	return new Promise(async function (resolve, reject) {
 		var promises = [];
 		if (patients.length > 0) {
 			for (var index in patients) {
 				if(patients[index].consentgroup=='true'){
-					promises.push(getProm(patients[index]));
+					promises.push(getProm(patients[index], questionnaires));
 				}
 			}
 		} else {
@@ -1843,7 +1873,8 @@ function saveBackup (req, res){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(patient){
 			var infoGroup = await geInfoGroup(patient.group);
-			var data = await getAllPatientInfo(patient, infoGroup);
+			var questionnaires = await getQuestionnairesGroup(patient.group);
+			var data = await getAllPatientInfo(patient, infoGroup, questionnaires);
 			var userId = crypt.encrypt((patient.createdBy).toString());
 			if(location=='IPFS'){
 				var data2 = await saveIPFS(data, userId);
