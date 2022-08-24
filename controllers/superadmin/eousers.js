@@ -1449,7 +1449,9 @@ async function getPromsPatients(patients) {
 				var res = [];
 				data.forEach(function(onePatient) {
 					if(onePatient.length>0){
-						res.push(onePatient);
+						onePatient.forEach(function (dataPatient) {
+							res.push(dataPatient);
+						});
 					}
 					
 				});
