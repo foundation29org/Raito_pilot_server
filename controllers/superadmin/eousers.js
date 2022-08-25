@@ -167,7 +167,7 @@ async function getNumFeel(patientId) {
 
 async function getNumProm(patient) {
 	return new Promise(async function (resolve, reject) {
-		await Prom.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, proms) {
+		await Prom.find({ createdBy: patient }, { "createdBy": false }).exec(function (err, proms) {
 			if (err) {
 				console.log(err);
 				resolve(err)
