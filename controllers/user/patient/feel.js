@@ -55,6 +55,7 @@ function saveFeel (req, res){
 	eventdb.a2 = req.body.a2;
 	eventdb.a3 = req.body.a3;
 	eventdb.note = req.body.note;
+	eventdb.date = req.body.date;
 	eventdb.createdBy = patientId
 
 	// when you save, returns an id in eventdbStored to access that feel
