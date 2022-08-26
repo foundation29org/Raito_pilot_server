@@ -254,7 +254,7 @@ async function getAllBacicPatientInfo(patient, meta) {
 		await Promise.all(promises)
 			.then(async function (data) {
 				let patientId = patient._id;
-		let patientIdEnc = crypt.encrypt(patientId.toString());
+				let patientIdEnc = crypt.encrypt(patientId.toString());
 				var result = {
 					"resourceType": "Bundle",
 					"id": "bundle-references",
@@ -306,13 +306,16 @@ async function getAllBacicPatientInfo(patient, meta) {
 				}
 			);
 			var metaInfo = {};
-			metaInfo["drugs"] = data[0].drugs;
-			metaInfo["phenotypes"] = data[1].phenotypes;
-			metaInfo["feels"] = data[2].feels;
-			metaInfo["proms"] = data[3].proms;
-			metaInfo["seizures"] = data[4].seizures;
-			metaInfo["weight"] = data[5].weight;
-			metaInfo["height"] = data[6].height;
+			if(meta){
+				metaInfo["drugs"] = data[0].drugs;
+				metaInfo["phenotypes"] = data[1].phenotypes;
+				metaInfo["feels"] = data[2].feels;
+				metaInfo["proms"] = data[3].proms;
+				metaInfo["seizures"] = data[4].seizures;
+				metaInfo["weight"] = data[5].weight;
+				metaInfo["height"] = data[6].height;
+			}
+			
 			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });
 			})
 			.catch(function (err) {
