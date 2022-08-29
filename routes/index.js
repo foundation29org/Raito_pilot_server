@@ -267,7 +267,7 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/feels/dates/:patientId', auth(roles.UserResearcher), feelCtrl.getFeelsDates)
+api.post('/feels/dates/:patientId', auth(roles.All), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
