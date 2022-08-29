@@ -234,7 +234,7 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/seizures/dates/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizuresDate)
+api.post('/seizures/dates/:patientId', auth(roles.All), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
@@ -251,7 +251,7 @@ api.get('/group/questionnaires/:groupId', groupCtrl.getQuestionnairesGroup)
 api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
-api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
+api.post('/medications/dates/:patientId', auth(roles.All), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
 api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
@@ -287,7 +287,7 @@ api.put('/document/:documentId', auth(roles.OnlyUser), docsCtrl.updateDocument)
 api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
 
 // weightinfo routes, using the controller socialinfo, this controller has methods
-api.get('/weight/:patientId', auth(roles.UserResearcher), weightCtrl.getWeight)
+api.get('/weight/:patientId', auth(roles.All), weightCtrl.getWeight)
 api.get('/weights/:patientId', auth(roles.UserResearcher), weightCtrl.getHistoryWeight)
 api.post('/weight/:patientId', auth(roles.OnlyUser), weightCtrl.saveWeight)
 api.delete('/weight/:weightId', auth(roles.OnlyUser), weightCtrl.deleteWeight)//de momento no se usa
