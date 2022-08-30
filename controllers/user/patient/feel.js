@@ -7,7 +7,7 @@ const Feel = require('../../../models/feel')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
-function getFeelsDates (req, res){
+async function getFeelsDates (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	var period = 31;
 	if(req.body.rangeDate == 'quarter'){
@@ -21,15 +21,26 @@ function getFeelsDates (req, res){
 	var pastDate=new Date(actualDate);
     pastDate.setDate(pastDate.getDate() - period);
 	var pastDateDateTime = pastDate.getTime();
-	//Feel.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-		Feel.find({"createdBy": patientId, "date":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
+	const posts = await Feel.find({"createdBy": patientId}).sort({date: 1});
+	var oldProm = {};
+	var enc = false;
+	if(posts.length>0){
+		for (var i = 0; i < posts.length && !enc; i++) {
+			if(posts[i].date<pastDateDateTime){
+				oldProm = posts[i];
+			}else{
+				enc = true;
+			}
+		}
+	}
+	
+	Feel.find({"createdBy": patientId, "date":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
-
 		eventsdb.forEach(function(eventdb) {
 			listEventsdb.push(eventdb);
 		});
-		res.status(200).send(listEventsdb)
+		res.status(200).send({feels:listEventsdb, old:oldProm})
 	});
 }
 
