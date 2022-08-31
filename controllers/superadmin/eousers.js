@@ -388,7 +388,7 @@ async function getAllBacicPatientInfo(patient, meta) {
 				metaInfo["height"] = {height: data[6].height, date: data[6].date};
 			}
 			
-			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });
+			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo, country: patient.country });
 			})
 			.catch(function (err) {
 				console.log('Manejar promesa rechazada (' + err + ') aquí.');
