@@ -152,6 +152,7 @@ function getHistoryHeight (req, res){
 function saveHeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let height = new Height()
+	height.date = req.body.date
 	height.value = req.body.value
 	height.createdBy = patientId
 

@@ -115,7 +115,17 @@ async function getBasicInfoPatients(patients, meta) {
 
 async function getNumMedications(patientId) {
 	return new Promise(async function (resolve, reject) {
-		await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
+		const medications = await Medication.find({"createdBy": patientId}).sort({date: -1});
+		var numMedications = 0;
+		var date = null;
+		if (medications.length>0) {
+			numMedications = medications.length;
+			date=medications[0].date
+		}
+		var info = {"drugs": numMedications, "date": date};
+		resolve(info);
+
+		/*await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
 			if (err) {
 				console.log(err);
 				resolve(err)
@@ -126,13 +136,25 @@ async function getNumMedications(patientId) {
 			}
 			var info = {"drugs": numMedications};
 			resolve(info);
-		})
+		})*/
 	});
 }
 
 async function getNumPhenotype(patientId) {
 	return new Promise(async function (resolve, reject) {
-		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
+		const phenotype = await Phenotype.findOne({"createdBy": patientId}).sort({date: -1});
+		var numPhenotypes = 0;
+		var date = null;
+		if (phenotype) {
+			if (phenotype.data.length > 0) {
+				numPhenotypes = phenotype.data.length;
+				date=phenotype.date
+			}
+		}
+		var info = {"phenotypes": numPhenotypes, "date": date};
+		resolve(info);
+
+		/*await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
 			//console.log('Phenotype done.');
 			var numPhenotypes = 0;
 			if (phenotype) {
@@ -142,18 +164,27 @@ async function getNumPhenotype(patientId) {
 			}
 			var info = {"phenotypes": numPhenotypes};
 			resolve(info);
-		})
+		})*/
 	});
 }
 
 async function getNumFeel(patientId) {
 	return new Promise(async function (resolve, reject) {
-		await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
+		const feels = await Feel.find({"createdBy": patientId}).sort({date: -1});
+		var numFeels = 0;
+		var date = null;
+		if (feels.length>0) {
+			numFeels = feels.length;
+			date=feels[0].date
+		}
+		var info = {"feels": numFeels, "date": date};
+		resolve(info);
+
+		/*await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
 			if (err) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Feel done.');
 			var numFeels = 0;
 			if (feels) {
 				numFeels = feels.length;
@@ -161,13 +192,23 @@ async function getNumFeel(patientId) {
 
 			var info = {"feels": numFeels};
 			resolve(info);
-		})
+		})*/
 	});
 }
 
-async function getNumProm(patient) {
+async function getNumProm(patientId) {
 	return new Promise(async function (resolve, reject) {
-		await Prom.find({ createdBy: patient }, { "createdBy": false }).exec(function (err, proms) {
+		const proms = await Prom.find({"createdBy": patientId}).sort({date: -1});
+		var numProms = 0;
+		var date = null;
+		if (proms.length>0) {
+			numProms = proms.length;
+			date=proms[0].date
+		}
+		var info = {"proms": numProms, "date": date};
+		resolve(info);
+
+		/*await Prom.find({ createdBy: patient }, { "createdBy": false }).exec(function (err, proms) {
 			if (err) {
 				console.log(err);
 				resolve(err)
@@ -178,13 +219,24 @@ async function getNumProm(patient) {
 			}
 			var info = {"proms": numProms};
 			resolve(info);
-		})
+		})*/
 	});
 }
 
 async function getNumSeizure(patientId) {
 	return new Promise(async function (resolve, reject) {
-		await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
+
+		const seizures = await Seizures.find({"createdBy": patientId}).sort({date: -1});
+		var numSeizures = 0;
+		var date = null;
+		if (seizures.length>0) {
+			numSeizures = seizures.length;
+			date=seizures[0].date
+		}
+		var info = {"seizures": numSeizures, "date": date};
+		resolve(info);
+
+		/*await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
 			if (err) {
 				console.log(err);
 				resolve(err)
@@ -195,13 +247,23 @@ async function getNumSeizure(patientId) {
 			}
 			var info = {"seizures": numSeizures};
 			resolve(info);
-		})
+		})*/
 	});
 }
 
 async function getNumWeight (patientId){
 	return new Promise(async function (resolve, reject) {
-		await Weight.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, weights){
+		const weights = await Weight.find({"createdBy": patientId}).sort({date: -1});
+		var numWeights = 0;
+		var date = null;
+		if (weights.length>0) {
+			numWeights = weights.length;
+			date=weights[0].date
+		}
+		var info = {"weight": numWeights, "date": date};
+		resolve(info);
+
+		/*await Weight.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, weights){
 			if (err) {
 				console.log(err);
 				resolve(err)
@@ -213,14 +275,24 @@ async function getNumWeight (patientId){
 			}
 			var info = {"weight": numWeights};
 			resolve(info);
-		});
+		});*/
 	
 	});
 }
 
 async function getNumHeight (patientId){
 	return new Promise(async function (resolve, reject) {
-		await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
+		const heights = await Height.find({"createdBy": patientId}).sort({date: -1});
+		var numHeights = 0;
+		var date = null;
+		if (heights.length>0) {
+			numHeights = heights.length;
+			date=heights[0].date
+		}
+		var info = {"height": numHeights, "date": date};
+		resolve(info);
+
+		/*await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
 			if (err) {
 				console.log(err);
 				resolve(err)
@@ -232,7 +304,7 @@ async function getNumHeight (patientId){
 			}
 			var info = {"height": numHeights};
 			resolve(info);
-		});
+		});*/
 	
 	});
 
@@ -307,13 +379,13 @@ async function getAllBacicPatientInfo(patient, meta) {
 			);
 			var metaInfo = {};
 			if(meta){
-				metaInfo["drugs"] = data[0].drugs;
-				metaInfo["phenotypes"] = data[1].phenotypes;
-				metaInfo["feels"] = data[2].feels;
-				metaInfo["proms"] = data[3].proms;
-				metaInfo["seizures"] = data[4].seizures;
-				metaInfo["weight"] = data[5].weight;
-				metaInfo["height"] = data[6].height;
+				metaInfo["drugs"] = {drugs: data[0].drugs, date: data[0].date} ;
+				metaInfo["phenotypes"] = {phenotypes: data[1].phenotypes, date: data[1].date};
+				metaInfo["feels"] = {feels: data[2].feels, date: data[2].date};
+				metaInfo["proms"] = {proms: data[3].proms, date: data[3].date};
+				metaInfo["seizures"] = {seizures: data[4].seizures, date: data[4].date};
+				metaInfo["weight"] = {weight: data[5].weight, date: data[5].date};
+				metaInfo["height"] = {height: data[6].height, date: data[6].date};
 			}
 			
 			resolve({ patientId: patientIdEnc, result: result, metaInfo: metaInfo });

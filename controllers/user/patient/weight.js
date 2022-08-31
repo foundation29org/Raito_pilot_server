@@ -162,6 +162,7 @@ function getHistoryWeight (req, res){
 function saveWeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let weight = new Weight()
+	weight.date = req.body.date
 	weight.value = req.body.value
 	weight.createdBy = patientId
 
