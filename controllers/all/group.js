@@ -7,6 +7,7 @@ const Group = require('../../models/group')
 const crypt = require('../../services/crypt')
 const User = require('../../models/user')
 const fs = require('fs-extra')
+const request = require("request");
 const serviceEmail = require('../../services/email')
 const sha512 = require('js-sha512')
 
@@ -808,6 +809,22 @@ function updateMedicationsGroup (req, res){
 	})
 }
 
+async function getconfigFile(req, res) {
+    let groupId= req.params.groupId;
+		let url = 'https://raw.githubusercontent.com/foundation29org/raito_resources/main/groups/'+groupId+'/config.json';
+		let options = {json: true};
+		request(url, options, (error, res2, body) => {
+			if (error) {
+				return  console.log(error)
+			};
+
+			if (!error && res2.statusCode == 200) {
+				console.log(body);
+        res.status(200).send({body})
+			};
+		});
+}
+
 /*function getPromsGroup (req, res){
 	let groupName= req.params.groupName;
   Group.findOne({ 'name': groupName }, function (err, group) {
@@ -853,5 +870,6 @@ module.exports = {
   updatePhenotypeGroup,
   getMedicationsGroup,
   updateMedicationsGroup,
-  getQuestionnairesGroup
+  getQuestionnairesGroup,
+  getconfigFile
 }

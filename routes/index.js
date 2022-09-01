@@ -248,6 +248,7 @@ api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
 api.get('/group/questionnaires/:groupId', groupCtrl.getQuestionnairesGroup)
+api.get('/group/configfile/:groupId', groupCtrl.getconfigFile)
 api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
