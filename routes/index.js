@@ -40,6 +40,7 @@ const captchaServiceCtrl = require('../services/captcha')
 
 const feedbackDevCtrl = require('../controllers/all/feedback_dev')
 const seizuresCtrl = require('../controllers/user/patient/seizures')
+const appointmentsCtrl = require('../controllers/user/patient/appointments')
 const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
 
@@ -240,6 +241,13 @@ api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
 api.delete('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.deleteSeizure)
 api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveMassiveSeizure)
+
+//appointments
+api.get('/lastappointments/:patientId', auth(roles.UserResearcher), appointmentsCtrl.getLastAppointments)
+api.get('/appointments/:patientId', auth(roles.UserResearcher), appointmentsCtrl.getAppointments)
+api.post('/appointments/:patientId', auth(roles.OnlyUser), appointmentsCtrl.saveAppointment)
+api.put('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.updateAppointment)
+api.delete('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.deleteAppointment)
 
 //groups
 api.get('/groupsnames', groupCtrl.getGroupsNames)
