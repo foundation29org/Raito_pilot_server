@@ -815,11 +815,10 @@ async function getconfigFile(req, res) {
 		let options = {json: true};
 		request(url, options, (error, res2, body) => {
 			if (error) {
-				return  console.log(error)
-			};
-
-			if (!error && res2.statusCode == 200) {
-				console.log(body);
+				res.status(404).send({message:'file not found'})
+			}else if(res2.body=='404: Not Found'){
+        res.status(404).send({message:'file not found'})
+      }else	if (!error && res2.statusCode == 200) {
         res.status(200).send({body})
 			};
 		});
