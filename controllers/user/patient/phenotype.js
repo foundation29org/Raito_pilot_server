@@ -13,13 +13,13 @@ const request = require("request")
 const config = require('../../../config')
 
 /**
- * @api {get} https://health29.org/api/phenotypes/:patientId Get phenotype
+ * @api {get} https://raito.care/api/phenotypes/:patientId Get phenotype
  * @apiName getPhenotype
  * @apiDescription This method read Phenotype of a patient
  * @apiGroup Phenotype
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/phenotypes/'+patientId)
+ *   this.http.get('https://raito.care/api/phenotypes/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('phenotype: '+ res.phenotype);
  *     }, (err) => {
@@ -80,14 +80,14 @@ function getPhenotypeHistory (req, res){
 
 
 /**
- * @api {post} https://health29.org/api/phenotypes/:patientId New phenotype
+ * @api {post} https://raito.care/api/phenotypes/:patientId New phenotype
  * @apiName savePhenotype
  * @apiDescription This method create a phenotype of a patient
  * @apiGroup Phenotype
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var phenotype = {data: [{"id":"HP:0100543","name":"Cognitive impairment"},{"id":"HP:0002376","name":"Developmental regression"}]};
- *   this.http.post('https://health29.org/api/phenotypes/'+patientId, phenotype)
+ *   this.http.post('https://raito.care/api/phenotypes/'+patientId, phenotype)
  *    .subscribe( (res : any) => {
  *      console.log('phenotype: '+ res.phenotype);
  *     }, (err) => {
@@ -168,14 +168,14 @@ function savePhenotype (req, res){
 }
 
 /**
- * @api {put} https://health29.org/api/phenotypes/:phenotypeId Update phenotype
+ * @api {put} https://raito.care/api/phenotypes/:phenotypeId Update phenotype
  * @apiName updatePhenotype
  * @apiDescription This method update the phenotype of a patient
  * @apiGroup Phenotype
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var phenotype = {data: [{"id":"HP:0100543","name":"Cognitive impairment"},{"id":"HP:0002376","name":"Developmental regression"}]};
- *   this.http.put('https://health29.org/api/phenotypes/'+phenotypeId, phenotype)
+ *   this.http.put('https://raito.care/api/phenotypes/'+phenotypeId, phenotype)
  *    .subscribe( (res : any) => {
  *      console.log('phenotype: '+ res.phenotype);
  *     }, (err) => {
@@ -266,36 +266,11 @@ function deletePhenotypeHistoryRecord (req, res){
 	})
 }
 
-
-function setShareWithCommunity (req, res){
-  let phenotypeId=req.params.phenotypeId;
-  Phenotype.findByIdAndUpdate(phenotypeId, { permissions: req.body }, (err,patientUpdated) => {
-    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-      res.status(200).send({message: 'case name changed'})
-
-	})
-}
-
-function getPermissionsPhenotype (req, res){
-  let patientId= crypt.decrypt(req.params.patientId);
-	Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!phenotype){
-      return res.status(202).send({message: 'There are no phenotype'})
-    }else{
-      var response = phenotype.permissions;
-  		res.status(200).send({_id: phenotype._id ,permissions: response})
-    }
-	})
-}
-
 module.exports = {
 	getPhenotype,
 	getPhenotypeHistory,
 	savePhenotype,
 	updatePhenotype,
 	deletePhenotype,
-	deletePhenotypeHistoryRecord,
-  setShareWithCommunity,
-  getPermissionsPhenotype
+	deletePhenotypeHistoryRecord
 }

@@ -8,7 +8,20 @@ const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
 function getPromsDates(req, res) {
+
+	/*Prom.find({}, (err, promdbs) => {
+		if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
+		if (promdbs) {
+			promdbs.forEach(function (promdb, error) {
+				promdb.remove(err => {
+					if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
+				})
+			});
+		}
+	})*/
+
 	let patientId = crypt.decrypt(req.params.patientId);
+	var questionnaires = req.body.questionnaires;
 	var period = 7;
 	if (req.body.rangeDate == 'quarter') {
 		period = 30;
@@ -22,7 +35,7 @@ function getPromsDates(req, res) {
 	pastDate.setDate(pastDate.getDate() - period);
 	var pastDateDateTime = pastDate.getTime();
 	//Prom.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-	Prom.find({ "createdBy": patientId }, { "createdBy": false }, (err, eventsdb) => {
+	Prom.find({ "createdBy": patientId, idQuestionnaire: {$in:questionnaires} }, { "createdBy": false }, (err, eventsdb) => {
 		//Prom.find({"createdBy": patientId, "date":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var listEventsdb = [];
@@ -62,6 +75,7 @@ function getProms(req, res) {
 function saveProm(req, res) {
 	let patientId = crypt.decrypt(req.params.patientId);
 	let eventdb = new Prom()
+	eventdb.idQuestionnaire = req.body.idQuestionnaire;
 	eventdb.idProm = req.body.idProm;
 	eventdb.data = req.body.data;
 	eventdb.other = req.body.other;
@@ -144,6 +158,7 @@ function updateOneProm(prom, patientId) {
 async function saveOneProm(prom, patientId) {
 	return new Promise(async function (resolve, reject) {
 		let eventdb = new Prom()
+		eventdb.idQuestionnaire = prom.idQuestionnaire;
 		eventdb.idProm = prom.idProm;
 		eventdb.data = prom.data;
 		eventdb.other = prom.other;

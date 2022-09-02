@@ -133,6 +133,50 @@ async function createBlob(containerName, algorithmName, data, fileName, date) {
   const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
 }
 
+async function createBlobSimple(containerName, data, fileName) {
+  return new Promise((resolve, reject) => {
+    blobService.createBlockBlobFromText(
+      containerName, 
+      fileName,
+      JSON.stringify(data),
+      function onResponse(error, result) {
+        if(error){
+          console.log(error);
+          resolve(false)
+        }
+          console.log("done")
+          resolve(true);
+      });
+  });
+ 
+
+ /* const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+  const content = data;
+  var fileNameToSave = fileName
+  const blockBlobClient = containerClient.getBlockBlobClient(fileNameToSave);
+  console.log(blockBlobClient);
+  try {
+    const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
+    console.log(uploadBlobResponse);
+    return uploadBlobResponse;
+  } catch (error) {
+    console.log(error);
+  }*/
+  
+}
+
+async function deleteBlob(containerName, blobName) {
+  return new Promise((resolve, reject) => {
+    blobService.deleteBlobIfExists(containerName,blobName,function(error){
+      if (error != null) {
+        resolve(false)
+      } else {
+        resolve(true)
+      }
+    })
+  });
+}
+
 async function downloadBlob(containerName, blobName) {
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
   const blobClient = containerClient.getBlobClient(blobName);
@@ -144,6 +188,7 @@ async function downloadBlob(containerName, blobName) {
   ).toString();
   return downloaded;
 }
+
 
 async function streamToBuffer(readableStream) {
   return new Promise((resolve, reject) => {
@@ -220,6 +265,8 @@ module.exports = {
   createContainers,
   createContainerIfNotExists,
   createBlob,
+  createBlobSimple,
+  deleteBlob,
   downloadBlob,
   seeSharing
 }

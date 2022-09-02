@@ -15,7 +15,7 @@ function getPatientsInfo (req, res){
 	let userId= crypt.decrypt(req.params.userId);
 
 	let listpatients = [];
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
@@ -44,7 +44,7 @@ function getPatientsInfo (req, res){
 function getSharedPatientsInfo (req, res){
 	let userId= crypt.decrypt(req.params.userId);
 	let listpatients = [];
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
@@ -221,7 +221,7 @@ function doFindPhenotype(listpatients, patient, i, length, res, hasVcf, exomizer
 
 function returnResultGetSharedPatientsInfo(listpatients, length, res, objReturn) {
 	var userId = (objReturn.userName).toString();
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 		if (err){
 			console.log(err);
 		}

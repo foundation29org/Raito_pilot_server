@@ -1,6 +1,6 @@
-# About Health29
+# About Raito
 
->Health29 is an online platform created by the Fundación 29 de Febrero ("Foundation 29"), in order to facilitate research and help with the treatment of the disease. To do this, a database of patients will be created, being intrinsic to the use of the platform the treatment of personal health data. In case you do not give your express consent through the marking of the corresponding box at the time of registration, you can not become a user of the platform.
+>Raito is an online platform created by the Fundación 29 de Febrero ("Foundation 29"), in order to facilitate research and help with the treatment of the disease. To do this, a database of patients will be created, being intrinsic to the use of the platform the treatment of personal health data. In case you do not give your express consent through the marking of the corresponding box at the time of registration, you can not become a user of the platform.
 
 ### What is Foundation29?
 
@@ -18,8 +18,8 @@
 
 >The use of the information will be confidential. Therefore, the patient's identity will always be protected. Likewise, the data can only be made public in reports, scientific meetings, medical conferences or publications. The data will be reported as anonymous and aggregated, that is, as percentages or numerical data without the possibility of identifying participants without their consent. The data will not be provided to any other type of entity without the patient's permission.
 
->Being part of the Health29 platform implies the possibility of gathering information for research. In this regard, you consent to the collection and processing of the information for the aforementioned purpose.
+>Being part of the Raito platform implies the possibility of gathering information for research. In this regard, you consent to the collection and processing of the information for the aforementioned purpose.
 
 >Foundation 29, as responsible for data processing, will take the necessary measures to guarantee the security of the personal data provided, avoiding any alteration, loss or unauthorized access.
 
-Copyright  &copy;  2018 <a href="http://www.foundation29.org" target="_blank">Foundation29</a>, All rights reserved.
+Copyright  &copy;  2022 <a href="http://www.foundation29.org" target="_blank">Foundation29</a>, All rights reserved.

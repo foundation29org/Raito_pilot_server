@@ -6,17 +6,20 @@
 const Patient = require('../../models/patient')
 const User = require('../../models/user')
 const Phenotype = require ('../../models/phenotype')
+const Group = require('../../models/group')
+const Session = require('../../models/session')
 const crypt = require('../../services/crypt')
+const vcServiceCtrl = require('../../services/vc.js')
 const f29azureService = require("../../services/f29azure")
 
 /**
- * @api {get} https://health29.org/api/patients-all/:userId Get patient list of a user
+ * @api {get} https://raito.care/api/patients-all/:userId Get patient list of a user
  * @apiName getPatientsUser
  * @apiDescription This method read the patient list of a user. For each patient you have, you will get: patientId, name, and last name.
  * @apiGroup Patients
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/patients-all/'+userId)
+ *   this.http.get('https://raito.care/api/patients-all/'+userId)
  *    .subscribe( (res : any) => {
  *      console.log('patient list: '+ res.listpatients);
  *      if(res.listpatients.length>0){
@@ -54,7 +57,7 @@ function getPatientsUser (req, res){
 	let userId= crypt.decrypt(req.params.userId);
 
 
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
@@ -102,13 +105,13 @@ function getPatientsUser (req, res){
 
 
 /**
- * @api {get} https://health29.org/api/patients/:patientId Get patient
+ * @api {get} https://raito.care/api/patients/:patientId Get patient
  * @apiName getPatient
  * @apiDescription This method read data of a Patient
  * @apiGroup Patients
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/patients/'+patientId)
+ *   this.http.get('https://raito.care/api/patients/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('patient info: '+ res.patient);
  *     }, (err) => {
@@ -175,14 +178,14 @@ function getPatient (req, res){
 
 
 /**
- * @api {post} https://health29.org/api/patients/:userId New Patient
+ * @api {post} https://raito.care/api/patients/:userId New Patient
  * @apiName savePatient
  * @apiDescription This method allows to create a new Patient
  * @apiGroup Patients
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};
- *   this.http.post('https://health29.org/api/patients/'+userId, patient)
+ *   this.http.post('https://raito.care/api/patients/'+userId, patient)
  *    .subscribe( (res : any) => {
  *      console.log('patient info: '+ res.patientInfo);
  *     }, (err) => {
@@ -248,7 +251,6 @@ function savePatient (req, res){
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
   patient.previousDiagnosis = req.body.previousDiagnosis
-  patient.consentgroup = req.body.consentgroup
   patient.group = req.body.group
   patient.avatar = req.body.avatar
 	patient.createdBy = userId
@@ -295,14 +297,14 @@ function savePatient (req, res){
 
 
 /**
- * @api {put} https://health29.org/api/patients/:patientId Update Patient
+ * @api {put} https://raito.care/api/patients/:patientId Update Patient
  * @apiName updatePatient
  * @apiDescription This method allows to change the data of a patient.
  * @apiGroup Patients
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};
- *   this.http.put('https://health29.org/api/patients/'+patientId, patient)
+ *   this.http.put('https://raito.care/api/patients/'+patientId, patient)
  *    .subscribe( (res : any) => {
  *      console.log('patient info: '+ res.patientInfo);
  *     }, (err) => {
@@ -360,6 +362,21 @@ function updatePatient (req, res){
     }
   }else{
     avatar = req.body.avatar;
+  }
+  if(req.body.deleteConsent!=undefined){
+	if(req.body.deleteConsent){
+		req.body.consentgroup='false';
+		Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+			if (err) console.log({message: `Error deleting the feels: ${err}`})
+			if(sessions.length>0){
+				sessions.forEach(function(session) {
+					session.remove(err => {
+						if(err) console.log({message: `Error deleting the feels: ${err}`})
+					})
+				});
+			}
+		})
+	}
   }
 
   Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup }, {new: true}, async (err,patientUpdated) => {
@@ -515,13 +532,105 @@ function updateLastAccess (req, res){
 function consentgroup (req, res){
 
 	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-
-	Patient.findByIdAndUpdate(patientId, { consentgroup: req.body.consentgroup }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
+	var newConsent = req.body.consentgroup;
+	if(req.body.consentgroup == 'Pending'){
+		newConsent = 'true'
+	}else if(req.body.consentgroup == 'true'){
+		newConsent = 'Pending'
+	}
+	Patient.findByIdAndUpdate(patientId, { consentgroup: newConsent }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'notes changed', patient: patientUpdated})
+		if(req.body.consentgroup == 'true'){
+			//get group name
+			Group.findOne({ '_id': patientUpdated.group }, function (err, group) {
+				console.log(group.name);
+				var info = {patientId: req.params.patientId, groupName: group.name, type: 'Organization'}
+				Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+                    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+                    if(sessions.length>0){
+                        var foundSession = false;
+                        var infoSession = {};
+                      for (var i = 0; i < sessions.length; i++) {
+                        if(sessions[i].sharedWith==group.name){
+                            foundSession = true;
+                            infoSession == sessions[i];
+                        }
+                      }
+                      if(!foundSession){
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                      }else{
+                        //delete and create new one
+                        sessions.forEach(function(session) {
+                            session.remove(err => {
+                                if(err) console.log({message: `Error deleting the feels: ${err}`})
+                            })
+                        });
+                        console.log('delete sessions');
+                        var data = await generateQR(info);
+                        return res.status(200).send({ message: 'qrgenerated', data: data })
+                        /*if(infoSession.sessionData.message!='Credential successfully issued'){
+                            res.status(200).send({infoSession})
+                        }else{
+                            res.status(200).send({ message: 'individuals share updated' })
+                        }*/
+                      }
+                    }else{
+                        try {
+                            var data = await generateQR(info);
+                            return res.status(200).send({ message: 'qrgenerated', data: data })
+                        } catch (e) {
+                            console.error("Error: ", e);
+                            return res.status(200).send({ message: 'Error', data: e })
+                        }
+                    }
+                  
+                  })
+			})
+		}else if(req.body.consentgroup == 'false'){
+			//delete session
+			Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+				//delete and create new one
+				sessions.forEach(function(session) {
+					session.remove(err => {
+						if(err) console.log({message: `Error deleting the sessions: ${err}`})
+					})
+				});
+				console.log('delete sessions');
+				res.status(200).send({message: 'consent changed', consent: newConsent})
+			})
+		}else{
+			res.status(200).send({message: 'consent changed', consent: newConsent})
+		}
+		
 
 	})
+}
+
+async function generateQR(info) {
+	return new Promise(async function (resolve, reject) {
+
+        var promises = [];
+		promises.push(vcServiceCtrl.createIssuerOrganization(info));
+		await Promise.all(promises)
+			.then(async function (data) {
+				//console.log(data);
+				//console.log('termina')
+				resolve(data)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				reject('Manejar promesa rechazada (' + err + ') aquí.');
+			});
+
+		
+
+	});
 }
 
 function getConsentGroup (req, res){

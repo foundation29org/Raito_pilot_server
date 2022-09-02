@@ -41,12 +41,13 @@ const individualShareSchema = Schema({
 	token: {type: String, default: ''},
 	operations: {type: Object, default: []},
 	idUser: {type: String, default: null},
-	status: {type: String, default: 'Pending'}
+	status: {type: String, default: 'Pending'},
+	verified: {type: String, default: ''}
 })
 
 const PatientSchema = Schema({
-	patientName: String,
-	surname: String,
+	patientName: {type: String, default: ''},
+	surname: {type: String, default: ''},
 	birthDate: Date,
 	citybirth: String,
 	provincebirth: String,
@@ -78,7 +79,7 @@ const PatientSchema = Schema({
 	previousDiagnosis: {type: String, default: null},
 	avatar: String,
 	group: { type: String, default: null},
-	consentgroup: {type: Boolean, default: false},
+	consentgroup: {type: String, default: 'false'},
 	checks: {type: checksSchema, default: {
 		check1: false,
 		check2: false,

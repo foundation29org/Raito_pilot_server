@@ -17,54 +17,6 @@ var options = {
  var transporter = nodemailer.createTransport(TRANSPORTER_OPTIONS);
  transporter.use('compile', hbs(options));
 
-function sendMailVerifyEmail (email, randomstring, lang, group){
-  if(lang=='es'){
-    var subjectlang='Raito - Activa la cuenta';
-  }else if(lang=='pt'){
-    var subjectlang='Raito - Ative a conta';
-  }else if(lang=='de'){
-    var subjectlang='Raito - Aktivieren Sie das Konto';
-  }else if(lang=='nl'){
-    var subjectlang='Raito - Activeer het account';
-  }else{
-    var subjectlang='Raito - Activate the account';
-  }
-  const decoded = new Promise((resolve, reject) => {
-    var urlImg = 'https://raito.care/assets/img/logo-raito.png';
-    var maillistbcc = [
-      TRANSPORTER_OPTIONS.auth.user
-    ];
-
-    var mailOptions = {
-      to: email,
-      from: TRANSPORTER_OPTIONS.auth.user,
-      bcc: maillistbcc,
-      subject: subjectlang,
-      template: 'verify_email/_'+lang,
-      context: {
-        client_server : client_server,
-        email : email,
-        key : randomstring,
-        urlImg: urlImg
-      }
-    };
-
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-        reject({
-          status: 401,
-          message: 'Fail sending email'
-        })
-      } else {
-        resolve("ok")
-      }
-    });
-
-  });
-  return decoded
-}
-
 function sendMailRecoverPass (email, randomstring, lang){
   if(lang=='es'){
     var subjectlang='Raito - Recuperación de la cuenta';
@@ -1542,7 +1494,6 @@ function sendRevolution (email, lang, bodyAttachments){
 }
 
 module.exports = {
-	sendMailVerifyEmail,
   sendMailRecoverPass,
   sendMailRequestNewLanguage,
   sendMailRequestNewTranslation,
