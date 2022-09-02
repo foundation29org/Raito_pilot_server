@@ -16,6 +16,7 @@ const phenotypeCtrl = require('../controllers/user/patient/phenotype')
 const superAdmninLangCtrl = require('../controllers/superadmin/lang')
 const admninLangCtrl = require('../controllers/admin/lang')
 const superadmninUsersClinicalCtrl = require('../controllers/superadmin/users-clinical')
+const eoCtrl = require('../controllers/superadmin/eousers')
 
 const hpoServiceCtrl = require('../services/hpo-info')
 const f29ncrserviceCtrl = require('../services/f29ncr')
@@ -39,6 +40,7 @@ const captchaServiceCtrl = require('../services/captcha')
 
 const feedbackDevCtrl = require('../controllers/all/feedback_dev')
 const seizuresCtrl = require('../controllers/user/patient/seizures')
+const appointmentsCtrl = require('../controllers/user/patient/appointments')
 const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
 
@@ -52,6 +54,9 @@ const heightCtrl = require('../controllers/user/patient/height')
 
 const openRaitoCtrl = require('../controllers/all/openraito')
 
+const vcServiceCtrl = require('../services/vc.js')
+const verifierServiceCtrl = require('../services/verifier.js')
+
 const auth = require('../middlewares/auth')
 const roles = require('../middlewares/roles')
 const api = express.Router()
@@ -60,16 +65,9 @@ const api = express.Router()
 //routes for login-logout
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
-api.post('/signwith', userCtrl.signWith)
 
 // activarcuenta
-api.post('/activateuser', userCtrl.activateUser)
 api.post('/sendEmail', userCtrl.sendEmail)
-
-// recuperar password
-api.post('/recoverpass', userCtrl.recoverPass)
-api.post('/updatepass', userCtrl.updatePass)
-api.post('/newpass', auth(roles.All), userCtrl.newPass)
 
 api.get('/users/:userId', auth(roles.All), userCtrl.getUser)
 api.get('/users/settings/:userId', auth(roles.All), userCtrl.getSettings)
@@ -85,8 +83,8 @@ api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
 api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
 
 //export data
-api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
-api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
+//api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
+//api.get('/crondatagroups', auth(roles.SuperAdmin), exportCtrl.cronSendData)
 
 //delete account
 api.post('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
@@ -118,9 +116,6 @@ api.delete('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), pheno
 api.get('/phenotypes/history/:patientId', auth(roles.All), phenotypeCtrl.getPhenotypeHistory)//de momento no se usa
 api.delete('/phenotypes/history/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotypeHistoryRecord)//de momento no se usa
 
-api.put('/symptoms/changesharewithcommunity/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.setShareWithCommunity)
-api.get('/symptoms/permissions/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.getPermissionsPhenotype)
-
 //superadmin routes, using the controllers of folder Admin, this controller has methods
 api.post('/superadmin/lang/:userId', auth(roles.SuperAdmin), superAdmninLangCtrl.updateLangFile)
 ///no se usa las 2 siguientes
@@ -137,6 +132,23 @@ api.put('/admin/lang/:userId', auth(roles.Admin), admninLangCtrl.requestaddlang)
 
 //api.get('/superadmin/users/', auth(roles.SuperAdmin), superadmninUsersClinicalCtrl.getUsers) //no se usa
 //api.get('/superadmin/infopatients/:userId', auth, superadmninUsersClinicalCtrl.getInfoPatients) //no se usa
+api.post('/eo/onlypatients/:groupId', auth(roles.Admin), eoCtrl.getOnlyPatients)
+api.get('/eo/patients/:groupId', auth(roles.Admin), eoCtrl.getPatients)
+api.get('/eo/patient/:patientId', auth(roles.All), eoCtrl.getInfoPatient)
+api.get('/eo/drugs/:groupId', auth(roles.Admin), eoCtrl.getDrugs)
+api.get('/eo/phenotypes/:groupId', auth(roles.Admin), eoCtrl.getPhenotypes)
+api.get('/eo/feels/:groupId', auth(roles.Admin), eoCtrl.getFeels)
+api.get('/eo/proms/:groupId', auth(roles.Admin), eoCtrl.getProms)
+api.get('/eo/seizures/:groupId', auth(roles.Admin), eoCtrl.getSeizures)
+api.get('/eo/weights/:groupId', auth(roles.Admin), eoCtrl.getWeights)
+api.get('/eo/heights/:groupId', auth(roles.Admin), eoCtrl.getHeights)
+api.get('/eo/consent/:patientId', auth(roles.Admin), eoCtrl.haveConsent)
+
+api.post('/eo/backup/:patientId', auth(roles.OnlyUser), eoCtrl.saveBackup)
+api.get('/eo/checkipfs/:userId', auth(roles.OnlyUser), eoCtrl.checkIPFS)
+api.get('/eo/backupipfs/:userId', auth(roles.OnlyUser), eoCtrl.getIPFS)
+api.get('/eo/checkf29/:userId', auth(roles.OnlyUser), eoCtrl.checkF29)
+api.get('/eo/backupf29/:userId', auth(roles.OnlyUser), eoCtrl.getF29)
 
 // lang routes, using the controller lang, this controller has methods
 api.get('/langs/',  langCtrl.getLangs)
@@ -223,23 +235,32 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/seizures/dates/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizuresDate)
+api.post('/seizures/dates/:patientId', auth(roles.All), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
 api.delete('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.deleteSeizure)
 api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveMassiveSeizure)
 
+//appointments
+api.get('/lastappointments/:patientId', auth(roles.UserResearcher), appointmentsCtrl.getLastAppointments)
+api.get('/appointments/:patientId', auth(roles.UserResearcher), appointmentsCtrl.getAppointments)
+api.post('/appointments/:patientId', auth(roles.OnlyUser), appointmentsCtrl.saveAppointment)
+api.put('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.updateAppointment)
+api.delete('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.deleteAppointment)
+
 //groups
 api.get('/groupsnames', groupCtrl.getGroupsNames)
-api.get('/groupadmin/:groupName', groupCtrl.getGroupAdmin)
 api.get('/groups', groupCtrl.getGroups)
 api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
+api.get('/group/questionnaires/:groupId', groupCtrl.getQuestionnairesGroup)
+api.get('/group/configfile/:groupId', groupCtrl.getconfigFile)
+api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
-api.post('/medications/dates/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedicationsDate)
+api.post('/medications/dates/:patientId', auth(roles.All), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
 api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
@@ -255,7 +276,7 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/feels/dates/:patientId', auth(roles.UserResearcher), feelCtrl.getFeelsDates)
+api.post('/feels/dates/:patientId', auth(roles.All), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
@@ -275,7 +296,7 @@ api.put('/document/:documentId', auth(roles.OnlyUser), docsCtrl.updateDocument)
 api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
 
 // weightinfo routes, using the controller socialinfo, this controller has methods
-api.get('/weight/:patientId', auth(roles.UserResearcher), weightCtrl.getWeight)
+api.get('/weight/:patientId', auth(roles.All), weightCtrl.getWeight)
 api.get('/weights/:patientId', auth(roles.UserResearcher), weightCtrl.getHistoryWeight)
 api.post('/weight/:patientId', auth(roles.OnlyUser), weightCtrl.saveWeight)
 api.delete('/weight/:weightId', auth(roles.OnlyUser), weightCtrl.deleteWeight)//de momento no se usa
@@ -296,6 +317,20 @@ api.get('/openraito/patient/customshare/:patientId', auth(roles.UserResearcher),
 api.post('/openraito/patient/customshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setCustomShare)
 api.get('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.getIndividualShare)
 api.post('/openraito/patient/individualshare/:patientId', auth(roles.OnlyUser), openRaitoCtrl.setIndividualShare)
+
+//vc
+api.get('/createissuer/:patientId',auth(roles.UserResearcher), vcServiceCtrl.requestVC)
+api.post('/issuer/issuanceCallback', vcServiceCtrl.issuanceCallback)
+api.get('/issuer/issuance-response/:sessionId',auth(roles.UserResearcher), vcServiceCtrl.issuanceResponse)
+api.get('/issuer/getAll/:patientId',auth(roles.UserResearcher), vcServiceCtrl.getAllVC)
+
+//verifier
+api.get('/verifier/:patientId',auth(roles.UserResearcher), verifierServiceCtrl.presentationRequest)
+api.post('/verifier/presentation-request-callback', verifierServiceCtrl.presentationRequestCallback)
+api.get('/verifier/presentation-response/:sessionId', verifierServiceCtrl.presentationResponse)
+api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentationResponseb2c)
+
+
 /*api.get('/testToken', auth, (req, res) => {
 	res.status(200).send(true)
 })*/

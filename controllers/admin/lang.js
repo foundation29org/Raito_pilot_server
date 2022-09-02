@@ -10,7 +10,7 @@ const fs = require('fs');
 const serviceEmail = require('../../services/email')
 
 /**
- * @api {post} https://health29.org/api/admin/lang/ Request new translation file
+ * @api {post} https://raito.care/api/admin/lang/ Request new translation file
  * @apiName requestLangFile
  * @apiPrivate
  * @apiDescription This method request by email a new translation. Only admins could make this request.
@@ -19,7 +19,7 @@ const serviceEmail = require('../../services/email')
  * @apiExample {js} Example usage:
  *   var params = <userId>
  *   var body = { lang: <lang_code>, jsonData: <json assets format> }
- *   this.http.post('https://health29.org/api/admin/lang'+params,body)
+ *   this.http.post('https://raito.care/api/admin/lang'+params,body)
  *    .subscribe( (res : any) => {
  *      console.log('Request new translation ok');
  *     }, (err) => {
@@ -87,7 +87,7 @@ function requestLangFile (req, res){
 	})
 }
 /**
- * @api {put} https://health29.org/api/admin/lang/ Request new language for the platform texts
+ * @api {put} https://raito.care/api/admin/lang/ Request new language for the platform texts
  * @apiName requestaddlang
  * @apiDescription This method request by email a new language for the platform texts. Only admins could make this request.
  * @apiGroup Languages
@@ -95,7 +95,7 @@ function requestLangFile (req, res){
  * @apiExample {js} Example usage:
  *   var params = userId
  *   var body = { code: <lang_code>, name: <lang_name> }
- *   this.http.put('https://health29.org/api/admin/lang'+params,body)
+ *   this.http.put('https://raito.care/api/admin/lang'+params,body)
  *    .subscribe( (res : any) => {
  *      console.log('Request new language ok');
  *     }, (err) => {

@@ -59,7 +59,7 @@ function getData(req, res) {
 						});
 						result["heights"] = listHeights;
 						var userId = patient.createdBy;
-						User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+						User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 							result["settings"] = {lengthunit: user.lengthunit, massunit: user.massunit, lang: user.lang} ;
 							//Feel
 							Feel.find({ "createdBy": patientId }, { "createdBy": false, "_id": false }, (err, feels) => {
@@ -171,7 +171,7 @@ async function getPatientInfo(group) {
 		var promises2 = [];
 		await Patient.find({ "group": group.name }, (err, patientsFound) => {
 			for (var indexPatient in patientsFound) {
-				if (patientsFound[indexPatient].consentgroup) {
+				if (patientsFound[indexPatient].consentgroup=='true') {
 					promises2.push(getAllPatientInfo(patientsFound[indexPatient], indexPatient, group.name));
 				}
 

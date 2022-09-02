@@ -7,11 +7,19 @@ const Patient = require('./patient')
 
 const { conndbdata } = require('../db_connect')
 
+const symptomSchema = Schema({
+	onset: {type: String, default: null},
+	polarity: {type: String, default: '0'},
+	importance: {type: String, default: '1'},
+	inputType: {type: String, default: ''},
+	id: {type: String, default: ''}
+})
+
 const PhenotypeHistorySchema = Schema({
 	validator_id: {type: String, default: null},
 	validated: {type: Boolean, default: false},
 	date: {type: Date, default: Date.now},
-	data: Object,
+	data: [symptomSchema],
 	discarded: Object,
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
 })

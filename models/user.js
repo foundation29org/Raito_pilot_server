@@ -4,6 +4,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const bcrypt = require('bcrypt-nodejs')
+const crypt = require('../services/crypt')
 
 const { conndbaccounts } = require('../db_connect')
 
@@ -20,6 +21,11 @@ const ParentSchema = Schema({
 	profession: String
 })
 
+const backupIPFSSchema = Schema({
+	url: { type: String, default: '' },
+	date: { type: Date, default: Date.now },
+})
+
 const InfoVerifiedSchema = Schema({
 	isVerified: {type: Boolean, default: false},
 	status: { type: String, default: 'Not started' },
@@ -30,22 +36,20 @@ const InfoVerifiedSchema = Schema({
 const UserSchema = Schema({
 	email: {
 		type: String,
-		index: true,
 		trim: true,
 		lowercase: true,
-		unique: true,
-		required: 'Email address is required',
-		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+		default: ''
 	},
 	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
 	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },
 	subrole: String,
 	group: { type: String, required: true, default: 'None' },
-	confirmed: { type: Boolean, default: false },
 	confirmationCode: String,
 	signupDate: { type: Date, default: Date.now },
 	lastLogin: { type: Date, default: null },
+	moralisId: { type: String, default: '' },
 	userName: { type: String, default: '' },
+	ethAddress: { type: String, default: '' },
 	lastName: { type: String, default: '' },
 	loginAttempts: { type: Number, required: true, default: 0 },
 	lockUntil: { type: Number },
@@ -62,6 +66,13 @@ const UserSchema = Schema({
 	countryselectedPhoneCode: { type: String, default: '' },
 	phone: { type: String, default: '' },
 	provider: { type: String, default: '' },
+	backupIPFS: {
+		type: backupIPFSSchema, default:{
+			url:'',
+			date: null
+		}
+	},
+	backupF29: { type: Date, default: null },
 	infoVerified:{
 		type: InfoVerifiedSchema, default:{
 			isVerified:false,
@@ -126,8 +137,8 @@ var reasons = UserSchema.statics.failedLogin = {
 	WRONG_PLATFORM: 5
 };
 
-UserSchema.statics.getAuthenticated = function (email, password, cb) {
-	this.findOne({ email: email }, function (err, user) {
+UserSchema.statics.getAuthenticated = function (moralisId, password, cb) {
+	this.findOne({ moralisId: moralisId}, function (err, user) {
 		if (err) return cb(err);
 
 		// make sure the user exists
@@ -137,10 +148,6 @@ UserSchema.statics.getAuthenticated = function (email, password, cb) {
 		console.log(user.role);
 		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
 			return cb(null, null, reasons.WRONG_PLATFORM);
-		}
-		//Check if the account is activated.
-		if (!user.confirmed) {
-			return cb(null, null, reasons.UNACTIVATED);
 		}
 		if (user.blockedaccount) {
 			return cb(null, null, reasons.BLOCKED);
@@ -189,7 +196,70 @@ UserSchema.statics.getAuthenticated = function (email, password, cb) {
 				return cb(null, null, reasons.PASSWORD_INCORRECT);
 			});
 		});
-	}).select('_id email +password loginAttempts lockUntil confirmed lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+	}).select('_id email moralisId +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+};
+
+UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
+	let userIdDecrypt = crypt.decrypt(userId);
+	this.findOne({ _id: userIdDecrypt}, function (err, user) {
+		if (err) return cb(err);
+
+		// make sure the user exists
+		if (!user) {
+			return cb(null, null, reasons.NOT_FOUND);
+		}
+		console.log(user.role);
+		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
+			return cb(null, null, reasons.WRONG_PLATFORM);
+		}
+		if (user.blockedaccount) {
+			return cb(null, null, reasons.BLOCKED);
+		}
+		// check if the account is currently locked
+		if (user.isLocked) {
+			// just increment login attempts if account is already locked
+			return user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.MAX_ATTEMPTS);
+			});
+		}
+
+		// test for a matching password
+		user.comparePassword(password, function (err, isMatch) {
+			if (err) return cb(err);
+
+
+			// check if the password was a match
+			if (isMatch) {
+				// if there's no lock or failed attempts, just return the user
+				if (!user.loginAttempts && !user.lockUntil) {
+					var updates = {
+						$set: { lastLogin: Date.now() }
+					};
+					return user.update(updates, function (err) {
+						if (err) return cb(err);
+						return cb(null, user);
+					});
+					return cb(null, user)
+				}
+				// reset attempts and lock info
+				var updates = {
+					$set: { loginAttempts: 0, lastLogin: Date.now() },
+					$unset: { lockUntil: 1 }
+				};
+				return user.update(updates, function (err) {
+					if (err) return cb(err);
+					return cb(null, user);
+				});
+			}
+
+			// password is incorrect, so increment login attempts before responding
+			user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.PASSWORD_INCORRECT);
+			});
+		});
+	}).select('_id email moralisId +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
 module.exports = conndbaccounts.model('User', UserSchema)

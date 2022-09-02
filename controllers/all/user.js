@@ -13,390 +13,9 @@ const crypt = require('../../services/crypt')
 const bcrypt = require('bcrypt-nodejs')
 const f29azureService = require("../../services/f29azure")
 
-function activateUser(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
-	const user = new User({
-		email: req.body.email,
-		key: req.body.key,
-		confirmed: true
-	})
-	User.findOne({ 'email': req.body.email }, function (err, user2) {
-		if (err) return res.status(500).send({ message: `Error activating account: ${err}` })
-		if (user2) {
-			if (user2.confirmationCode == req.body.key) {
-				user2.confirmed = true;
-				let update = user2;
-				let userId = user2._id
-				User.findByIdAndUpdate(userId, update, (err, userUpdated) => {
-					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-					//mirar si el usuario tiene rol User, y está el email en algún programa, si es así, cambiar a el paciente y asignarle createdBy del nuevo usuario, y compartirlo con el clínico que era el createdBy
-					if (userUpdated.role == 'User') {
-						//Programs.find({}, function(err, programs) {
-						//lo he comprobado que funcione
-						Programs.find({ 'requests.email': userUpdated.email }, (err, programs) => {
-							if (programs != undefined) {
-								var foundUserEmail = false;
-								for (var j = 0; j < programs.length && !foundUserEmail; j++) {
-									var program = programs[j];
-									Programs.findById(program._id, (err, programdb) => {
-										if (err) return res.status(500).send({ message: `Error deleting the case: ${err}` })
-										if (programdb) {
-
-											for (var i = 0; i < programdb.requests.length && !foundUserEmail; i++) {
-												if (programdb.requests[i].email == userUpdated.email) {
-													foundUserEmail = true;
-													//update createdBy of patient
-													let userIdCreatedBy = programdb.requests[i].idUser;
-													let decryptUserId = crypt.decrypt(programdb.requests[i].idUser);
-													let patientId = crypt.decrypt(programdb.requests[i].patientId);
-													var newUserId = userUpdated._id;
-
-													User.findById(decryptUserId, (err, clinicalUser) => {
-														if (clinicalUser) {
-															Patient.findByIdAndUpdate(patientId, { createdBy: newUserId }, { new: true }, (err, patientUpdated) => {
-																if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-
-																//update sharing, for clinician
-																var date = Date.now();
-																var permissions = { "shareEmr": true, "askFirst": false, "shareWithAll": false };
-																patientUpdated.sharing.push({ _id: userIdCreatedBy, state: '', role: 'Clinical', email: clinicalUser.email, permissions: permissions, invitedby: userIdCreatedBy, patientName: patientUpdated.patientName, date: date, showSwalIntro: true });
-																Patient.findByIdAndUpdate(patientId, { sharing: patientUpdated.sharing }, { new: true }, (err, patientUpdated) => {
-																	//enviar un email avisando?
-																})
-
-
-															})
-														}
-													});
-
-												}
-											}
-											if (!foundUserEmail) {
-
-
-											}
-										} else {
-											return res.status(200).send({ message: 'program not found' })
-										}
-									})
-								}
-							}
-						});
-
-
-					}
-
-					res.status(200).send({ message: 'activated' })
-				})
-			} else {
-				return res.status(200).send({ message: 'error' })
-			}
-		} else {
-			return res.status(500).send({ message: `user not exists: ${err}` })
-		}
-	})
-}
-
 
 /**
- * @api {post} https://health29.org/api/api/recoverpass Request password change
- * @apiName recoverPass
- * @apiVersion 1.0.0
- * @apiGroup Account
- * @apiDescription This method allows you to send a request to change the password. At the end of this call, you need to check the email account to call [update password](#api-Account-updatePass).
- * @apiExample {js} Example usage:
- *   var formValue = { email: "example@ex.com"};
- *   this.http.post('https://health29.org/api/recoverpass',formValue)
- *    .subscribe( (res : any) => {
- *      if(res.message == "Email sent"){
- *        console.log("Account recovery email sent. Check the email to change the password");
- *      }
- *   }, (err) => {
- *     if(err.error.message == 'Fail sending email'){
- *        //contact with health29
- *      }else if(err.error.message == 'user not exists'){
- *       ...
- *      }else if(err.error.message == 'account not activated'){
- *       ...
- *      }
- *   }
- *
- * @apiParam (body) {String} email User email
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": "example@ex.com"
- *     }
- * @apiSuccess {String} message Information about the request. If everything went correctly, return 'Email sent'
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {
- *  "message": "Email sent"
- * }
- *
- * @apiSuccess (Eror 500) {String} message Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:
- * * Fail sending email
- * * user not exists
- * * account not activated
- */
-function recoverPass(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
-	console.log(req.body.email);
-	User.findOne({ 'email': req.body.email }, function (err, user) {
-		if (err) return res.status(500).send({ message: 'Error searching the user' })
-		if (user) {
-			console.log(user.confirmed);
-			if (user.confirmed) {
-				//generamos una clave aleatoria y añadimos un campo con la hora de la clave proporcionada, cada que caduque a los 15 minutos
-				let randomstring = Math.random().toString(36).slice(-12)
-				user.randomCodeRecoverPass = randomstring;
-				user.dateTimeRecoverPass = Date.now();
-
-				//guardamos los valores en BD y enviamos Email
-				User.findByIdAndUpdate(user._id, user, (err, userUpdated) => {
-					if (err) return res.status(500).send({ message: 'Error saving the user' })
-
-					serviceEmail.sendMailRecoverPass(req.body.email, randomstring, user.lang)
-						.then(response => {
-							return res.status(200).send({ message: 'Email sent' })
-						})
-						.catch(response => {
-							//create user, but Failed sending email.
-							//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-							res.status(500).send({ message: 'Fail sending email' })
-						})
-					//return res.status(200).send({ token: serviceAuth.createToken(user)})
-				})
-			} else {
-				return res.status(500).send({ message: 'account not activated' })
-			}
-		} else {
-			return res.status(500).send({ message: 'user not exists' })
-		}
-	})
-}
-
-/**
- * @api {post} https://health29.org/api/api/updatepass Update password
- * @apiName updatePass
- * @apiVersion 1.0.0
- * @apiGroup Account
- * @apiDescription This method allows you to change the password of an account. Before changing the password, you previously had to make a [request for password change](#api-Account-recoverPass).
- * @apiExample {js} Example usage:
- *  var passwordsha512 = sha512("fjie76?vDh");
- *  var param = this.router.parseUrl(this.router.url).queryParams;
- *  var formValue = { email: param.email, password: passwordsha512, randomCodeRecoverPass: param.key };
- *   this.http.post('https://health29.org/api/updatepass',formValue)
- *    .subscribe( (res : any) => {
- *      if(res.message == "password changed"){
- *        console.log("Password changed successfully");
- *      }
- *   }, (err) => {
- *     if(err.error.message == 'invalid link'){
- *        ...
- *      }else if(err.error.message == 'link expired'){
- *        console.log('The link has expired after more than 15 minutes since you requested it. Re-request a password change.');
- *      }else if(err.error.message == 'Error saving the pass'){
- *        ...
- *      }
- *   }
- *
- * @apiParam (body) {String} email User email. In the link to request a change of password sent to the email, there is an email parameter. The value of this parameter will be the one to be assigned to email.
- * @apiParam (body) {String} password User password using hash <a href="https://es.wikipedia.org/wiki/SHA-2" target="_blank">sha512</a>
- * @apiParam (body) {String} randomCodeRecoverPass In the password change request link sent to the email, there is a key parameter. The value of this parameter will be the one that must be assigned to randomCodeRecoverPass.
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": "example@ex.com",
- *       "password": "f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f",
- *       "randomCodeRecoverPass": "0.xkwta99hoy"
- *     }
- * @apiSuccess {String} message Information about the request. If everything went correctly, return 'password changed'
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {
- *  "message": "password changed"
- * }
- *
- * @apiSuccess (Eror 500) {String} message Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:
- * * invalid link
- * * link expired (The link has expired after more than 15 minutes since you requested it. Re-request a password change.)
- * * Account is temporarily locked
- * * Error saving the pass
-
- */
-function updatePass(req, res) {
-	const user0 = new User({
-		password: req.body.password
-	})
-	req.body.email = (req.body.email).toLowerCase();
-	User.findOne({ 'email': req.body.email }, function (err, user) {
-		if (err) return res.status(500).send({ message: 'Error searching the user' })
-		if (user) {
-			const userToSave = user;
-			userToSave.password = req.body.password
-			//ver si el enlace a caducado, les damos 15 minutos para reestablecer la pass
-			var limittime = new Date(); // just for example, can be any other time
-			var myTimeSpan = 15 * 60 * 1000; // 15 minutes in milliseconds
-			limittime.setTime(limittime.getTime() - myTimeSpan);
-
-			//var limittime = moment().subtract(15, 'minutes').unix();
-
-			if (limittime.getTime() < userToSave.dateTimeRecoverPass.getTime()) {
-				if (userToSave.randomCodeRecoverPass == req.body.randomCodeRecoverPass) {
-
-
-					bcrypt.genSalt(10, (err, salt) => {
-						if (err) return res.status(500).send({ message: 'error salt' })
-						bcrypt.hash(userToSave.password, salt, null, (err, hash) => {
-							if (err) return res.status(500).send({ message: 'error hash' })
-
-							userToSave.password = hash
-							User.findByIdAndUpdate(userToSave._id, userToSave, (err, userUpdated) => {
-								if (err) return res.status(500).send({ message: 'Error saving the pass' })
-								if (!userUpdated) return res.status(500).send({ message: 'not found' })
-
-								return res.status(200).send({ message: 'password changed' })
-							})
-						})
-					})
-
-
-
-				} else {
-					return res.status(500).send({ message: 'invalid link' })
-				}
-			} else {
-				return res.status(500).send({ message: 'link expired' })
-			}
-		} else {
-			//return res.status(500).send({ message: 'user not exists'})
-			return res.status(500).send({ message: 'invalid link' })
-		}
-	})
-}
-
-/**
- * @api {post} https://health29.org/api/api/newPass New password
- * @apiName newPass
- * @apiVersion 1.0.0
- * @apiGroup Account
- * @apiDescription This method allows you to change the password of an account. It is another way to change the password, but in this case, you need to provide the current and the new password, and it does not require validation through the mail account. In this case, it requires authentication in the header.
- * @apiExample {js} Example usage:
- *  var passwordsha512 = sha512("fjie76?vDh");
- *  var newpasswordsha512 = sha512("jisd?87Tg");
- *  var formValue = { email: example@ex.com, actualpassword: passwordsha512, newpassword: newpasswordsha512 };
- *   this.http.post('https://health29.org/api/newPass',formValue)
- *    .subscribe( (res : any) => {
- *      if(res.message == "password changed"){
- *        console.log("Password changed successfully");
- *      }else if(res.message == 'Login failed'){
- *        console.log('The current password is incorrect');
- *      }else if(res.message == 'Account is temporarily locked'){
- *        console.log('Account is temporarily locked');
- *      }else if(res.message == 'Account is unactivated'){
- *        ...
- *      }
- *   }, (err) => {
- *     ...
- *   }
- *
- * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
- *     }
- * @apiParam (body) {String} email User email. In the link to request a change of password sent to the email, there is an email parameter. The value of this parameter will be the one to be assigned to email.
- * @apiParam (body) {String} actualpassword Actual password using hash <a href="https://es.wikipedia.org/wiki/SHA-2" target="_blank">sha512</a>
- * @apiParam (body) {String} newpassword New password using hash <a href="https://es.wikipedia.org/wiki/SHA-2" target="_blank">sha512</a>
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": "example@ex.com",
- *       "actualpassword": "f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f",
- *       "newpassword": "k847y603939a53656948480ce71f1ce46457b4745fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe45t"
- *     }
- * @apiSuccess {String} message Information about the request. If everything went correctly, return 'password changed'
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {
- *  "message": "password changed"
- * }
- *
- * @apiSuccess (Success 202) {String} message Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:
- * * Not found
- * * Login failed (if the current password is incorrect)
- * * Account is temporarily locked
- * * Account is unactivated
- */
-
-function newPass(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.actualpassword, function (err, userToUpdate, reason) {
-		if (err) return res.status(500).send({ message: err })
-
-		// login was successful if we have a user
-		if (userToUpdate) {
-			bcrypt.genSalt(10, (err, salt) => {
-				if (err) return res.status(500).send({ message: 'error salt' })
-				bcrypt.hash(req.body.newpassword, salt, null, (err, hash) => {
-					if (err) return res.status(500).send({ message: 'error hash' })
-
-					userToUpdate.password = hash
-					User.findByIdAndUpdate(userToUpdate._id, userToUpdate, (err, userUpdated) => {
-						if (err) return res.status(500).send({ message: 'Error saving the pass' })
-						if (!userUpdated) return res.status(500).send({ message: 'not found' })
-
-						return res.status(200).send({ message: 'password changed' })
-					})
-				})
-			})
-		} else {
-			// otherwise we can determine why we failed
-			var reasons = User.failedLogin;
-			switch (reason) {
-				case reasons.NOT_FOUND:
-					return res.status(202).send({
-						message: 'Login failed'
-					})
-				case reasons.PASSWORD_INCORRECT:
-					// note: these cases are usually treated the same - don't tell
-					// the user *why* the login failed, only that it did
-					return res.status(202).send({
-						message: 'Login failed'
-					})
-					break;
-				case reasons.MAX_ATTEMPTS:
-					// send email or otherwise notify user that account is
-					// temporarily locked
-					return res.status(202).send({
-						message: 'Account is temporarily locked'
-					})
-					break;
-				case reasons.UNACTIVATED:
-					return res.status(202).send({
-						message: 'Account is unactivated'
-					})
-					break;
-				case reasons.BLOCKED:
-					return res.status(202).send({
-						message: 'Account is blocked'
-					})
-					break;
-				case reasons.WRONG_PLATFORM:
-					return res.status(202).send({
-						message: 'This is not your platform'
-					})
-					break;
-
-			}
-		}
-
-
-
-	})
-
-}
-
-/**
- * @api {post} https://health29.org/api/api/signUp New account
+ * @api {post} https://raito.care/api/api/signUp New account
  * @apiName signUp
  * @apiVersion 1.0.0
  * @apiGroup Account
@@ -404,12 +23,12 @@ function newPass(req, res) {
  * @apiExample {js} Example usage:
  *  var passwordsha512 = sha512("fjie76?vDh");
  *  var formValue = { email: "example@ex.com", userName: "Peter", password: passwordsha512, lang: "en", group: "None"};
- *   this.http.post('https://health29.org/api/signup',formValue)
+ *   this.http.post('https://raito.care/api/signup',formValue)
  *    .subscribe( (res : any) => {
  *      if(res.message == "Account created"){
  *        console.log("Check the email to activate the account");
  *      }else if(res.message == 'Fail sending email'){
- *        //contact with health29
+ *        //contact with Raito
  *      }else if(res.message == 'user exists'){
  *       ...
  *      }
@@ -450,11 +69,11 @@ function newPass(req, res) {
 
 
 function signUp(req, res) {
-	req.body.email = (req.body.email).toLowerCase();
 	let randomstring = Math.random().toString(36).slice(-12);
 	const user = new User({
 		email: req.body.email,
-		role: req.body.role,
+		moralisId: req.body.moralisId,
+		ethAddress: req.body.ethAddress,
 		subrole: req.body.subrole,
 		userName: req.body.userName,
 		lastName: req.body.lastName,
@@ -465,70 +84,26 @@ function signUp(req, res) {
 		permissions: req.body.permissions,
 		platform: 'Raito'
 	})
-	User.findOne({ 'email': req.body.email }, function (err, user2) {
+	User.findOne({ 'moralisId': req.body.moralisId }, function (err, user2) {
 		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
 		if (!user2) {
 			user.save((err, userSaved) => {
 				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-
-				if (req.body.patientId != undefined) {
-					var tempo = req.body.patientId
-					let patientIdt = crypt.decrypt(tempo)
-					//let patientId= crypt.decrypt(req.params.patientId);
-
-					Patient.findById(patientIdt, { "createdBy": false }, (err, patient) => {
-						if (err) {
-							console.log('falla');
-							console.log(err)
-						}
-						if (patient) {
-							var id = userSaved._id.toString();
-							var userId = crypt.encrypt(id);
-							//mirar si ya está compartido
-							var found = false;
-							for (var i = 0; i < patient.sharing.length && !found; i++) {
-								if (patient.sharing[i]._id == userId) {
-									found = true;
-								}
-							}
-							if (!found) {
-								patient.sharing.push({ _id: userId });
-								Patient.findByIdAndUpdate(patientIdt, { sharing: patient.sharing }, { new: true }, (err, patientUpdated) => {
-									if (err) {
-										console.log(err);
-									}
-									if (patientUpdated) {
-										//console.log(patientUpdated);
-									}
-								})
-							}
-
-						}
-					})
-				}
-
+				console.log(userSaved);
 				//Create the patient
-				console.log(req.body.role);
-				if (req.body.role == 'User') {
-					var userId = userSaved._id.toString();
-					savePatient(userId, req);
-				}
-
-
-
-				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, req.body.group)
-					.then(response => {
-						res.status(200).send({ message: 'Account created' })
-					})
-					.catch(response => {
-						//create user, but Failed sending email.
-						//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-						res.status(200).send({ message: 'Fail sending email' })
-					})
-				//return res.status(200).send({ token: serviceAuth.createToken(user)})
+				var userId = userSaved._id.toString();
+				console.log(userId);
+				savePatient(userId, req);
+				res.status(200).send({
+					message: 'You have successfully logged in',
+					token: serviceAuth.createToken(userSaved),
+					lang: userSaved.lang,
+					platform: userSaved.platform,
+					isFirstTime:true
+				})
 			})
 		} else {
-			return res.status(202).send({ message: 'user exists' })
+			res.status(202).send({ message: 'user exists' })
 		}
 	})
 }
@@ -553,10 +128,8 @@ function savePatient(userId, req) {
 	patient.parents = req.body.parents
 	patient.relationship = req.body.relationship
 	patient.previousDiagnosis = req.body.previousDiagnosis
-	patient.consentgroup = req.body.consentgroup
 	patient.avatar = req.body.avatar
 	patient.createdBy = userId
-
 	if (req.body.avatar == undefined) {
 		if (patient.gender != undefined) {
 			if (patient.gender == 'male') {
@@ -568,7 +141,11 @@ function savePatient(userId, req) {
 	}
 	// when you save, returns an id in patientStored to access that patient
 	patient.save(async (err, patientStored) => {
-		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
+		if (err) {
+			console.log(err);
+			console.log({ message: `Failed to save in the database: ${err} ` })
+		}
+		console.log(patientStored);
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
 		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
@@ -604,17 +181,7 @@ function sendEmail(req, res) {
 	User.findOne({ 'email': req.body.email }, function (err, user) {
 		if (err) return res.status(500).send({ message: `Error finding the user: ${err}` })
 		if (user) {
-			if (req.body.type == "resendEmail") {
-				serviceEmail.sendMailVerifyEmail(req.body.email, randomstring, req.body.lang, user.group)
-					.then(response => {
-						res.status(200).send({ message: 'Email resent' })
-					})
-					.catch(response => {
-						res.status(200).send({ message: 'Fail sending email' })
-					})
-			}
-			else if (req.body.type == "contactSupport") {
-				let support = new Support()
+			let support = new Support()
 				support.type = ''
 				support.subject = 'Help with account activation'
 				support.description = 'Please, help me with my account activation. I did not receive any confirmation email.'
@@ -627,7 +194,6 @@ function sendEmail(req, res) {
 					.catch(response => {
 						res.status(200).send({ message: 'Fail sending email' })
 					})
-			}
 
 
 
@@ -635,7 +201,7 @@ function sendEmail(req, res) {
 	})
 }
 /**
- * @api {post} https://health29.org/api/api/signin Get the token (and the userId)
+ * @api {post} https://raito.care/api/api/signin Get the token (and the userId)
  * @apiName signIn
  * @apiVersion 1.0.0
  * @apiGroup Access token
@@ -644,7 +210,7 @@ function sendEmail(req, res) {
  * @apiExample {js} Example usage:
  *  var passwordsha512 = sha512("fjie76?vDh");
  *  var formValue = { email: "aa@aa.com", password: passwordsha512 };
- *   this.http.post('https://health29.org/api/signin',formValue)
+ *   this.http.post('https://raito.care/api/signin',formValue)
  *    .subscribe( (res : any) => {
  *      if(res.message == "You have successfully logged in"){
  *        console.log(res.lang);
@@ -695,8 +261,7 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
-	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+	User.getAuthenticated(req.body.moralisId, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
@@ -711,11 +276,20 @@ function signIn(req, res) {
 		} else {
 			// otherwise we can determine why we failed
 			var reasons = User.failedLogin;
+			console.log(reasons);
+			console.log(reason);
 			switch (reason) {
 				case reasons.NOT_FOUND:
-					return res.status(202).send({
-						message: 'Not found'
-					})
+					//create de new user
+					if(req.body.moralisId && req.body.password && req.body.ethAddress){
+						signUp(req, res)
+						break;
+					}else{
+						return res.status(202).send({
+							message: 'Not found'
+						})
+					}
+					
 				case reasons.PASSWORD_INCORRECT:
 					// note: these cases are usually treated the same - don't tell
 					// the user *why* the login failed, only that it did
@@ -751,74 +325,14 @@ function signIn(req, res) {
 	})
 }
 
-function signWith(req, res) {
-	// attempt to authenticate user
-	req.body.email = (req.body.email).toLowerCase();
-	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
-		if (err) return res.status(500).send({ message: err })
-
-		// login was successful if we have a user
-		if (user) {
-			// handle login success
-			return res.status(200).send({
-				message: 'You have successfully logged in',
-				token: serviceAuth.createToken(user),
-				lang: user.lang
-			})
-		} else {
-			req.body.email = (req.body.email).toLowerCase();
-			let randomstring = Math.random().toString(36).slice(-12);
-			const user = new User({
-				email: req.body.email,
-				role: req.body.role,
-				userName: req.body.userName,
-				lastName: req.body.lastName,
-				password: req.body.password,
-				confirmationCode: randomstring,
-				provider: req.body.provider,
-				lang: req.body.lang
-			})
-			User.findOne({ 'email': req.body.email }, function (err, user2) {
-				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-				if (!user2) {
-					user.save((err, userSaved) => {
-						if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-						if(userSaved){
-							
-							var userId = userSaved._id.toString();
-							savePatient(userId, req);
-							
-							return res.status(200).send({
-								message: 'You have successfully logged in',
-								token: serviceAuth.createToken(userSaved),
-								lang: userSaved.lang
-							})
-						}else{
-
-						}
-						
-					})
-				} else {
-					return res.status(200).send({
-								message: 'You have successfully logged in',
-								token: serviceAuth.createToken(user2),
-								lang: user2.lang
-							})
-				}
-			})
-		}
-
-	})
-}
-
 /**
- * @api {get} https://health29.org/api/users/:id Get user
+ * @api {get} https://raito.care/api/users/:id Get user
  * @apiName getUser
  * @apiVersion 1.0.0
  * @apiGroup Users
  * @apiDescription This methods read data of a User
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/users/'+userId)
+ *   this.http.get('https://raito.care/api/users/'+userId)
  *    .subscribe( (res : any) => {
  *      console.log(res.userName);
  *   }, (err) => {
@@ -859,7 +373,7 @@ function signWith(req, res) {
 function getUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -870,7 +384,7 @@ function getUser(req, res) {
 function getSettings(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -880,13 +394,13 @@ function getSettings(req, res) {
 
 
 /**
- * @api {put} https://health29.org/api/users/:id Update user
+ * @api {put} https://raito.care/api/users/:id Update user
  * @apiName updateUser
  * @apiVersion 1.0.0
  * @apiDescription This method allows to change the user's data
  * @apiGroup Users
  * @apiExample {js} Example usage:
- *   this.http.put('https://health29.org/api/users/'+userId, this.user)
+ *   this.http.put('https://raito.care/api/users/'+userId, this.user)
  *    .subscribe( (res : any) => {
  *      console.log('User update: '+ res.user);
  *     }, (err) => {
@@ -958,12 +472,12 @@ function deleteUser(req, res) {
 function getUserName(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (user) {
-			res.status(200).send({ userName: user.userName, lastName: user.lastName, isUser: req.params.userId, email: user.email })
+			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email })
 		}else{
-			res.status(200).send({ userName: '', lastName: '', isUser: req.params.userId})
+			res.status(200).send({ userName: '', lastName: '', idUser: req.params.userId})
 		}
 	})
 }
@@ -971,7 +485,7 @@ function getUserName(req, res) {
 function getUserEmail(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
 		if (user) {
@@ -986,7 +500,7 @@ function getPatientEmail(req, res) {
 	Patient.findById(patientId, (err, patientUpdated) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var userId = patientUpdated.createdBy;
-		User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+		User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 			var result = "Jhon";
 			if (user) {
@@ -1002,7 +516,7 @@ function getPatientEmail(req, res) {
 function getGpt3Permision(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
 		if (user) {
@@ -1030,7 +544,7 @@ function setNumCallsGpt3(req, res) {
 
 	let userId = crypt.decrypt(req.params.userId);
 
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var numCallsGtp3 = user.numCallsGtp3;
 		numCallsGtp3++;
@@ -1049,7 +563,7 @@ function setNumCallsGpt3(req, res) {
 function isVerified(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "confirmed": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = false;
 		if (user) {
@@ -1074,13 +588,8 @@ function setInfoVerified(req, res) {
 }
 
 module.exports = {
-	activateUser,
-	recoverPass,
-	updatePass,
-	newPass,
 	signUp,
 	signIn,
-	signWith,
 	getUser,
 	getSettings,
 	updateUser,

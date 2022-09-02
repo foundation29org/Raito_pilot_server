@@ -94,7 +94,7 @@ function getUserMsgs(req, res){
 function getAllMsgs(req, res){
 	let userId= crypt.decrypt(req.params.userId);
 
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
@@ -106,7 +106,7 @@ function getAllMsgs(req, res){
 					var listmsgs = [];
 
 					msgs.forEach(function(u) {
-						User.findById(u.createdBy, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user2) => {
+						User.findById(u.createdBy, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user2) => {
 							if(user2){
 								listmsgs.push({subject:u.subject, description: u.description, date: u.date, status: u.status, statusDate: u.statusDate, type: u.type, _id: u._id, files: u.files, email: user2.email, lang: user2.lang});
 							}else{

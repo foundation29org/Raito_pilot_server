@@ -9,13 +9,13 @@ const crypt = require('../../../services/crypt')
 
 
 /**
- * @api {get} https://health29.org/api/weight/:patientId Get weight
+ * @api {get} https://raito.care/api/weight/:patientId Get weight
  * @apiName getWeight
  * @apiDescription This method read Weight of a patient
  * @apiGroup Weight
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/weight/'+patientId)
+ *   this.http.get('https://raito.care/api/weight/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('weight: '+ res.weight);
  *     }, (err) => {
@@ -68,13 +68,13 @@ function getWeight (req, res){
 }
 
 /**
- * @api {get} https://health29.org/api/weights/:patientId Get history weight
+ * @api {get} https://raito.care/api/weights/:patientId Get history weight
  * @apiName getHistoryWeight
  * @apiDescription This method read History Weight of a patient
  * @apiGroup Weight
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/weights/'+patientId)
+ *   this.http.get('https://raito.care/api/weights/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('Get History weight ok');
  *     }, (err) => {
@@ -120,14 +120,14 @@ function getHistoryWeight (req, res){
 
 
 /**
- * @api {post} https://health29.org/api/weight/:patientId New weight
+ * @api {post} https://raito.care/api/weight/:patientId New weight
  * @apiName saveWeight
  * @apiDescription This method create a weight of a patient
  * @apiGroup Weight
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var weight = {value: "43"};
- *   this.http.post('https://health29.org/api/weight/'+patientId, weight)
+ *   this.http.post('https://raito.care/api/weight/'+patientId, weight)
  *    .subscribe( (res : any) => {
  *      console.log('weight: '+ res.weight);
  *     }, (err) => {
@@ -162,6 +162,7 @@ function getHistoryWeight (req, res){
 function saveWeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let weight = new Weight()
+	weight.date = req.body.date
 	weight.value = req.body.value
 	weight.createdBy = patientId
 
@@ -186,13 +187,13 @@ function saveWeight (req, res){
 }
 
 /**
- * @api {delete} https://health29.org/api/weight/:heightId Delete weight
+ * @api {delete} https://raito.care/api/weight/:heightId Delete weight
  * @apiName deleteWeight
  * @apiDescription This method delete Weight of a patient
  * @apiGroup Weight
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.delete('https://health29.org/api/weight/'+weightId)
+ *   this.http.delete('https://raito.care/api/weight/'+weightId)
  *    .subscribe( (res : any) => {
  *      console.log('Delete weight ok');
  *     }, (err) => {

@@ -8,7 +8,7 @@ const User = require('../../models/user')
 const crypt = require('../../services/crypt')
 
 /**
- * @api {get} https://health29.org/api/langs/ Get languages
+ * @api {get} https://raito.care/api/langs/ Get languages
  * @apiName getLangs
  * @apiDescription This method return the languages available in Raito. you get a list of languages, and for each one you have the name and the code.
  * We currently have 5 languages, but we will include more. The current languages are:
@@ -20,7 +20,7 @@ const crypt = require('../../services/crypt')
  * @apiGroup Languages
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/langs)
+ *   this.http.get('https://raito.care/api/langs)
  *    .subscribe( (res : any) => {
  *      console.log('languages: '+ res.listLangs);
  *     }, (err) => {

@@ -28,7 +28,7 @@ function decodeToken(token, roles){
 			const payload = jwt.decode(token, config.SECRET_TOKEN)
 			if(roles.includes(payload.role)){
 				let userId= crypt.decrypt(payload.sub);
-				await User.findById(userId, {"password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+				await User.findById(userId, {"password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 					if(err){
 						reject({
 							status: 403,

@@ -9,13 +9,13 @@ const crypt = require('../../../services/crypt')
 
 
 /**
- * @api {get} https://health29.org/api/height/:patientId Get height
+ * @api {get} https://raito.care/api/height/:patientId Get height
  * @apiName getHeight
  * @apiDescription This method read Height of a patient
  * @apiGroup Height
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/height/'+patientId)
+ *   this.http.get('https://raito.care/api/height/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('height: '+ res.height);
  *     }, (err) => {
@@ -58,13 +58,13 @@ function getHeight (req, res){
 
 
 /**
- * @api {get} https://health29.org/api/heights/:patientId Get history height
+ * @api {get} https://raito.care/api/heights/:patientId Get history height
  * @apiName getHistoryHeight
  * @apiDescription This method read History Height of a patient
  * @apiGroup Height
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://health29.org/api/heights/'+patientId)
+ *   this.http.get('https://raito.care/api/heights/'+patientId)
  *    .subscribe( (res : any) => {
  *      console.log('Get history heights ok');
  *     }, (err) => {
@@ -108,14 +108,14 @@ function getHistoryHeight (req, res){
 }
 
 /**
- * @api {post} https://health29.org/api/height/:patientId New height
+ * @api {post} https://raito.care/api/height/:patientId New height
  * @apiName saveHeight
  * @apiDescription This method create a height of a patient
  * @apiGroup Height
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
  *   var height = {value: "43", date: "2018-02-27T17:55:48.261Z"};
- *   this.http.post('https://health29.org/api/height/'+patientId, height)
+ *   this.http.post('https://raito.care/api/height/'+patientId, height)
  *    .subscribe( (res : any) => {
  *      console.log('height: '+ res.height);
  *     }, (err) => {
@@ -152,6 +152,7 @@ function getHistoryHeight (req, res){
 function saveHeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let height = new Height()
+	height.date = req.body.date
 	height.value = req.body.value
 	height.createdBy = patientId
 
@@ -163,13 +164,13 @@ function saveHeight (req, res){
 }
 
 /**
- * @api {delete} https://health29.org/api/height/:heightId Delete height
+ * @api {delete} https://raito.care/api/height/:heightId Delete height
  * @apiName deleteHeight
  * @apiDescription This method delete Height of a patient
  * @apiGroup Height
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.delete('https://health29.org/api/heights/'+heightId)
+ *   this.http.delete('https://raito.care/api/heights/'+heightId)
  *    .subscribe( (res : any) => {
  *      console.log('Delete height ok');
  *     }, (err) => {
