@@ -10,7 +10,6 @@ const { conndbdata } = require('../db_connect')
 const AppointmentsSchema = Schema({
 	start: {type: Date, default: null},
 	end: {type: Date, default: null},
-	type: {type: String, default: null},
 	notes: {type: String, default: ''},
 	date: {type: Date, default: Date.now},
 	title: {type: String, default: ''},

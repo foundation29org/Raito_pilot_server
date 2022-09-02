@@ -18,7 +18,7 @@ function getLastAppointments (req, res){
     futureDate.setDate(futureDate.getDate() + period);
 	var futureDateDateTime = futureDate.getTime();
 	//Appointments.find({"createdBy": patientId, "start":{"$gte": actualDateTime, "$lt": futureDateDateTime}, "end":{"$gte": actualDateTime, "$lt": futureDateDateTime}}, {"createdBy" : false},(err, eventsdb) => {
-	Appointments.find({"createdBy": patientId, "start":{"$gte": actualDateTime, "$lt": futureDateDateTime}}, {"createdBy" : false},(err, eventsdb) => {
+	Appointments.find({"createdBy": patientId, "start":{"$gte": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
 	//Appointments.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
@@ -50,7 +50,6 @@ function saveAppointment (req, res){
 	let eventdb = new Appointments()
 	eventdb.start = req.body.start
 	eventdb.end = req.body.end
-	eventdb.type = req.body.type
 	eventdb.notes = req.body.notes
 	eventdb.title = req.body.title
 	eventdb.color = req.body.color
