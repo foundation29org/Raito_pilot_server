@@ -109,7 +109,7 @@ api.get('/patient/checks/:patientId', auth(roles.All), patientCtrl.getChecks)
 api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDate)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
-api.get('/phenotypes/:patientId', auth(roles.All), phenotypeCtrl.getPhenotype)
+api.get('/phenotypes/:patientId', phenotypeCtrl.getPhenotype)
 api.post('/phenotypes/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.savePhenotype)
 api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.updatePhenotype)
 api.delete('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotype)//de momento no se usa
