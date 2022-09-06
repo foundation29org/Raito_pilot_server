@@ -296,7 +296,7 @@ api.put('/document/:documentId', auth(roles.OnlyUser), docsCtrl.updateDocument)
 api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
 
 // weightinfo routes, using the controller socialinfo, this controller has methods
-api.get('/weight/:patientId', auth(roles.All), weightCtrl.getWeight)
+api.get('/weight/:patientId', weightCtrl.getWeight)
 api.get('/weights/:patientId', auth(roles.UserResearcher), weightCtrl.getHistoryWeight)
 api.post('/weight/:patientId', auth(roles.OnlyUser), weightCtrl.saveWeight)
 api.delete('/weight/:weightId', auth(roles.OnlyUser), weightCtrl.deleteWeight)//de momento no se usa
