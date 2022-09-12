@@ -1,6 +1,6 @@
 'use strict'
 
-const { TRANSPORTER_OPTIONS, client_server, blobAccessToken } = require('../config')
+const { TRANSPORTER_OPTIONS, client_server } = require('../config')
 const nodemailer = require('nodemailer')
 var hbs = require('nodemailer-express-handlebars')
 
@@ -147,13 +147,6 @@ function sendMailRequestNewTranslation (user, lang, jsonData){
 function sendMailSupport (email, lang, role, supportStored){
   const decoded = new Promise((resolve, reject) => {
     var urlImg = 'https://raito.care/assets/img/logo-raito.png';
-    var attachments = [];
-    if(supportStored.files.length>0){
-      supportStored.files.forEach(function(file) {
-        var urlpath = blobAccessToken.blobAccountUrl+'filessupport/'+file+blobAccessToken.sasToken;
-        attachments.push({filename: file, path: urlpath});
-      });
-    }
     var maillistbcc = [
       TRANSPORTER_OPTIONS.auth.user
     ];
@@ -168,8 +161,7 @@ function sendMailSupport (email, lang, role, supportStored){
         email : email,
         lang : lang,
         info: supportStored
-      },
-      attachments: attachments
+      }
     };
 
     transporter.sendMail(mailOptions, function(error, info){
