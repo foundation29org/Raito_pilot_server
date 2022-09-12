@@ -15,6 +15,7 @@ const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
 const Prom = require('../../models/prom')
+const Appointments = require('../../models/appointments')
 const eoCtrl = require('../../controllers/superadmin/eousers')
 
 const f29azureService = require("../../services/f29azure")
@@ -38,6 +39,7 @@ function deleteAccount (req, res){
 					deleteWeight(patientId);
 					deleteHeight(patientId);
 					deleteFeel(patientId);
+					deleteAppointment(patientId);
 					deletePhenotype(patientId);
 					deletePhenotypeHistory(patientId);
 					deleteProms(patientId);
@@ -113,6 +115,18 @@ function deleteFeel (patientId){
 			})
 		});
 		console.log('delete feels');
+	})
+}
+
+function deleteAppointment (patientId){
+	Appointments.find({ 'createdBy': patientId }, (err, appointments) => {
+		if (err) console.log({message: `Error deleting the appointments: ${err}`})
+		appointments.forEach(function(appointment) {
+			appointment.remove(err => {
+				if(err) console.log({message: `Error deleting the appointments: ${err}`})
+			})
+		});
+		console.log('delete appointments');
 	})
 }
 
