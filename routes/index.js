@@ -294,6 +294,8 @@ api.get('/documents/:patientId', auth(roles.UserResearcher), docsCtrl.getDocumen
 api.post('/document/:patientId', auth(roles.OnlyUser), docsCtrl.saveDocument)
 api.put('/document/:documentId', auth(roles.OnlyUser), docsCtrl.updateDocument)
 api.delete('/document/:documentId', auth(roles.OnlyUser), docsCtrl.deleteDocument)
+api.post('/upload', auth(roles.OnlyUser), docsCtrl.uploadFile)
+api.post('/deleteBlob', auth(roles.OnlyUser), docsCtrl.deleteBlob)
 
 // weightinfo routes, using the controller socialinfo, this controller has methods
 api.get('/weight/:patientId', weightCtrl.getWeight)

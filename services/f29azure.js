@@ -69,7 +69,7 @@ function getAzureBlobSasTokenWithContainer(req, res) {
 
   var containerSAS = storage.generateBlobSASQueryParameters({
     expiresOn: expiryDate,
-    permissions: storage.ContainerSASPermissions.parse("rwdlac"),
+    permissions: storage.ContainerSASPermissions.parse("rlc"),//rwdlac
     protocol: storage.SASProtocol.Https,
     containerName: containerName,
     startsOn: startDate,
@@ -125,12 +125,12 @@ async function createContainerIfNotExists() {
 
 }
 
-async function createBlob(containerName, algorithmName, data, fileName, date) {
+async function createBlob(containerName, url, data) {
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
   const content = data;
-  var fileNameToSave = algorithmName + '/' + date + '/' + fileName
-  const blockBlobClient = containerClient.getBlockBlobClient(fileNameToSave);
+  const blockBlobClient = containerClient.getBlockBlobClient(url);
   const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
+  return uploadBlobResponse;
 }
 
 async function createBlobSimple(containerName, data, fileName) {

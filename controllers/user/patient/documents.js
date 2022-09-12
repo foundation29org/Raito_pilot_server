@@ -6,6 +6,7 @@
 const Document = require('../../../models/document')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
+const f29azureService = require("../../../services/f29azure")
 
 function getDocuments (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
@@ -72,9 +73,46 @@ function deleteDocument (req, res){
 	})
 }
 
+
+async function uploadFile (req, res){
+	var data2 = await saveBlob(req.body.containerName, req.body.url, req.files.thumbnail);
+	if(data2){
+		res.status(200).send({message: "Done"})
+	}else{
+		res.status(500).send({message: `Error: ${err}`})
+	}
+}
+
+async function saveBlob (containerName, url, thumbnail){
+	return new Promise(async function (resolve, reject) {
+		// Save file to Blob
+		var result = await f29azureService.createBlob(containerName, url, thumbnail.data);
+		if (result) {
+			resolve(true);
+		}else{
+			resolve(false);
+		}
+	});
+}
+
+async function deleteBlob (req, res){
+	var data = req.body;
+	console.log(data);
+	var result = await f29azureService.deleteBlob(data.containerName, data.fileName);
+	console.log(result);
+	if(result){
+		res.status(200).send({message: "Done"})
+	}else{
+		res.status(500).send({message: `Error: ${err}`})
+	}
+}
+
+
 module.exports = {
 	getDocuments,
 	saveDocument,
 	updateDocument,
-	deleteDocument
+	deleteDocument,
+	uploadFile,
+	deleteBlob
 }
