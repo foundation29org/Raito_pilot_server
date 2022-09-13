@@ -97,9 +97,7 @@ async function saveBlob (containerName, url, thumbnail){
 
 async function deleteBlob (req, res){
 	var data = req.body;
-	console.log(data);
 	var result = await f29azureService.deleteBlob(data.containerName, data.fileName);
-	console.log(result);
 	if(result){
 		res.status(200).send({message: "Done"})
 	}else{

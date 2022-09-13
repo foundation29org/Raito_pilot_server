@@ -96,13 +96,6 @@ async function getBasicInfoPatients(patients, meta) {
 		}
 		await Promise.all(promises)
 			.then(async function (data) {
-				/*var dataRes = [];
-				data.forEach(function (dataPatientsUser) {
-					dataPatientsUser.forEach(function (dataPatient) {
-						dataRes.push(dataPatient);
-					});
-				});
-				console.log('termina')*/
 				resolve(data)
 			})
 			.catch(function (err) {
@@ -124,19 +117,6 @@ async function getNumMedications(patientId) {
 		}
 		var info = {"drugs": numMedications, "date": date};
 		resolve(info);
-
-		/*await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var numMedications = 0;
-			if (medications) {
-				numMedications = medications.length;
-			}
-			var info = {"drugs": numMedications};
-			resolve(info);
-		})*/
 	});
 }
 
@@ -153,18 +133,6 @@ async function getNumPhenotype(patientId) {
 		}
 		var info = {"phenotypes": numPhenotypes, "date": date};
 		resolve(info);
-
-		/*await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
-			//console.log('Phenotype done.');
-			var numPhenotypes = 0;
-			if (phenotype) {
-				if (phenotype.data.length > 0) {
-					numPhenotypes = phenotype.data.length;
-				}
-			}
-			var info = {"phenotypes": numPhenotypes};
-			resolve(info);
-		})*/
 	});
 }
 
@@ -179,20 +147,6 @@ async function getNumFeel(patientId) {
 		}
 		var info = {"feels": numFeels, "date": date};
 		resolve(info);
-
-		/*await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var numFeels = 0;
-			if (feels) {
-				numFeels = feels.length;
-			}
-
-			var info = {"feels": numFeels};
-			resolve(info);
-		})*/
 	});
 }
 
@@ -207,19 +161,6 @@ async function getNumProm(patientId) {
 		}
 		var info = {"proms": numProms, "date": date};
 		resolve(info);
-
-		/*await Prom.find({ createdBy: patient }, { "createdBy": false }).exec(function (err, proms) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var numProms = 0;
-			if (proms) {
-				numProms = proms.length;
-			}
-			var info = {"proms": numProms};
-			resolve(info);
-		})*/
 	});
 }
 
@@ -235,19 +176,6 @@ async function getNumSeizure(patientId) {
 		}
 		var info = {"seizures": numSeizures, "date": date};
 		resolve(info);
-
-		/*await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var numSeizures = 0;
-			if (seizures) {
-				numSeizures = seizures.length;
-			}
-			var info = {"seizures": numSeizures};
-			resolve(info);
-		})*/
 	});
 }
 
@@ -261,22 +189,7 @@ async function getNumWeight (patientId){
 			date=weights[0].date
 		}
 		var info = {"weight": numWeights, "date": date};
-		resolve(info);
-
-		/*await Weight.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, weights){
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-	
-			var numWeights = 0;
-			if(weights){
-				numWeights = weights.length;
-			}
-			var info = {"weight": numWeights};
-			resolve(info);
-		});*/
-	
+		resolve(info);	
 	});
 }
 
@@ -290,22 +203,7 @@ async function getNumHeight (patientId){
 			date=heights[0].date
 		}
 		var info = {"height": numHeights, "date": date};
-		resolve(info);
-
-		/*await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-	
-			var numHeights = 0;
-			if(heights){
-				numHeights = heights.length;
-			}
-			var info = {"height": numHeights};
-			resolve(info);
-		});*/
-	
+		resolve(info);	
 	});
 
 }
@@ -479,13 +377,6 @@ async function getInfoPatients(patients, infoGroup, questionnaires) {
 		}
 		await Promise.all(promises)
 			.then(async function (data) {
-				/*var dataRes = [];
-				data.forEach(function (dataPatientsUser) {
-					dataPatientsUser.forEach(function (dataPatient) {
-						dataRes.push(dataPatient);
-					});
-				});
-				console.log('termina')*/
 				resolve(data)
 			})
 			.catch(function (err) {
@@ -511,9 +402,6 @@ async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 
 		await Promise.all(promises3)
 			.then(async function (data) {
-				/* var resPatientData = [];
-				 resPatientData.push({data:patient, name:"patient"});
-				 resPatientData.push({info:data})*/
 				let patientIdEnc = crypt.encrypt(patientId.toString());
 				var result = {
 					"resourceType": "Bundle",
@@ -677,7 +565,6 @@ async function getMedications(patientId, infoGroup, patient) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Medication done.');
 			var listMedications = [];
 			let patientIdEnc = crypt.encrypt((patient._id).toString());
 			if (medications) {
@@ -707,7 +594,6 @@ async function getMedications(patientId, infoGroup, patient) {
 							"reference": "Patient/"+patientIdEnc,
 							"display": patient.patientName
 							},
-							//"effectiveDateTime": medication.startDate,
 							"effectivePeriod":
 								{
 									"start" : medication.startDate, 
@@ -798,7 +684,6 @@ async function getMedications(patientId, infoGroup, patient) {
 async function getPhenotype(patientId) {
 	return new Promise(async function (resolve, reject) {
 		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
-			//console.log('Phenotype done.');
 			var listSeizures = [];
 			let patientIdEnc = crypt.encrypt((patientId).toString());
 			if (phenotype) {
@@ -836,7 +721,6 @@ async function getFeel(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Feel done.');
 			var listFeels = [];
 			let patientIdEnc = crypt.encrypt((patientId).toString());
 			if (feels) {
@@ -978,7 +862,6 @@ async function getSeizure(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Seizures done.');
 			var listSeizures = [];
 			let patientIdEnc = crypt.encrypt((patientId).toString());
 			if (seizures) {
@@ -1528,9 +1411,7 @@ async function getQuestionnaire(questionnaireId) {
 			};
 
 			if (!error && res.statusCode == 200) {
-				//console.log(body);
 				resolve (body)
-				// do something with JSON, using the 'body' variable
 			};
 		});
 	});

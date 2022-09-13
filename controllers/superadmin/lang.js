@@ -136,7 +136,6 @@ async function processObj2(obj2, keys, keysLevel2, i, code){
 	var supported = true;
 	for (var j = 0; j < keysLevel2.length && supported; j++) {
 		var keysLevel3 = Object.keys(obj2[keys[i]][keysLevel2[j]]);
-		console.log(typeof(obj2[keys[i]][keysLevel2[j]]));
 		if(typeof(obj2[keys[i]][keysLevel2[j]]) == 'string'){
 			await translate(obj2[keys[i]][keysLevel2[j]], {from: 'en', to: code }).then(res => {
 					obj2[keys[i]][keysLevel2[j]]= res.text;

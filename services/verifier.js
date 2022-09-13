@@ -35,9 +35,7 @@ async function getToken (){
         'error': 'Could not acquire credentials to access your Azure Key Vault'
         });  
       return; 
-  }
-  console.log( `accessToken: ${accessToken}` );
-  
+  }  
 }
 
 function generateBodyRequestVC(callbackurl, id){
@@ -121,7 +119,6 @@ async function presentationRequest (req, res){
 async function presentationRequestCallback (req, res){
   var test = JSON.stringify(req.body).toString();
   var body = test.replace(/'/g, '"');
-    //console.log( body );
     if ( req.headers['api-key'] != config.VC.API_KEY ) {
       res.status(401).json({
         'error': 'api-key wrong or missing'
@@ -129,7 +126,6 @@ async function presentationRequestCallback (req, res){
       return; 
     }
     var presentationResponse = JSON.parse(body);
-    //console.log(presentationResponse);
     var message = null;
     // there are 2 different callbacks. 1 if the QR code is scanned (or deeplink has been followed)
     // Scanning the QR code makes Authenticator download the specific request from the server
@@ -219,9 +215,7 @@ async function presentationResponseb2c (req, res){
         var responseBody = { ...claimsExtra, ...claims }; // merge the two structures
         Session.findByIdAndUpdate(id, { sessionData: null }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
         })
-        //console.log( responseBody );
         res.status(200).json( responseBody );
-        //res.status(202).send({ data: responseBody })
     }
   })
 }

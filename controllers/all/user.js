@@ -89,10 +89,8 @@ function signUp(req, res) {
 		if (!user2) {
 			user.save((err, userSaved) => {
 				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-				console.log(userSaved);
 				//Create the patient
 				var userId = userSaved._id.toString();
-				console.log(userId);
 				savePatient(userId, req);
 				res.status(200).send({
 					message: 'You have successfully logged in',
@@ -145,14 +143,12 @@ function savePatient(userId, req) {
 			console.log(err);
 			console.log({ message: `Failed to save in the database: ${err} ` })
 		}
-		console.log(patientStored);
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
 		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if (result) {
-			console.log('Patient created' + patientInfo);
 			//res.status(200).send({message: 'Patient created', patientInfo})
 		} else {
 			deletePatientAndCreateOther(patientStored._id, req, userId);
@@ -276,8 +272,6 @@ function signIn(req, res) {
 		} else {
 			// otherwise we can determine why we failed
 			var reasons = User.failedLogin;
-			console.log(reasons);
-			console.log(reason);
 			switch (reason) {
 				case reasons.NOT_FOUND:
 					//create de new user
@@ -475,9 +469,9 @@ function getUserName(req, res) {
 	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (user) {
-			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email })
+			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email, iscaregiver: user.iscaregiver })
 		}else{
-			res.status(200).send({ userName: '', lastName: '', idUser: req.params.userId})
+			res.status(200).send({ userName: '', lastName: '', idUser: req.params.userId, iscaregiver: false})
 		}
 	})
 }
@@ -587,6 +581,18 @@ function setInfoVerified(req, res) {
 	})
 }
 
+function changeiscaregiver (req, res){
+
+	let userId= crypt.decrypt(req.params.userId);//crypt.decrypt(req.params.patientId);
+
+	User.findByIdAndUpdate(userId, { iscaregiver: req.body.iscaregiver }, {select: '-createdBy', new: true}, (err,userUpdated) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+			res.status(200).send({message: 'iscaregiver changed'})
+
+	})
+}
+
 module.exports = {
 	signUp,
 	signIn,
@@ -602,5 +608,6 @@ module.exports = {
 	setGpt3Permision,
 	setNumCallsGpt3,
 	isVerified,
-	setInfoVerified
+	setInfoVerified,
+	changeiscaregiver
 }

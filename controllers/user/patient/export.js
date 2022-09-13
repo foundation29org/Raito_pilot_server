@@ -116,7 +116,6 @@ async function cronSendData() {
 	try {
 		var groups = await geGroups();
 		var data = await getInfoGroup(groups);
-		console.log(data);
 	} catch (e) {
 		console.error("Error: ", e);
 	}
@@ -154,7 +153,6 @@ async function getInfoGroup(groups) {
 						dataRes.push(dataPatient);
 					});
 				});
-				console.log('termina')
 				//resolve(dataRes)
 			})
 			.catch(function (err) {
@@ -179,15 +177,6 @@ async function getPatientInfo(group) {
 
 			Promise.all(promises2)
 				.then(function (data) {
-					//console.log('datos del paciente:');
-					//resolve({ user: user, data: data})
-					console.log(data);
-					if (data.length > 0) {
-						//sendEmailToAdminGroup(data);
-						console.log('send email');
-					}
-
-
 					resolve(data)
 				})
 				.catch(function (err) {
@@ -206,10 +195,8 @@ async function getPatientInfo(group) {
 
 async function getAllPatientInfo(patient, index, group) {
 	return new Promise(async function (resolve, reject) {
-		//console.log(patient);
 		let patientId = patient._id;
 		var promises3 = [];
-		console.log(patientId);
 		promises3.push(getMedications(patientId));
 		promises3.push(getPhenotype(patientId));
 		promises3.push(getFeel(patientId));
@@ -218,9 +205,6 @@ async function getAllPatientInfo(patient, index, group) {
 
 		await Promise.all(promises3)
 			.then(async function (data) {
-				/* var resPatientData = [];
-				 resPatientData.push({data:patient, name:"patient"});
-				 resPatientData.push({info:data})*/
 				let patientIdEnc = crypt.encrypt(patientId.toString());
 				var patientInfo = {};
 				patientInfo['medication'] = data[0];
@@ -244,7 +228,6 @@ async function getMedications(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Medication done.');
 			var listMedications = [];
 			if (medications) {
 				medications.forEach(function (medication) {
@@ -260,7 +243,6 @@ async function getMedications(patientId) {
 async function getPhenotype(patientId) {
 	return new Promise(async function (resolve, reject) {
 		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
-			//console.log('Phenotype done.');
 			if (phenotype) {
 				resolve(phenotype);
 			} else {
@@ -277,7 +259,6 @@ async function getFeel(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Feel done.');
 			var listFeels = [];
 			if (feels) {
 				feels.forEach(function (feel) {
@@ -297,7 +278,6 @@ async function getProm(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Proms done.');
 			var listProms = [];
 			if (proms) {
 				proms.forEach(function (prom) {
@@ -317,7 +297,6 @@ async function getSeizure(patientId) {
 				console.log(err);
 				resolve(err)
 			}
-			//console.log('Seizures done.');
 			var listSeizures = [];
 			if (seizures) {
 				seizures.forEach(function (seizure) {

@@ -64,6 +64,7 @@ const UserSchema = Schema({
 	gptPermission: { type: Boolean, default: false },
 	numCallsGtp3: { type: Number, default: 0 },
 	countryselectedPhoneCode: { type: String, default: '' },
+	iscaregiver: { type: Boolean, default: false },
 	phone: { type: String, default: '' },
 	provider: { type: String, default: '' },
 	backupIPFS: {
@@ -145,7 +146,6 @@ UserSchema.statics.getAuthenticated = function (moralisId, password, cb) {
 		if (!user) {
 			return cb(null, null, reasons.NOT_FOUND);
 		}
-		console.log(user.role);
 		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
 			return cb(null, null, reasons.WRONG_PLATFORM);
 		}
@@ -208,7 +208,6 @@ UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
 		if (!user) {
 			return cb(null, null, reasons.NOT_FOUND);
 		}
-		console.log(user.role);
 		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
 			return cb(null, null, reasons.WRONG_PLATFORM);
 		}
