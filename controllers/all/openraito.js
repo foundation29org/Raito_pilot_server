@@ -61,8 +61,6 @@ async function getInfoUsers(individualShares) {
                 }
                 await Promise.all(promises)
                     .then(async function (data) {
-                        //console.log(data);
-                        //console.log('termina')
                         resolve(data)
                     })
                     .catch(function (err) {
@@ -77,7 +75,6 @@ async function getInfoUsers(individualShares) {
 
 function getUserName(individualShare) {
     return new Promise(async function (resolve, reject) {
-        //console.log(individualShare);
         if(individualShare.idUser!=null){
             let idUser = crypt.decrypt(individualShare.idUser);
             //añado  {"_id" : false} para que no devuelva el _id
@@ -138,7 +135,6 @@ function setIndividualShare(req, res) {
                                 if(err) console.log({message: `Error deleting the feels: ${err}`})
                             })
                         });
-                        console.log('delete sessions');
                         var data = await generateQR(info);
                         return res.status(200).send({ message: 'qrgenerated', data: data })
                         /*if(infoSession.sessionData.message!='Credential successfully issued'){
@@ -179,8 +175,6 @@ async function generateQR(info) {
                 promises.push(vcServiceCtrl.createIssuer(info));
                 await Promise.all(promises)
                     .then(async function (data) {
-                        //console.log(data);
-                        //console.log('termina')
                         resolve(data)
                     })
                     .catch(function (err) {

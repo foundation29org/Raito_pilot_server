@@ -66,7 +66,6 @@ function deleteMedication (patientId){
 				if(err) console.log({message: `Error deleting the medications: ${err}`})
 			})
 		});
-		console.log('delete medications');
 	})
 }
 
@@ -78,7 +77,6 @@ function deleteSeizures (patientId){
 				if(err) console.log({message: `Error deleting the seizures: ${err}`})
 			})
 		});
-		console.log('delete seizures');
 	})
 }
 
@@ -90,7 +88,6 @@ function deleteWeight (patientId){
 				if(err) console.log({message: `Error deleting the weights: ${err}`})
 			})
 		});
-		console.log('delete weights');
 	})
 }
 
@@ -102,7 +99,6 @@ function deleteHeight (patientId){
 				if(err) console.log({message: `Error deleting the heights: ${err}`})
 			})
 		});
-		console.log('delete heights');
 	})
 }
 
@@ -114,7 +110,6 @@ function deleteFeel (patientId){
 				if(err) console.log({message: `Error deleting the feels: ${err}`})
 			})
 		});
-		console.log('delete feels');
 	})
 }
 
@@ -126,7 +121,6 @@ function deleteAppointment (patientId){
 				if(err) console.log({message: `Error deleting the appointments: ${err}`})
 			})
 		});
-		console.log('delete appointments');
 	})
 }
 
@@ -139,7 +133,6 @@ function deletePhenotype (patientId){
 				
 			})
 		});
-		console.log('delete phenotype');
 	})
 }
 
@@ -151,7 +144,6 @@ function deletePhenotypeHistory (patientId){
 					if(err) console.log({message: `Error deleting the phenotypeHistory: ${err}`})
 				})
 			});
-		console.log('delete phenotypeHistory');
 	})
 }
 
@@ -163,14 +155,12 @@ function deleteProms (patientId){
 				if(err) console.log({message: `Error deleting the proms: ${err}`})
 			})
 		});
-		console.log('delete proms');
 	})
 }
 
 async function deleteBackups (userId){
 	const fileName = userId+'.json';
 	var result = await f29azureService.deleteBlob('backups', fileName);
-	console.log(result);
 
 	let userIdDecrypt = crypt.decrypt(userId);
 	var dataToSave = {url:'', date: null} ;
@@ -186,13 +176,9 @@ function deletePatient (res, patientId, containerName, userId){
 			patient.remove(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 				f29azureService.deleteContainers(containerName)
-				//savePatient(userId);
-				//res.status(200).send({message: `The case has been eliminated`})
 			})
 		}else{
 				f29azureService.deleteContainers(containerName);
-				//savePatient(userId);
-				//return res.status(202).send({message: 'The case has been eliminated'})
 		}
 	})
 }
@@ -228,7 +214,6 @@ function savePatient(userId) {
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		if (result) {
-			console.log('Patient created' + patientInfo);
 			//res.status(200).send({message: 'Patient created', patientInfo})
 		} else {
 			deletePatientAndCreateOther(patientStored._id, userId);

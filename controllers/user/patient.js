@@ -543,7 +543,6 @@ function consentgroup (req, res){
 		if(req.body.consentgroup == 'true'){
 			//get group name
 			Group.findOne({ '_id': patientUpdated.group }, function (err, group) {
-				console.log(group.name);
 				var info = {patientId: req.params.patientId, groupName: group.name, type: 'Organization'}
 				Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
                     if (err) return res.status(500).send({message: `Error making the request: ${err}`})
@@ -571,7 +570,6 @@ function consentgroup (req, res){
                                 if(err) console.log({message: `Error deleting the feels: ${err}`})
                             })
                         });
-                        console.log('delete sessions');
                         var data = await generateQR(info);
                         return res.status(200).send({ message: 'qrgenerated', data: data })
                         /*if(infoSession.sessionData.message!='Credential successfully issued'){
@@ -601,7 +599,6 @@ function consentgroup (req, res){
 						if(err) console.log({message: `Error deleting the sessions: ${err}`})
 					})
 				});
-				console.log('delete sessions');
 				res.status(200).send({message: 'consent changed', consent: newConsent})
 			})
 		}else{
@@ -619,8 +616,6 @@ async function generateQR(info) {
 		promises.push(vcServiceCtrl.createIssuerOrganization(info));
 		await Promise.all(promises)
 			.then(async function (data) {
-				//console.log(data);
-				//console.log('termina')
 				resolve(data)
 			})
 			.catch(function (err) {

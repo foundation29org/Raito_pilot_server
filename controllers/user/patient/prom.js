@@ -127,8 +127,6 @@ async function saveData(proms, patientId) {
 		}
 		await Promise.all(promises)
 			.then(async function (data) {
-				console.log(data);
-				console.log('termina')
 				resolve('termina')
 			})
 			.catch(function (err) {

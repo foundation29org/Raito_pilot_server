@@ -144,24 +144,9 @@ async function createBlobSimple(containerName, data, fileName) {
           console.log(error);
           resolve(false)
         }
-          console.log("done")
           resolve(true);
       });
   });
- 
-
- /* const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
-  const content = data;
-  var fileNameToSave = fileName
-  const blockBlobClient = containerClient.getBlockBlobClient(fileNameToSave);
-  console.log(blockBlobClient);
-  try {
-    const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
-    console.log(uploadBlobResponse);
-    return uploadBlobResponse;
-  } catch (error) {
-    console.log(error);
-  }*/
   
 }
 

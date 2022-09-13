@@ -81,6 +81,7 @@ api.post('/gpt3/:userId', auth(roles.All), userCtrl.setGpt3Permision)
 api.get('/gpt3/numcalls/:userId', auth(roles.All), userCtrl.setNumCallsGpt3)
 api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
 api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
+api.put('/users/changeiscaregiver/:userId', auth(roles.AllLessResearcher), userCtrl.changeiscaregiver)
 
 //export data
 //api.get('/exportdata/:patientId', auth(roles.All), exportCtrl.getData)
@@ -332,10 +333,6 @@ api.post('/verifier/presentation-request-callback', verifierServiceCtrl.presenta
 api.get('/verifier/presentation-response/:sessionId', verifierServiceCtrl.presentationResponse)
 api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentationResponseb2c)
 
-
-/*api.get('/testToken', auth, (req, res) => {
-	res.status(200).send(true)
-})*/
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {
 	res.status(200).send({ message: 'You have access' })

@@ -124,8 +124,6 @@ async function saveMassiveSeizure (req, res){
 
 	await Promise.all(promises)
 			.then(async function (data) {
-				console.log(data);
-				console.log('termina')
 				res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
 			})
 			.catch(function (err) {
