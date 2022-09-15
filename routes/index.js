@@ -58,6 +58,7 @@ const vcServiceCtrl = require('../services/vc.js')
 const verifierServiceCtrl = require('../services/verifier.js')
 
 const auth = require('../middlewares/auth')
+const sharedCtrl = require('../middlewares/shared')
 const roles = require('../middlewares/roles')
 const api = express.Router()
 
@@ -110,7 +111,9 @@ api.get('/patient/checks/:patientId', auth(roles.All), patientCtrl.getChecks)
 api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDate)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
-api.get('/phenotypes/:patientId', phenotypeCtrl.getPhenotype)
+api.post('/openraito/phenotypes/:patientId', sharedCtrl.shared(), phenotypeCtrl.getPhenotype)
+api.post('/openraito/v2/phenotypes/:patientId', sharedCtrl.shared2(), phenotypeCtrl.getPhenotype)
+api.get('/phenotypes/:patientId',auth(roles.All), phenotypeCtrl.getPhenotype)
 api.post('/phenotypes/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.savePhenotype)
 api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.updatePhenotype)
 api.delete('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.deletePhenotype)//de momento no se usa
@@ -236,7 +239,9 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/seizures/dates/:patientId', seizuresCtrl.getSeizuresDate)
+api.post('/openraito/seizures/dates/:patientId', sharedCtrl.shared(), seizuresCtrl.getSeizuresDate)
+api.post('/openraito/v2/seizures/dates/:patientId', sharedCtrl.shared2(), seizuresCtrl.getSeizuresDate)
+api.post('/seizures/dates/:patientId', auth(roles.All), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
@@ -261,7 +266,9 @@ api.get('/group/configfile/:groupId', groupCtrl.getconfigFile)
 api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
-api.post('/medications/dates/:patientId', medicationCtrl.getMedicationsDate)
+api.post('/openraito/medications/dates/:patientId', sharedCtrl.shared(), medicationCtrl.getMedicationsDate)
+api.post('/openraito/v2/medications/dates/:patientId', sharedCtrl.shared2(), medicationCtrl.getMedicationsDate)
+api.post('/medications/dates/:patientId',auth(roles.All), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
 api.post('/medication/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMedication)
@@ -277,7 +284,9 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
-api.post('/feels/dates/:patientId', feelCtrl.getFeelsDates)
+api.post('/openraito/feels/dates/:patientId', sharedCtrl.shared(), feelCtrl.getFeelsDates)
+api.post('/openraito/v2/feels/dates/:patientId', sharedCtrl.shared2(), feelCtrl.getFeelsDates)
+api.post('/feels/dates/:patientId',auth(roles.All), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
