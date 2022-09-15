@@ -113,7 +113,7 @@ api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDa
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.post('/openraito/phenotypes/:patientId', sharedCtrl.shared(), phenotypeCtrl.getPhenotype)
 api.post('/openraito/v2/phenotypes/:patientId', sharedCtrl.shared2(), phenotypeCtrl.getPhenotype)
-api.post('/openraito/invitation/phenotypes/dates/:patientId', sharedCtrl.sharedInvitation(), phenotypeCtrl.getPhenotype)
+api.post('/openraito/invitation/phenotypes/:patientId', sharedCtrl.sharedInvitation(), phenotypeCtrl.getPhenotype)
 api.get('/phenotypes/:patientId',auth(roles.All), phenotypeCtrl.getPhenotype)
 api.post('/phenotypes/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.savePhenotype)
 api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.updatePhenotype)
