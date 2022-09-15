@@ -113,6 +113,7 @@ api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDa
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.post('/openraito/phenotypes/:patientId', sharedCtrl.shared(), phenotypeCtrl.getPhenotype)
 api.post('/openraito/v2/phenotypes/:patientId', sharedCtrl.shared2(), phenotypeCtrl.getPhenotype)
+api.post('/openraito/invitation/phenotypes/dates/:patientId', sharedCtrl.sharedInvitation(), phenotypeCtrl.getPhenotype)
 api.get('/phenotypes/:patientId',auth(roles.All), phenotypeCtrl.getPhenotype)
 api.post('/phenotypes/:patientId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.savePhenotype)
 api.put('/phenotypes/:phenotypeId', auth(roles.UserClinicalSuperAdmin), phenotypeCtrl.updatePhenotype)
@@ -241,6 +242,7 @@ api.get('/patientgroups/:idDisease', f29patientgroupsCtrl.getPatientGroups)
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.post('/openraito/seizures/dates/:patientId', sharedCtrl.shared(), seizuresCtrl.getSeizuresDate)
 api.post('/openraito/v2/seizures/dates/:patientId', sharedCtrl.shared2(), seizuresCtrl.getSeizuresDate)
+api.post('/openraito/invitation/seizures/dates/:patientId', sharedCtrl.sharedInvitation(), seizuresCtrl.getSeizuresDate)
 api.post('/seizures/dates/:patientId', auth(roles.All), seizuresCtrl.getSeizuresDate)
 api.get('/seizures/:patientId', auth(roles.UserResearcher), seizuresCtrl.getSeizures)
 api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
@@ -268,6 +270,7 @@ api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMe
 //medications
 api.post('/openraito/medications/dates/:patientId', sharedCtrl.shared(), medicationCtrl.getMedicationsDate)
 api.post('/openraito/v2/medications/dates/:patientId', sharedCtrl.shared2(), medicationCtrl.getMedicationsDate)
+api.post('/openraito/invitation/medications/dates/:patientId', sharedCtrl.sharedInvitation(), medicationCtrl.getMedicationsDate)
 api.post('/medications/dates/:patientId',auth(roles.All), medicationCtrl.getMedicationsDate)
 api.get('/medications/:patientId', auth(roles.UserResearcher), medicationCtrl.getMedications)
 api.get('/medication/:medicationId', auth(roles.UserResearcher), medicationCtrl.getMedication)
@@ -286,6 +289,7 @@ api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medication
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.post('/openraito/feels/dates/:patientId', sharedCtrl.shared(), feelCtrl.getFeelsDates)
 api.post('/openraito/v2/feels/dates/:patientId', sharedCtrl.shared2(), feelCtrl.getFeelsDates)
+api.post('/openraito/invitation/feels/dates/:patientId', sharedCtrl.sharedInvitation(), feelCtrl.getFeelsDates)
 api.post('/feels/dates/:patientId',auth(roles.All), feelCtrl.getFeelsDates)
 api.get('/feels/:patientId', auth(roles.UserResearcher), feelCtrl.getFeels)
 api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
