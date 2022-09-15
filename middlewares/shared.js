@@ -57,7 +57,42 @@ function shared2 (){
 
 }
 
+function sharedInvitation (){
+
+	return function(req, res, next) {
+		//console.log(req);
+
+		let patientId= crypt.decrypt(req.params.patientId);
+		Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
+			if (err) return res.status(403).send({message: 'Forbidden'})
+			if(!patient) return res.status(403).send({message: 'Forbidden'})
+			if(patient.customShare.length>0){
+				var found = false;
+				patient.customShare.forEach(function (element) {
+					var splittoken = element.token.split('token=');
+					if(splittoken[1] == req.body.token){
+						if(element.data.medicalInfo){
+							found = true;
+						}
+					}
+				  });
+				if(found){
+					next()
+				}else{
+					return res.status(403).send({message: 'Forbidden'})
+				}
+				
+			}else{
+				return res.status(403).send({message: 'Forbidden'})
+			}
+		})
+  }
+
+
+}
+
 module.exports = {
 	shared,
-	shared2
+	shared2,
+	sharedInvitation
 } 
