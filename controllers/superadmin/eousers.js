@@ -17,6 +17,7 @@ const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
 const config = require('../../config')
+const fs = require('fs');
 
 /* import moralis */
 const Moralis = require("moralis/node");
@@ -1403,17 +1404,9 @@ function getQuestionnairesGroup(groupId) {
 
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
-		let url = 'https://raw.githubusercontent.com/foundation29org/raito_resources/main/questionnaires/'+questionnaireId+'.json';
-		let options = {json: true};
-		request(url, options, (error, res, body) => {
-			if (error) {
-				return  console.log(error)
-			};
-
-			if (!error && res.statusCode == 200) {
-				resolve (body)
-			};
-		});
+		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+		resolve (json)
 	});
 }
 

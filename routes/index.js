@@ -56,6 +56,7 @@ const openRaitoCtrl = require('../controllers/all/openraito')
 
 const vcServiceCtrl = require('../services/vc.js')
 const verifierServiceCtrl = require('../services/verifier.js')
+const resourcesCtrl = require('../controllers/all/resources.js')
 
 const auth = require('../middlewares/auth')
 const sharedCtrl = require('../middlewares/shared')
@@ -264,7 +265,6 @@ api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
 api.get('/group/questionnaires/:groupId', groupCtrl.getQuestionnairesGroup)
-api.get('/group/configfile/:groupId', groupCtrl.getconfigFile)
 api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)
 
 //medications
@@ -345,6 +345,10 @@ api.get('/verifier/:patientId',auth(roles.UserResearcher), verifierServiceCtrl.p
 api.post('/verifier/presentation-request-callback', verifierServiceCtrl.presentationRequestCallback)
 api.get('/verifier/presentation-response/:sessionId', verifierServiceCtrl.presentationResponse)
 api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentationResponseb2c)
+
+//resources
+api.get('/resources/questionnaire/:questionnaireId',auth(roles.UserResearcher), resourcesCtrl.getQuestionnaire)
+api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {

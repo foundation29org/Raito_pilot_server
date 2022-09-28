@@ -1,0 +1,201 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "q1dravet",
+    "title": "General questions of Dravet syndrome",
+    "description": "General questions for patients with Dravet Syndrome.",
+    "created by": "Foundation29",
+    "items":[
+        {
+            "idProm": "1",
+            "text": "Is the number of seizures the most relevant problem for you?",
+            "answers": [
+                {
+                    "text": "Yes",
+                    "value": "yes"
+                },
+                {
+                    "text": "No",
+                    "value": "no"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "2",
+            "text": "Does your child have pro…lking or with movement?",
+            "answers": [
+                {
+                    "text": "S/he can't do it",
+                    "value": "cant do it"
+                },
+                {
+                    "text": "S/he does it with a lot of difficulty",
+                    "value": "does it with a lot of difficulty"
+                },
+                {
+                    "text": "S/he does it with difficulty",
+                    "value": "does it with difficulty"
+                },
+                {
+                    "text": "It is usually fine",
+                    "value": "It is usually fine"
+                },
+                {
+                    "text": "No problems at all",
+                    "value": "No problems at all"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "3",
+            "text": "How does your child's appetite change due to their treatment?",
+            "answers": [
+                {
+                    "text": "S/he does not want to eat",
+                    "value": "does not want to eat"
+                },
+                {
+                    "text": "S/he eats less than usual",
+                    "value": "eats less than usual"
+                },
+                {
+                    "text": "No change",
+                    "value": "No change"
+                },
+                {
+                    "text": "S/he eats more than usual",
+                    "value": "eats more than usual"
+                },
+                {
+                    "text": "S/he does much more than usual",
+                    "value": "does much more than usual"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "4",
+            "text": "Can your child understand verbal instructions?",
+            "answers": [
+                {
+                    "text": "S/he can't do it",
+                    "value": "cant do it"
+                },
+                {
+                    "text": "S/he does it with a lot of difficulty",
+                    "value": "does it with a lot of difficulty"
+                },
+                {
+                    "text": "S/he does it with difficulty",
+                    "value": "does it with difficulty"
+                },
+                {
+                    "text": "It is usually fine",
+                    "value": "It is usually fine"
+                },
+                {
+                    "text": "No problems at all",
+                    "value": "does not want to eat"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "5",
+            "text": "Does your child always experience seizures in the same way or do they vary?",
+            "answers": [
+                {
+                    "text": "Yes",
+                    "value": "Yes"
+                },
+                {
+                    "text": "No",
+                    "value": "No"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "6",
+            "text": "Is there anything you think triggers your child's seizures?",
+            "answers": [
+                {
+                    "text": "Bright or patterned lights",
+                    "value": "Brightorpatternedlights"
+                },
+                {
+                    "text": "Warm or cold temperatures",
+                    "value": "Warmorcoldtemperatures"
+                },
+                {
+                    "text": "Physical movement or activity",
+                    "value": "Physicalmovementoractivity"
+                },
+                {
+                    "text": "Noise",
+                    "value": "Noise"
+                },
+                {
+                    "text": "Geometric patterns",
+                    "value": "Geometricpatterns"
+                },
+                {
+                    "text": "Changes in emotional state",
+                    "value": "Changesinemotionalstate"
+                },
+                {
+                    "text": "Tiredness",
+                    "value": "Tiredness"
+                },
+                {
+                    "text": "Other",
+                    "value": "Other"
+                }
+            ],
+            "other": "Other",
+            "type": "ChoiceSet"
+        },
+        {
+            "idProm": "7",
+            "text": "Are you or your child able to predict when they will have a seizure?",
+            "answers": [
+                {
+                    "text": "Yes",
+                    "value": "Yes"
+                },
+                {
+                    "text": "No",
+                    "value": "No"
+                }
+            ],
+            "other": null,
+            "type": "radioButtons"
+        },
+        {
+            "idProm": "8",
+            "text": "If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?",
+            "answers": [
+                {
+                    "text": "Reduction in seizures",
+                    "value": "Reduction in seizures"
+                },
+                {
+                    "text": "Less severe seizures",
+                    "value": "Less severe seizures"
+                },
+                {
+                    "text": "Improvement in other symptoms:",
+                    "value": "Improvement in other symptoms"
+                }
+            ],
+            "other": "Improvement in other symptoms",
+            "type": "radioButtons"
+        }
+    ]
+}
