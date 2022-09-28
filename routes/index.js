@@ -347,7 +347,9 @@ api.get('/verifier/presentation-response/:sessionId', verifierServiceCtrl.presen
 api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentationResponseb2c)
 
 //resources
-api.get('/resources/questionnaire/:questionnaireId',auth(roles.UserResearcher), resourcesCtrl.getQuestionnaire)
+api.get('/resources/questionnaire/:questionnaireId',auth(roles.All), resourcesCtrl.getQuestionnaire)
+api.post('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.newQuestionnaire)
+api.put('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.updateQuestionnaire)
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //ruta privada
