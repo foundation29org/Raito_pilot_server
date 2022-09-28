@@ -800,13 +800,54 @@ function updateMedicationsGroup (req, res){
 
  function getQuestionnairesGroup (req, res){
 	let groupId= req.params.groupId;
-  Group.findOne({ '_id': groupId }, function (err, group) {
+  Group.findOne({ '_id': groupId }, async function (err, group) {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
-    var questionnaires = group.questionnaires;
+    //get createdById
+    var data = group.questionnaires;
+    var questionnaires = await getCreatedByIdAll(data);
+    console.log(questionnaires);
+    
 		res.status(200).send({questionnaires})
 	})
+}
+
+async function getCreatedByIdAll(questionnaires) {
+	return new Promise(async function (resolve, reject) {
+		var promises = [];
+		if (questionnaires.length > 0) {
+			for (var index in questionnaires) {
+				promises.push(getCreatedById(questionnaires[index]));
+			}
+		} else {
+			resolve('No data')
+		}
+		await Promise.all(promises)
+			.then(async function (data) {
+				resolve(data)
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+
+	});
+}
+
+async function getCreatedById(questionnaire) {
+	return new Promise(async function (resolve, reject) {
+
+		var url = './raito_resources/questionnaires/'+questionnaire.id+'.json'
+    try{
+      var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+      var info = {"id": questionnaire.id, "createdById": json.createdById};
+      resolve(info);
+    }catch (err){
+      var info = {"id": questionnaire.id, "createdById": null};
+      resolve(info);
+    }
+	});
 }
 
 
