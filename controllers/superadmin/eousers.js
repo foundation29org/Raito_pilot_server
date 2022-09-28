@@ -22,7 +22,6 @@ const fs = require('fs');
 /* import moralis */
 const Moralis = require("moralis/node");
 var https = require('follow-redirects').https;
-var fs = require('fs');
 const request = require("request");
 
 /* Moralis init code */
