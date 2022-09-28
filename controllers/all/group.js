@@ -806,9 +806,7 @@ function updateMedicationsGroup (req, res){
 
     //get createdById
     var data = group.questionnaires;
-    var questionnaires = await getCreatedByIdAll(data);
-    console.log(questionnaires);
-    
+    var questionnaires = await getCreatedByIdAll(data);    
 		res.status(200).send({questionnaires})
 	})
 }

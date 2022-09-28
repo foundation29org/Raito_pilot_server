@@ -11,13 +11,11 @@ function getQuestionnaire (req, res){
 
 function newQuestionnaire (req, res){
 	var bodyReq = req.body;
-	console.log(bodyReq)
 
 	var url = './raito_resources/questionnaires/'+req.body.id+'.json'
 	try{
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send({message: 'already exists'})
-		console.log(json);
 	}catch (err){
 		console.log(err);
 		//subir file
@@ -46,12 +44,10 @@ function newQuestionnaire (req, res){
 
 function updateQuestionnaire (req, res){
 	var bodyReq = req.body;
-	console.log(bodyReq)
 
 	var url = './raito_resources/questionnaires/'+req.body.id+'.json'
 	try{
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		console.log(json);
 		let groupId= req.params.groupId;
 		if(json.createdById==groupId){
 			//subir file
