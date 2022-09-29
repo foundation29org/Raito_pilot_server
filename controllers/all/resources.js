@@ -13,17 +13,12 @@ function newQuestionnaire (req, res){
 	var bodyReq = req.body;
 
 	var url = './raito_resources/questionnaires/'+req.body.id+'.json'
-	try{
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		res.status(200).send({message: 'already exists'})
-	}catch (err){
-		console.log(err);
-		//subir file
-		fs.writeFile('./raito_resources/questionnaires/'+req.body.id+'.json', JSON.stringify(bodyReq), (err) => {
-			if (err) {
-				res.status(403).send({message: 'not added'})
-			}
 
+	try {
+		if (fs.existsSync(url)) {
+		  //file exists
+		  res.status(200).send({message: 'already exists'})
+		}else{
 			let groupId= req.params.groupId;
 			Group.findOne({ '_id': groupId }, function (err, group) {
 					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
@@ -32,14 +27,23 @@ function newQuestionnaire (req, res){
 				var questionnaires = group.questionnaires;
 				questionnaires.push({id:req.body.id});
 				Group.findOneAndUpdate({_id: groupId}, {$set:{questionnaires:questionnaires}}, function(err, groupUpdated){
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-				res.status(200).send({message: 'added'})
+					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+					fs.writeFile('./raito_resources/questionnaires/'+req.body.id+'.json', JSON.stringify(bodyReq), (err) => {
+						if (err) {
+							console.log(err);
+							res.status(403).send({message: 'not added'})
+						}
+						//res.status(200).send({message: 'added'})
+					});
+					res.status(200).send({message: 'added'})
 				})
 
 				})
-			//res.status(200).send({message: 'added'})
-		});
-	}	
+			
+		}
+	  } catch(err) {
+		console.error(err)
+	  }	
 }
 
 function updateQuestionnaire (req, res){
