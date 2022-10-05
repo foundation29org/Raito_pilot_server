@@ -882,10 +882,30 @@ async function getSeizure(patientId) {
 							"valueQuantity": {
 								"value": seizure.duracion,
 								"unit": "Seconds"
+							}
+						}
+					};
+
+					/*var actualseizure = {
+						"fullUrl": "Observation/" +seizure._id,
+						"resource": {
+							"resourceType": "Observation",
+							"id": seizure._id,
+							"status": "final",
+							"code": {
+								"text": "Seizure - "+ seizure.type
+							},
+							"subject": {
+								"reference": "Patient/"+patientIdEnc
+							},
+							"effectiveDateTime": seizure.start,
+							"valueQuantity": {
+								"value": seizure.duracion,
+								"unit": "Seconds"
 							},
 							"note": seizure.notes
 						}
-					};
+					};*/
 					listSeizures.push(actualseizure);
 				});
 			}
