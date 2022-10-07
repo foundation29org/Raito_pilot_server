@@ -12,7 +12,8 @@ const serviceEmail = require('../../services/email')
 const crypt = require('../../services/crypt')
 const bcrypt = require('bcrypt-nodejs')
 const f29azureService = require("../../services/f29azure")
-
+const Moralis = require("moralis").default;
+const config = require('../../config')
 
 /**
  * @api {post} https://raito.care/api/api/signUp New account
@@ -257,6 +258,7 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
+	console.log(req.body);
 	User.getAuthenticated(req.body.moralisId, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
@@ -593,6 +595,38 @@ function changeiscaregiver (req, res){
 	})
 }
 
+async function sigtestin(req, res) {
+	// attempt to authenticate user
+	const config2 = {
+		"domain": "defi.finance",
+		"chainId": "1",
+		"address": "0xa3775fda70a8E26C3A80C57E6B01284Af71Eb971",
+		"statement": "Please confirm",
+		"uri": "http://localhost:3011",
+		"expirationTime": "2022-01-01T00:00:00.000Z",
+		"notBefore": "2022-01-01T00:00:00.000Z",
+		"timeout": 60
+	  };
+	const { address, chain, network } = req.body;
+
+	const serverUrl = config.MORALIS.SERVER_URL;
+	const appId = config.MORALIS.APP_ID;
+	const masterKey = config.MORALIS.MARTER_KEY;
+	await Moralis.start({ apiKey: config.MORALIS.MARTER_KEY  });
+
+    try {
+        const message = await Moralis.Auth.requestMessage({config2,
+        });
+		console.log(message);
+
+        res.status(200).json({ message });
+    } catch (error) {
+		console.log(error);
+        res.status(400).json({ error });
+        console.error(error);
+    }
+}
+
 module.exports = {
 	signUp,
 	signIn,
@@ -609,5 +643,6 @@ module.exports = {
 	setNumCallsGpt3,
 	isVerified,
 	setInfoVerified,
-	changeiscaregiver
+	changeiscaregiver,
+	sigtestin
 }

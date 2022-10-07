@@ -67,6 +67,7 @@ const api = express.Router()
 //routes for login-logout
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
+api.post('/sigtestin', userCtrl.sigtestin)
 
 // activarcuenta
 api.post('/sendEmail', userCtrl.sendEmail)

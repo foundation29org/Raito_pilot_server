@@ -20,7 +20,7 @@ const config = require('../../config')
 const fs = require('fs');
 
 /* import moralis */
-const Moralis = require("moralis/node");
+const Moralis = require("moralis").default;
 var https = require('follow-redirects').https;
 const request = require("request");
 
@@ -28,7 +28,7 @@ const request = require("request");
 const serverUrl = config.MORALIS.SERVER_URL;
 const appId = config.MORALIS.APP_ID;
 const masterKey = config.MORALIS.MARTER_KEY;
-Moralis.start({ serverUrl, appId, masterKey });
+Moralis.start({ apiKey: config.MORALIS.MARTER_KEY  });
 
 /**
  * @api {post} https://raito.care/api/eo/onlypatients/:groupId Get only patients
