@@ -285,6 +285,7 @@ api.put('/medication/newdose/:medicationIdAndPatient', auth(roles.OnlyUser), med
 api.put('/medication/stoptaking/:medicationId', auth(roles.OnlyUser), medicationCtrl.stoptaking)
 api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicationCtrl.changenotes)
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
+api.post('/massivesdrugs/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMassiveDrugs)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.post('/openraito/feels/dates/:patientId', sharedCtrl.shared(), feelCtrl.getFeelsDates)
