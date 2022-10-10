@@ -873,6 +873,109 @@ function sideeffect (req, res){
 
 }
 
+async function saveMassiveDrugs (req, res){
+	let patientId= crypt.decrypt(req.params.patientId);
+	var promises = [];
+	if (req.body.length > 0) {
+		for (var i = 0; i<(req.body).length;i++){
+			var actualdrug = (req.body)[i];
+			promises.push(testOneDrug(actualdrug, patientId));
+		}
+	}else{
+		res.status(200).send({message: 'Eventdb created', eventdb: []})
+	}
+
+
+	await Promise.all(promises)
+			.then(async function (data) {
+				console.log(data);
+				res.status(200).send({message: 'Eventdb created', eventdb: data})
+			})
+			.catch(function (err) {
+				console.log('Manejar promesa rechazada (' + err + ') aquí.');
+				return null;
+			});
+	
+
+}
+
+async function testOneDrug(actualdrug, patientId){
+	let medication = new Medication()
+	medication.drug = actualdrug.drug
+	medication.dose = actualdrug.dose
+	medication.startDate = actualdrug.startDate
+	medication.endDate = actualdrug.endDate
+	medication.sideEffects = actualdrug.sideEffects
+	medication.schedule = actualdrug.schedule
+	medication.otherSchedule = actualdrug.otherSchedule
+	medication.adverseEffects = actualdrug.adverseEffects
+	medication.compassionateUse = actualdrug.compassionateUse
+	medication.notes = actualdrug.notes
+	medication.freesideEffects = actualdrug.freesideEffects
+	medication.createdBy = patientId
+	var infoMsgMeds = await getMeds(patientId, medication);
+	if(infoMsgMeds!='imposible'){
+		var res1 = saveOneDrug(medication)
+		return {added:true,medication:medication};
+	}else{
+		return {added:false,medication:medication};
+	}
+	
+}
+
+function getMeds(patientId, medication) {
+	return new Promise(resolve => {
+		var failmsg= '';
+		Medication.find({"createdBy": patientId, "drug": medication.drug},(err, medications) => {
+			if (err) resolve({message: `Error making the request: ${err}`})
+			if (medications) {
+				var bsd = new Date(medication.startDate);
+				var bed = new Date(medication.endDate);
+
+				medications.forEach(function(medication) {
+
+					var msd = new Date(medication.startDate);
+					var med = new Date(medication.endDate);
+
+					if(!medication.endDate && !medication.endDate){
+						failmsg = 'imposible';
+					}
+					if(!medication.endDate && medication.endDate){
+							if(msd.getTime() <=bsd.getTime() || msd.getTime() <=bed.getTime() ){
+								failmsg = 'imposible';
+							}
+					}
+					if(!medication.endDate && medication.endDate){
+							if(bsd.getTime()<=med.getTime()){
+								failmsg = 'imposible';
+							}
+					}
+
+					if(medication.endDate && medication.endDate){
+						if((med.getTime()>=bsd.getTime() && msd.getTime()<=bed.getTime()) || (med.getTime()>=bsd.getTime() && med.getTime()<=bed.getTime()) || (msd.getTime()<=bed.getTime() && med.getTime()>=bed.getTime())){
+							failmsg = 'imposible';
+						}
+					}
+
+				});
+				
+			}
+			resolve (failmsg)
+		});
+	});
+}
+
+async function saveOneDrug(eventdb){
+	var functionDone2 = false;
+	await eventdb.save((err, eventdbStored) => {
+		if (err) {
+			res.status(500).send({message: `Failed to save in the database: ${err} `})
+		}
+		functionDone2 = true;
+	})
+	return functionDone2;
+}
+
 module.exports = {
 	getMedicationsDate,
 	getMedications,
@@ -886,5 +989,6 @@ module.exports = {
 	newDose,
 	stoptaking,
 	changenotes,
-	sideeffect
+	sideeffect,
+	saveMassiveDrugs
 }
