@@ -888,7 +888,6 @@ async function saveMassiveDrugs (req, res){
 
 	await Promise.all(promises)
 			.then(async function (data) {
-				console.log(data);
 				res.status(200).send({message: 'Eventdb created', eventdb: data})
 			})
 			.catch(function (err) {
