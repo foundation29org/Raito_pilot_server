@@ -438,7 +438,7 @@ function updateUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	let update = req.body
 
-	User.findByIdAndUpdate(userId, update, { select: '-_id userName lastName lang email signupDate massunit lengthunit', new: true }, (err, userUpdated) => {
+	User.findByIdAndUpdate(userId, update, { select: '-_id userName lastName lang email signupDate massunit lengthunit iscaregiver', new: true }, (err, userUpdated) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 
 		res.status(200).send({ user: userUpdated })
