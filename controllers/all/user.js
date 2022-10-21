@@ -602,11 +602,24 @@ async function sigtestin(req, res) {
 		"chainId": "1",
 		"address": "0xa3775fda70a8E26C3A80C57E6B01284Af71Eb971",
 		"statement": "Please confirm",
+		"uri": "http://localhost:4200",
+		"expirationTime": "2023-01-01T00:00:00.000Z",
+		"notBefore": "2022-01-01T00:00:00.000Z",
+		"timeout": 60
+	  };
+
+	  const config3 = {
+		"domain": "amazing.finance",
+		"chainId": "1",
+		"address": "0xa3775fda70a8E26C3A80C57E6B01284Af71Eb971",
+		"statement": "Please confirm",
 		"uri": "http://localhost:3011",
 		"expirationTime": "2022-01-01T00:00:00.000Z",
 		"notBefore": "2022-01-01T00:00:00.000Z",
 		"timeout": 60
 	  };
+
+	  console.log(req.body);
 	const { address, chain, network } = req.body;
 
 	const serverUrl = config.MORALIS.SERVER_URL;
