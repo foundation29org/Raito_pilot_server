@@ -80,8 +80,16 @@ function updateQuestionnaire (req, res){
 async function getconfigFile(req, res) {
     let groupId= req.params.groupId;
 	let url = './raito_resources/groups/'+groupId+'/config.json';
-	var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-	res.status(200).send(json)
+	try {
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+		res.status(200).send(json)
+	} catch (error) {
+		console.log(error);
+		url = './raito_resources/groups/61bb38fad6e0cb14f08881c0/config.json';
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+		res.status(200).send(json)
+	}
+	
 }
 
 module.exports = {
