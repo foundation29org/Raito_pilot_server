@@ -742,10 +742,10 @@ async function getFeel(patientId) {
 							"valueQuantity": {
 								"value": value,
 								"unit": "AVG"
-							},
-							"note": feel.note
+							}
 						}
 					};
+					//"note": feel.note
 					listFeels.push(actualfeel);
 				});
 			}
