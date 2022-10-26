@@ -1873,12 +1873,11 @@ const btoa = (text) => {
 
 async function saveIPFS (data, userId){
 	return new Promise(async function (resolve, reject) {
-		
-
+		const converted = toBinary(JSON.stringify(data.result));
 		// Save file input to IPFS
 		const fileName = userId+'.json';
 		const file = new Moralis.File(fileName, {
-		base64: btoa(JSON.stringify(data.result)),
+		base64: btoa(converted),
 		});
 		try {
 			await file.saveIPFS({useMasterKey:true});
@@ -1896,8 +1895,34 @@ async function saveIPFS (data, userId){
 		}
 		
 	});
-
 }
+
+function toBinary(string) {
+	const codeUnits = Uint16Array.from(
+	  { length: string.length },
+	  (element, index) => string.charCodeAt(index)
+	);
+	const charCodes = new Uint8Array(codeUnits.buffer);
+  
+	let result = "";
+	charCodes.forEach((char) => {
+	  result += String.fromCharCode(char);
+	});
+	return result;
+  }
+
+  function fromBinary(binary) {
+	const bytes = Uint8Array.from({ length: binary.length }, (element, index) =>
+	  binary.charCodeAt(index)
+	);
+	const charCodes = new Uint16Array(bytes.buffer);
+  
+	let result = "";
+	charCodes.forEach((char) => {
+	  result += String.fromCharCode(char);
+	});
+	return result;
+  }
 
 async function getIPFS(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
@@ -1908,6 +1933,7 @@ async function getIPFS(req, res) {
 				'hostname': 'gateway.moralisipfs.com',
 				'path': `/ipfs/${user.backupIPFS.url}`,
 				'headers': {
+					'Content-Type': 'application/json'
 				},
 				'maxRedirects': 20
 			  };
@@ -1921,7 +1947,8 @@ async function getIPFS(req, res) {
 			  
 				res1.on("end", function (chunk) {
 				  var body = Buffer.concat(chunks);
-				  return res.status(200).send({result: JSON.parse(body.toString())})
+				  const original = fromBinary(body.toString());
+				  return res.status(200).send({result: JSON.parse(original)})
 				});
 			  
 				res1.on("error", function (error) {
