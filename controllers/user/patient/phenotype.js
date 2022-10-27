@@ -6,7 +6,6 @@
 const Phenotype = require('../../../models/phenotype')
 const PhenotypeHistory = require('../../../models/phenotype-history')
 const Patient = require('../../../models/patient')
-const Diagnosis = require('../../../models/diagnosis')
 const crypt = require('../../../services/crypt')
 const https = require('https');
 const request = require("request")
