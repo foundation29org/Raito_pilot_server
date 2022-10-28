@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "serve": "nodemon index.js",
+    "serve": "nodemon index.js -V",
     "test": "jasmine",
     "crondatagroups": "node -e \"require('./controllers/user/patient/export.js').cronSendData()\""
   },
@@ -22,7 +22,7 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "express-fileupload": "^1.4.0",
-    "express-handlebars": "^3.0.0",
+    "express-handlebars": "^6.0.6",
     "fs-extra": "^5.0.0",
     "jasmine": "^3.5.0",
     "js-sha512": "^0.7.1",
@@ -30,14 +30,14 @@
     "moment": "^2.19.1",
     "mongoose": "^4.13.1",
     "moralis": "^1.9.0",
-    "nodemailer": "^4.4.0",
-    "nodemailer-express-handlebars": "^2.0.0",
+    "nodemailer": "^6.8.0",
+    "nodemailer-express-handlebars": "^5.0.0",
     "openai-api": "^1.2.6",
     "request": "^2.87.0",
     "wikijs": "^6.3.2"
   },
   "devDependencies": {
-    "nodemon": "^1.12.1"
+    "nodemon": "^2.0.20"
   },
   "apidoc": {
     "name": "Raito",

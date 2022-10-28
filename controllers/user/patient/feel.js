@@ -72,7 +72,7 @@ function saveFeel (req, res){
 	// when you save, returns an id in eventdbStored to access that feel
 	eventdb.save((err, eventdbStored) => {
 		if (err) {
-			res.status(500).send({message: `Failed to save in the database: ${err} `})
+			return res.status(500).send({message: `Failed to save in the database: ${err} `})
 		}
 		if(eventdbStored){
 			res.status(200).send({message: 'Done'})
