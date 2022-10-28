@@ -28,6 +28,48 @@ function decodeToken(token, roles){
 			const payload = jwt.decode(token, config.SECRET_TOKEN)
 			if(roles.includes(payload.role)){
 				let userId= crypt.decrypt(payload.sub);
+				/*
+				const q = User.findById(userId, {"password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false});
+				try {
+					let user = await q.clone().exec();
+					if(user){
+						if(user.role!=payload.role || userId!=user._id){
+							reject({
+								status: 403,
+								message: 'Hacker!'
+							})
+						}
+						//comprobar si el tokenes válido
+						if (payload.exp <= moment().unix()){
+							reject({
+								status: 401,
+								message: 'Token expired'
+							})
+						}
+						//si el token es correcto, obtenemos el sub, que es el código del usuario
+						var subdecrypt= crypt.decrypt(payload.sub.toString());
+						resolve(subdecrypt)
+
+					}else{
+
+						reject({
+							status: 403,
+							message: 'Hacker!'
+						})
+
+					}
+				} catch (erro) {
+					console.log(err);
+					var messageresult='Invalid Token';
+					if(err.message == "Token expired"){
+						messageresult = err.message;
+					}
+					reject({
+						status: 401,
+						message: messageresult
+					})
+				}
+				*/
 				await User.findById(userId, {"password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
 					if(err){
 						reject({
