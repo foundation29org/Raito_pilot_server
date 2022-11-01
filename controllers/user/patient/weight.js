@@ -54,15 +54,22 @@ function getWeight (req, res){
 	var pastDateDateTime = pastDate.getTime();
 
 	let patientId= crypt.decrypt(req.params.patientId);
-	Weight.findOne({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).exec(function(err, weight){
+	//Weight.findOne({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'asc'}).exec(function(err, weight){
+	Weight.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).limit(1).exec(function(err, weights){
 	//Weight.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, weight) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!weight) return res.status(202).send({message: 'There are no weight'})
-		if ((weight.date).getTime() < pastDateDateTime) {
-			res.status(200).send({message:'old weight', weight:weight})
+		if(weights.length==0){
+			return res.status(202).send({message: 'There are no weight'})
 		}else{
-			res.status(200).send({message:'updated weight', weight:weight})
+			let weight = weights[0];
+			if ((weight.date).getTime() < pastDateDateTime) {
+				res.status(200).send({message:'old weight', weight:weight})
+			}else{
+				res.status(200).send({message:'updated weight', weight:weight})
+			}
 		}
+
+		
 		
 	})
 }
@@ -105,7 +112,7 @@ function getWeight (req, res){
 function getHistoryWeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 
-	Weight.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'asc'}).exec(function(err, weights){
+	Weight.find({createdBy: patientId}, {"createdBy" : false }).sort({ 'date' : 'desc'}).exec(function(err, weights){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 
 		var listWeights = [];
