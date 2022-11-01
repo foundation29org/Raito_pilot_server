@@ -49,10 +49,16 @@ const crypt = require('../../../services/crypt')
 function getHeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	//Height.findOne({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).exec(function(err, height){
-	Height.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, height) => {
+	//Height.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, height) => {
+	Height.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).limit(1).exec(function(err, heights){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!height) return res.status(202).send({message: 'There are no height'})
-		res.status(200).send({height})
+		if(heights.length==0){
+			return res.status(202).send({message: 'There are no height'})
+		}else{
+			let height = heights[0];
+			res.status(200).send({height})
+		}
+		
 	})
 }
 
@@ -94,7 +100,7 @@ function getHeight (req, res){
 function getHistoryHeight (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 
-	Height.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'asc'}).exec(function(err, heights){
+	Height.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).exec(function(err, heights){
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 
 		var listHeights = [];
