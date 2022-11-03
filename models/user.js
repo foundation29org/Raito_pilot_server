@@ -62,6 +62,7 @@ const UserSchema = Schema({
 	permissions: { type: Object, default: {} },
 	platform: { type: String, default: '' },
 	countryselectedPhoneCode: { type: String, default: '' },
+	rangeDate: { type: String, default: 'month' },
 	iscaregiver: { type: Boolean, default: false },
 	phone: { type: String, default: '' },
 	provider: { type: String, default: '' },

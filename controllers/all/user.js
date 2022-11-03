@@ -526,6 +526,32 @@ function changeiscaregiver (req, res){
 	})
 }
 
+
+function getRangeDate(req, res) {
+	let userId = crypt.decrypt(req.params.userId);
+	//añado  {"_id" : false} para que no devuelva el _id
+	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		var result = "month";
+		if (user) {
+			result = user.rangeDate;
+		}
+		res.status(200).send({ rangeDate: result })
+	})
+}
+
+function changeRangeDate (req, res){
+
+	let userId= crypt.decrypt(req.params.userId);//crypt.decrypt(req.params.patientId);
+
+	User.findByIdAndUpdate(userId, { rangeDate: req.body.rangeDate }, {select: '-createdBy', new: true}, (err,userUpdated) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+
+			res.status(200).send({message: 'rangeDate changed'})
+
+	})
+}
+
 module.exports = {
 	signUp,
 	signIn,
@@ -538,5 +564,7 @@ module.exports = {
 	getUserEmail,
 	isVerified,
 	setInfoVerified,
-	changeiscaregiver
+	changeiscaregiver,
+	getRangeDate,
+	changeRangeDate
 }
