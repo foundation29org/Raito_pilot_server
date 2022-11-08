@@ -187,8 +187,8 @@ function deleteUser (res, userId){
 	User.findById(userId, (err, user) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 		if(user){
-			/*if(user.moralisId!=''){
-				eoCtrl.deleteMoralis(user.moralisId)
+			/*if(user.appPubKey!=''){
+				eoCtrl.deleteMoralis(user.appPubKey)
 			}*/
 			user.remove(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})

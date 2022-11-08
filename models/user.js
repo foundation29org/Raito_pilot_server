@@ -47,7 +47,7 @@ const UserSchema = Schema({
 	confirmationCode: String,
 	signupDate: { type: Date, default: Date.now },
 	lastLogin: { type: Date, default: null },
-	moralisId: { type: String, default: '' },
+	appPubKey: { type: String, default: '' },
 	userName: { type: String, default: '' },
 	ethAddress: { type: String, default: '' },
 	lastName: { type: String, default: '' },
@@ -137,8 +137,8 @@ var reasons = UserSchema.statics.failedLogin = {
 	WRONG_PLATFORM: 5
 };
 
-UserSchema.statics.getAuthenticated = function (moralisId, password, cb) {
-	this.findOne({ moralisId: moralisId}, function (err, user) {
+UserSchema.statics.getAuthenticated = function (appPubKey, password, cb) {
+	this.findOne({ appPubKey: appPubKey}, function (err, user) {
 		if (err) return cb(err);
 
 		// make sure the user exists
@@ -195,7 +195,7 @@ UserSchema.statics.getAuthenticated = function (moralisId, password, cb) {
 				return cb(null, null, reasons.PASSWORD_INCORRECT);
 			});
 		});
-	}).select('_id email moralisId +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+	}).select('_id email appPubKey +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
 UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
@@ -257,7 +257,7 @@ UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
 				return cb(null, null, reasons.PASSWORD_INCORRECT);
 			});
 		});
-	}).select('_id email moralisId +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+	}).select('_id email appPubKey +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
 module.exports = conndbaccounts.model('User', UserSchema)

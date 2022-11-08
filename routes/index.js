@@ -37,6 +37,8 @@ const api = express.Router()
 //routes for login-logout
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
+api.post('/verifyweb3auth', userCtrl.verifyweb3auth)
+api.post('/verifyweb3auth2', userCtrl.verifyweb3auth2)
 
 // activarcuenta
 api.post('/sendEmail', userCtrl.sendEmail)

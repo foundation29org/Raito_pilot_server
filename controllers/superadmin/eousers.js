@@ -2029,11 +2029,11 @@ async function checkF29(req, res) {
 	
   }
 
-  async function deleteMoralis (moralisId){
+  async function deleteMoralis (appPubKey){
 	return new Promise(async function (resolve, reject) {
 		const query = new Moralis.Query('_EthAddress')
-		console.log(moralisId);
-		query.equalTo('user', moralisId)
+		console.log(appPubKey);
+		query.equalTo('user', appPubKey)
 		const object = await query.first({useMasterKey:true}) // just get 1 item, not array of items
 		if (object) {
 			console.log(object);

@@ -10,7 +10,7 @@ const serviceAuth = require('../../services/auth')
 const serviceEmail = require('../../services/email')
 const crypt = require('../../services/crypt')
 const f29azureService = require("../../services/f29azure")
-
+const jose = require('jose')
 
 /**
  * @api {post} https://raito.care/api/api/signUp New account
@@ -70,7 +70,7 @@ function signUp(req, res) {
 	let randomstring = Math.random().toString(36).slice(-12);
 	const user = new User({
 		email: req.body.email,
-		moralisId: req.body.moralisId,
+		appPubKey: req.body.appPubKey,
 		ethAddress: req.body.ethAddress,
 		subrole: req.body.subrole,
 		userName: req.body.userName,
@@ -82,7 +82,7 @@ function signUp(req, res) {
 		permissions: req.body.permissions,
 		platform: 'Raito'
 	})
-	User.findOne({ 'moralisId': req.body.moralisId }, function (err, user2) {
+	User.findOne({ 'appPubKey': req.body.appPubKey }, function (err, user2) {
 		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
 		if (!user2) {
 			user.save((err, userSaved) => {
@@ -255,7 +255,7 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
-	User.getAuthenticated(req.body.moralisId, req.body.password, function (err, user, reason) {
+	User.getAuthenticated(req.body.appPubKey, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
@@ -273,7 +273,7 @@ function signIn(req, res) {
 			switch (reason) {
 				case reasons.NOT_FOUND:
 					//create de new user
-					if(req.body.moralisId && req.body.password && req.body.ethAddress){
+					if(req.body.appPubKey && req.body.password && req.body.ethAddress){
 						signUp(req, res)
 						break;
 					}else{
@@ -316,6 +316,53 @@ function signIn(req, res) {
 
 	})
 }
+
+
+
+async function verifyweb3auth(req, res) {
+	const idToken = req.headers.authorization?.split(' ')[1];
+	// passed from the frontend in the request body
+	const app_pub_key = req.body.appPubKey;
+
+	// Get the JWK set used to sign the JWT issued by Web3Auth
+	const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+
+	// Verify the JWT using Web3Auth's JWKS
+	const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+	console.log(JSON.stringify(jwtDecoded));
+	// Checking `app_pub_key` against the decoded JWT wallet's public_key
+	if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
+	// Verified
+	return res.status(200).json({name: 'Verification Successful'})
+	} else {
+	return res.status(400).json({name: 'Verification Failed'})
+	}
+}
+
+async function verifyweb3auth2(req, res) {
+	// passed from the frontend in the request body
+	const idToken = req.body.idToken;
+	const app_pub_key = req.body.appPubKey;
+	const ethAddress = req.body.ethAddress;
+	const password = req.body.password;
+
+	// Get the JWK set used to sign the JWT issued by Web3Auth
+	const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+
+	// Verify the JWT using Web3Auth's JWKS
+	const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+	console.log(JSON.stringify(jwtDecoded));
+	// Checking `app_pub_key` against the decoded JWT wallet's public_key
+	if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
+	// Verified
+	signIn(req, res)
+	//return res.status(200).json({name: 'Verification Successful'})
+
+	} else {
+	return res.status(400).json({name: 'Verification Failed'})
+	}
+}
+
 
 /**
  * @api {get} https://raito.care/api/users/:id Get user
@@ -555,6 +602,8 @@ function changeRangeDate (req, res){
 module.exports = {
 	signUp,
 	signIn,
+	verifyweb3auth,
+	verifyweb3auth2,
 	getUser,
 	getSettings,
 	updateUser,
