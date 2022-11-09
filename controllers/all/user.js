@@ -19,8 +19,7 @@ const jose = require('jose')
  * @apiGroup Account
  * @apiDescription This method allows you to create a user account in Raito
  * @apiExample {js} Example usage:
- *  var passwordsha512 = sha512("fjie76?vDh");
- *  var formValue = { email: "example@ex.com", userName: "Peter", password: passwordsha512, lang: "en", group: "None"};
+ *  var formValue = { email: "example@ex.com", userName: "Peter", lang: "en", group: "None"};
  *   this.http.post('https://raito.care/api/signup',formValue)
  *    .subscribe( (res : any) => {
  *      if(res.message == "Account created"){
@@ -36,7 +35,6 @@ const jose = require('jose')
  *
  * @apiParam (body) {String} email User email
  * @apiParam (body) {String} userName User name
- * @apiParam (body) {String} password User password using hash <a href="https://es.wikipedia.org/wiki/SHA-2" target="_blank">sha512</a>
  * @apiParam (body) {String} lang Lang of the User. For this, go to  [Get the available languages](#api-Languages-getLangs).
  * We currently have 5 languages, but we will include more. The current languages are:
  * * English: en
@@ -49,7 +47,6 @@ const jose = require('jose')
  *     {
  *       "email": "example@ex.com",
  *       "userName": "Peter",
- *       "password": "f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f",
  *       "group": "None",
  *       "lang": "en"
  *     }
@@ -70,19 +67,17 @@ function signUp(req, res) {
 	let randomstring = Math.random().toString(36).slice(-12);
 	const user = new User({
 		email: req.body.email,
-		appPubKey: req.body.appPubKey,
 		ethAddress: req.body.ethAddress,
 		subrole: req.body.subrole,
 		userName: req.body.userName,
 		lastName: req.body.lastName,
-		password: req.body.password,
 		confirmationCode: randomstring,
 		lang: req.body.lang,
 		group: req.body.group,
 		permissions: req.body.permissions,
 		platform: 'Raito'
 	})
-	User.findOne({ 'appPubKey': req.body.appPubKey }, function (err, user2) {
+	User.findOne({ 'ethAddress': req.body.ethAddress }, function (err, user2) {
 		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
 		if (!user2) {
 			user.save((err, userSaved) => {
@@ -202,8 +197,7 @@ function sendEmail(req, res) {
  * @apiDescription This method gets the token and the language for the user. This token includes the encrypt id of the user, token expiration date, role, and the group to which it belongs.
  * The token are encoded using <a href="https://en.wikipedia.org/wiki/JSON_Web_Token" target="_blank">jwt</a>
  * @apiExample {js} Example usage:
- *  var passwordsha512 = sha512("fjie76?vDh");
- *  var formValue = { email: "aa@aa.com", password: passwordsha512 };
+ *  var formValue = { email: "aa@aa.com" };
  *   this.http.post('https://raito.care/api/signin',formValue)
  *    .subscribe( (res : any) => {
  *      if(res.message == "You have successfully logged in"){
@@ -217,11 +211,9 @@ function sendEmail(req, res) {
  *   }
  *
  * @apiParam (body) {String} email User email
- * @apiParam (body) {String} password User password using hash <a href="https://es.wikipedia.org/wiki/SHA-2" target="_blank">sha512</a>
  * @apiParamExample {json} Request-Example:
  *     {
- *       "email": "example@ex.com",
- *       "password": "f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f"
+ *       "email": "example@ex.com"
  *     }
  * @apiSuccess {String} message If all goes well, the system should return 'You have successfully logged in'
  * @apiSuccess {String} token You will need this <strong>token</strong> in the header of almost all requests to the API. Whenever the user wants to access a protected route or resource, the user agent should send the JWT, in the Authorization header using the Bearer schema.
@@ -255,9 +247,12 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
-	User.getAuthenticated(req.body.appPubKey, req.body.password, function (err, user, reason) {
+	console.log('epa');
+	User.getAuthenticated(req.body.ethAddress, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
-
+		console.log(err);
+		console.log(user);
+		console.log(reason);
 		// login was successful if we have a user
 		if (user) {
 			// handle login success
@@ -273,7 +268,7 @@ function signIn(req, res) {
 			switch (reason) {
 				case reasons.NOT_FOUND:
 					//create de new user
-					if(req.body.appPubKey && req.body.password && req.body.ethAddress){
+					if(req.body.appPubKey && req.body.ethAddress){
 						signUp(req, res)
 						break;
 					}else{
@@ -320,47 +315,113 @@ function signIn(req, res) {
 
 
 async function verifyweb3auth(req, res) {
-	const idToken = req.headers.authorization?.split(' ')[1];
-	// passed from the frontend in the request body
-	const app_pub_key = req.body.appPubKey;
+	try {
+		const idToken = req.headers.authorization?.split(' ')[1];
+		// passed from the frontend in the request body
+		const app_pub_key = req.body.appPubKey;
 
-	// Get the JWK set used to sign the JWT issued by Web3Auth
-	const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+		// Get the JWK set used to sign the JWT issued by Web3Auth
+		const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
 
-	// Verify the JWT using Web3Auth's JWKS
-	const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-	console.log(JSON.stringify(jwtDecoded));
-	// Checking `app_pub_key` against the decoded JWT wallet's public_key
-	if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
-	// Verified
-	return res.status(200).json({name: 'Verification Successful'})
-	} else {
-	return res.status(400).json({name: 'Verification Failed'})
+		// Verify the JWT using Web3Auth's JWKS
+		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+		// Checking `app_pub_key` against the decoded JWT wallet's public_key
+		if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
+		// Verified
+			return res.status(200).json({name: 'Verification Successful'})
+		} else {
+			return res.status(400).json({name: 'Verification Failed'})
+		}
+	} catch (error) {
+		return res.status(500).send({message: `Error making the request: ${error}`})
 	}
+	
 }
 
 async function verifyweb3auth2(req, res) {
-	// passed from the frontend in the request body
-	const idToken = req.body.idToken;
-	const app_pub_key = req.body.appPubKey;
-	const ethAddress = req.body.ethAddress;
-	const password = req.body.password;
+	try {
+		// passed from the frontend in the request body
+		const idToken = req.body.idToken;
+		const app_pub_key = req.body.appPubKey;
+		const ethAddress = req.body.ethAddress;
 
-	// Get the JWK set used to sign the JWT issued by Web3Auth
-	const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+		// Get the JWK set used to sign the JWT issued by Web3Auth
+		const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
 
-	// Verify the JWT using Web3Auth's JWKS
-	const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-	console.log(JSON.stringify(jwtDecoded));
-	// Checking `app_pub_key` against the decoded JWT wallet's public_key
-	if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
-	// Verified
-	signIn(req, res)
-	//return res.status(200).json({name: 'Verification Successful'})
+		// Verify the JWT using Web3Auth's JWKS
+		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+		// Checking `app_pub_key` against the decoded JWT wallet's public_key
+		if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
+		// Verified
+		console.log('entra');
+		signIn(req, res)
+		//return res.status(200).json({name: 'Verification Successful'})
 
-	} else {
-	return res.status(400).json({name: 'Verification Failed'})
+		} else {
+		return res.status(400).json({name: 'Verification Failed'})
+		}
+	} catch (error) {
+		return res.status(500).send({message: `Error making the request: ${error}`})
 	}
+	
+}
+
+async function verifyweb3authwallet(req, res) {
+	try {
+		// passed from the frontend in the Authorization header
+		const idToken = req.headers.authorization?.split(' ')[1];
+
+		// passed from the frontend in the request body
+		const publicAddress = req.body.public_address;
+
+		// Get the JWK set used to sign the JWT issued by Web3Auth
+		const jwks = jose.createRemoteJWKSet(new URL("https://authjs.web3auth.io/jwks"));
+
+		// Verify the JWT using Web3Auth's JWKS
+		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+
+		// Incase of Non-Torus Users
+		// Checking Wallet's `publicAddress` against the decoded JWT wallet's address
+		
+		if (((jwtDecoded.payload).wallets[0].address).toUpperCase() === publicAddress.toUpperCase()) {
+			// Verified
+			return res.status(200).json({name: 'Verification Successful'})
+		} else {
+			return res.status(400).json({name: 'Verification Failed'})
+		}
+	} catch (error) {
+		return res.status(500).send({message: `Error making the request: ${error}`})
+	}
+	
+}
+
+async function verifyweb3auth2wallet(req, res) {
+	try {
+		// passed from the frontend in the request body
+		const idToken = req.body.idToken;
+		const app_pub_key = req.body.appPubKey;
+		const ethAddress = req.body.ethAddress;
+
+		// Get the JWK set used to sign the JWT issued by Web3Auth
+		const jwks = jose.createRemoteJWKSet(new URL("https://authjs.web3auth.io/jwks"));
+
+		// Verify the JWT using Web3Auth's JWKS
+		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
+		// Checking `app_pub_key` against the decoded JWT wallet's public_key
+		console.log((jwtDecoded.payload).wallets[0].address);
+		console.log(ethAddress);
+		if (((jwtDecoded.payload).wallets[0].address).toUpperCase() === ethAddress.toUpperCase()) {
+		// Verified
+		signIn(req, res)
+		//return res.status(200).json({name: 'Verification Successful'})
+
+		} else {
+		return res.status(400).json({name: 'Verification Failed'})
+		}
+	} catch (error) {
+		return res.status(500).send({message: `Error making the request: ${error}`})
+	}
+	
 }
 
 
@@ -412,7 +473,7 @@ async function verifyweb3auth2(req, res) {
 function getUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -423,7 +484,7 @@ function getUser(req, res) {
 function getSettings(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "userName": false, "lang": false, "email": false, "signupDate": false, "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "randomCodeRecoverPass": false, "dateTimeRecoverPass": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (!user) return res.status(404).send({ code: 208, message: `The user does not exist` })
 
@@ -511,7 +572,7 @@ function deleteUser(req, res) {
 function getUserName(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		if (user) {
 			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email, iscaregiver: user.iscaregiver })
@@ -524,7 +585,7 @@ function getUserName(req, res) {
 function getUserEmail(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "Jhon";
 		if (user) {
@@ -537,7 +598,7 @@ function getUserEmail(req, res) {
 function isVerified(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = false;
 		if (user) {
@@ -577,7 +638,7 @@ function changeiscaregiver (req, res){
 function getRangeDate(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 		var result = "month";
 		if (user) {
@@ -604,6 +665,8 @@ module.exports = {
 	signIn,
 	verifyweb3auth,
 	verifyweb3auth2,
+	verifyweb3authwallet,
+	verifyweb3auth2wallet,
 	getUser,
 	getSettings,
 	updateUser,

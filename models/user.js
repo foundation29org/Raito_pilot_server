@@ -40,14 +40,12 @@ const UserSchema = Schema({
 		lowercase: true,
 		default: ''
 	},
-	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
 	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },
 	subrole: String,
 	group: { type: String, required: true, default: 'None' },
 	confirmationCode: String,
 	signupDate: { type: Date, default: Date.now },
 	lastLogin: { type: Date, default: null },
-	appPubKey: { type: String, default: '' },
 	userName: { type: String, default: '' },
 	ethAddress: { type: String, default: '' },
 	lastName: { type: String, default: '' },
@@ -88,27 +86,6 @@ UserSchema.virtual('isLocked').get(function () {
 	return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-UserSchema.pre('save', function (next) {
-	let user = this
-	if (!user.isModified('password')) return next()
-
-	bcrypt.genSalt(10, (err, salt) => {
-		if (err) return next(err)
-
-		bcrypt.hash(user.password, salt, null, (err, hash) => {
-			if (err) return next(err)
-
-			user.password = hash
-			next()
-		})
-	})
-})
-
-UserSchema.methods.comparePassword = function (candidatePassword, cb) {
-	bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
-		cb(err, isMatch)
-	});
-}
 
 UserSchema.methods.incLoginAttempts = function (cb) {
 	// if we have a previous lock that has expired, restart at 1
@@ -137,8 +114,9 @@ var reasons = UserSchema.statics.failedLogin = {
 	WRONG_PLATFORM: 5
 };
 
-UserSchema.statics.getAuthenticated = function (appPubKey, password, cb) {
-	this.findOne({ appPubKey: appPubKey}, function (err, user) {
+UserSchema.statics.getAuthenticated = function (ethAddress, cb) {
+	this.findOne({ ethAddress: ethAddress}, function (err, user) {
+
 		if (err) return cb(err);
 
 		// make sure the user exists
@@ -151,56 +129,15 @@ UserSchema.statics.getAuthenticated = function (appPubKey, password, cb) {
 		if (user.blockedaccount) {
 			return cb(null, null, reasons.BLOCKED);
 		}
-		// check if the account is currently locked
-		if (user.isLocked) {
-			// just increment login attempts if account is already locked
-			return user.incLoginAttempts(function (err) {
-				if (err) return cb(err);
-				return cb(null, null, reasons.MAX_ATTEMPTS);
-			});
-		}
+		if (err) return cb(err);
+		return cb(null, user);
 
-		// test for a matching password
-		user.comparePassword(password, function (err, isMatch) {
-			if (err) return cb(err);
-
-
-			// check if the password was a match
-			if (isMatch) {
-				// if there's no lock or failed attempts, just return the user
-				if (!user.loginAttempts && !user.lockUntil) {
-					var updates = {
-						$set: { lastLogin: Date.now() }
-					};
-					return user.update(updates, function (err) {
-						if (err) return cb(err);
-						return cb(null, user);
-					});
-					return cb(null, user)
-				}
-				// reset attempts and lock info
-				var updates = {
-					$set: { loginAttempts: 0, lastLogin: Date.now() },
-					$unset: { lockUntil: 1 }
-				};
-				return user.update(updates, function (err) {
-					if (err) return cb(err);
-					return cb(null, user);
-				});
-			}
-
-			// password is incorrect, so increment login attempts before responding
-			user.incLoginAttempts(function (err) {
-				if (err) return cb(err);
-				return cb(null, null, reasons.PASSWORD_INCORRECT);
-			});
-		});
-	}).select('_id email appPubKey +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
-UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
+UserSchema.statics.getAuthenticatedUserId = function (userId, ethAddress, cb) {
 	let userIdDecrypt = crypt.decrypt(userId);
-	this.findOne({ _id: userIdDecrypt}, function (err, user) {
+	this.findOne({ _id: userIdDecrypt, ethAddress: ethAddress}, function (err, user) {
 		if (err) return cb(err);
 
 		// make sure the user exists
@@ -213,51 +150,9 @@ UserSchema.statics.getAuthenticatedUserId = function (userId, password, cb) {
 		if (user.blockedaccount) {
 			return cb(null, null, reasons.BLOCKED);
 		}
-		// check if the account is currently locked
-		if (user.isLocked) {
-			// just increment login attempts if account is already locked
-			return user.incLoginAttempts(function (err) {
-				if (err) return cb(err);
-				return cb(null, null, reasons.MAX_ATTEMPTS);
-			});
-		}
-
-		// test for a matching password
-		user.comparePassword(password, function (err, isMatch) {
-			if (err) return cb(err);
-
-
-			// check if the password was a match
-			if (isMatch) {
-				// if there's no lock or failed attempts, just return the user
-				if (!user.loginAttempts && !user.lockUntil) {
-					var updates = {
-						$set: { lastLogin: Date.now() }
-					};
-					return user.update(updates, function (err) {
-						if (err) return cb(err);
-						return cb(null, user);
-					});
-					return cb(null, user)
-				}
-				// reset attempts and lock info
-				var updates = {
-					$set: { loginAttempts: 0, lastLogin: Date.now() },
-					$unset: { lockUntil: 1 }
-				};
-				return user.update(updates, function (err) {
-					if (err) return cb(err);
-					return cb(null, user);
-				});
-			}
-
-			// password is incorrect, so increment login attempts before responding
-			user.incLoginAttempts(function (err) {
-				if (err) return cb(err);
-				return cb(null, null, reasons.PASSWORD_INCORRECT);
-			});
-		});
-	}).select('_id email appPubKey +password loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+		if (err) return cb(err);
+		return cb(null, user);
+	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
 module.exports = conndbaccounts.model('User', UserSchema)
