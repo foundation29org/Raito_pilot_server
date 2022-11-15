@@ -75,6 +75,8 @@ function deleteDocument (req, res){
 
 
 async function uploadFile (req, res){
+	console.log(req.files.thumbnail);
+	console.log(req.body);
 	var data2 = await saveBlob(req.body.containerName, req.body.url, req.files.thumbnail);
 	if(data2){
 		res.status(200).send({message: "Done"})
