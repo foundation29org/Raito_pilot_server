@@ -989,5 +989,7 @@ module.exports = {
 	stoptaking,
 	changenotes,
 	sideeffect,
-	saveMassiveDrugs
+	saveMassiveDrugs,
+	saveOneDrug,
+	getMeds
 }

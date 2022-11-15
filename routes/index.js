@@ -7,6 +7,7 @@ const userCtrl = require('../controllers/all/user')
 const langCtrl = require('../controllers/all/lang')
 const patientCtrl = require('../controllers/user/patient')
 const deleteAccountCtrl = require('../controllers/user/delete')
+const importResourcesCtrl = require('../controllers/user/importresources')
 const phenotypeCtrl = require('../controllers/user/patient/phenotype')
 const superAdmninLangCtrl = require('../controllers/superadmin/lang')
 const admninLangCtrl = require('../controllers/admin/lang')
@@ -59,6 +60,9 @@ api.put('/users/changerangedate/:userId', auth(roles.AllLessResearcher), userCtr
 
 //delete account
 api.post('/deleteaccount/:userId', auth(roles.All), deleteAccountCtrl.deleteAccount)
+
+//import resources
+api.post('/massiveresources/:patientId', auth(roles.OnlyUser), importResourcesCtrl.saveMassiveResources)
 
 // patient routes, using the controller patient, this controller has methods
 api.get('/patients-all/:userId', auth(roles.All), patientCtrl.getPatientsUser)
