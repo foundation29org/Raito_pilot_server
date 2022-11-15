@@ -88,12 +88,17 @@ async function uploadFile (req, res){
 async function saveBlob (containerName, url, thumbnail){
 	return new Promise(async function (resolve, reject) {
 		// Save file to Blob
-		var result = await f29azureService.createBlob(containerName, url, thumbnail.data);
-		if (result) {
-			resolve(true);
+		if(thumbnail!=null){
+			var result = await f29azureService.createBlob(containerName, url, thumbnail.data);
+			if (result) {
+				resolve(true);
+			}else{
+				resolve(false);
+			}
 		}else{
 			resolve(false);
 		}
+		
 	});
 }
 
