@@ -247,12 +247,8 @@ function sendEmail(req, res) {
  */
 function signIn(req, res) {
 	// attempt to authenticate user
-	console.log('epa');
 	User.getAuthenticated(req.body.ethAddress, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
-		console.log(err);
-		console.log(user);
-		console.log(reason);
 		// login was successful if we have a user
 		if (user) {
 			// handle login success
@@ -353,7 +349,6 @@ async function verifyweb3auth2(req, res) {
 		// Checking `app_pub_key` against the decoded JWT wallet's public_key
 		if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
 		// Verified
-		console.log('entra');
 		signIn(req, res)
 		//return res.status(200).json({name: 'Verification Successful'})
 
@@ -408,8 +403,6 @@ async function verifyweb3auth2wallet(req, res) {
 		// Verify the JWT using Web3Auth's JWKS
 		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
 		// Checking `app_pub_key` against the decoded JWT wallet's public_key
-		console.log((jwtDecoded.payload).wallets[0].address);
-		console.log(ethAddress);
 		if (((jwtDecoded.payload).wallets[0].address).toUpperCase() === ethAddress.toUpperCase()) {
 		// Verified
 		signIn(req, res)

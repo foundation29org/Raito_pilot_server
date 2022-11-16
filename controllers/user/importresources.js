@@ -256,30 +256,50 @@ async function saveOneProm(actualResource, index, patientId) {
 	return new Promise(async function (resolve, reject) {
 		try {
 			let eventdb = new Prom()
-		eventdb.idQuestionnaire = actualResource.id;
-		eventdb.idProm = actualResource.item[index].linkId;
-		let haveOther = actualResource.item[index].answer[0].valueString.indexOf(':');
-		let valueString = actualResource.item[index].answer[0].valueString;
-		let other = '';
-		if(haveOther!=-1){
-			let dataparse = actualResource.item[index].answer[0].valueString.split(':');
-			valueString = dataparse[0];
-			other = dataparse[1];
-		}
-		eventdb.data = valueString;
-		eventdb.other = other;
-		eventdb.createdBy = patientId
-		// when you save, returns an id in eventdbStored to access that Prom
-		eventdb.save((err, eventdbStored) => {
-			if (err) {
-				resolve('fail')
+			eventdb.idQuestionnaire = actualResource.id;
+			eventdb.idProm = actualResource.item[index].linkId;
+			let haveOther = actualResource.item[index].answer[0].valueString.indexOf(':');
+			let valueString = actualResource.item[index].answer[0].valueString;
+			let other = '';
+			if(haveOther!=-1){
+				let dataparse = actualResource.item[index].answer[0].valueString.split(':');
+				valueString = dataparse[0];
+				other = dataparse[1];
 			}
-			if (eventdbStored) {
-				var copyprom = JSON.parse(JSON.stringify(eventdbStored));
-				delete copyprom.createdBy;
-				resolve('done')
-			}
-		})
+			eventdb.data = valueString;
+			eventdb.other = other;
+			eventdb.createdBy = patientId
+			console.log(eventdb.idQuestionnaire, eventdb.idProm, eventdb.createdBy);
+			// when you save, returns an id in eventdbStored to access that Prom
+			Prom.findOne({ "idQuestionnaire": eventdb.idQuestionnaire, "idProm": eventdb.idProm, "createdBy": eventdb.createdBy}, (err, haveeventsdb) => {
+				if(haveeventsdb){
+					haveeventsdb.data = eventdb.data;
+					haveeventsdb.other = eventdb.other;
+					Prom.findByIdAndUpdate(haveeventsdb._id, haveeventsdb, { select: '-createdBy', new: true }, (err, promUpdated) => {
+						if (err) {
+							console.log(err);
+							resolve('fail')
+						}
+						if (promUpdated) {
+							resolve('done')
+						}
+			
+					})
+				}else{
+					eventdb.save((err, eventdbStored) => {
+						if (err) {
+							resolve('fail')
+						}
+						if (eventdbStored) {
+							var copyprom = JSON.parse(JSON.stringify(eventdbStored));
+							delete copyprom.createdBy;
+							resolve('done')
+						}
+					})
+				}
+			});
+			
+			
 		} catch (error) {
 			resolve ({added:false,medication:actualResource.resource});
 		}
