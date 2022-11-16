@@ -53,7 +53,7 @@ async function saveMassiveResources (req, res){
 			}
 		}
 	}else{
-		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
+		res.status(200).send({message: 'Eventdb created', eventdb: []})
 	}
 
 
