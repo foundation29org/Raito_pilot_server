@@ -64,14 +64,12 @@ function generateBodyRequestVC(callbackurl, id, pin, info){
     "registration": {
       "clientName": "Verifiable Credential Expert Sample"
     },
-    "issuance": {
-       "type": "VerifiedCredentialExpert", 
-       "manifest": `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientClinician`, 
-       "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
-      }
-    }
-    return body;
+    "type": "VerifiedCredentialExpert", 
+    "manifest": "https://verifiedid.did.msidentity.com/v1.0/tenants/50bdb227-100d-4808-b4b9-aac426e28c4f/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRwYXRpZW50Y2xpbmljaWFu/manifest", 
+    "pin": {"value": `${pin}`,"length": 4}, 
+    "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
+  }
+  return body;
 }
 
 function generatePin( digits ) {
@@ -111,7 +109,7 @@ function createIssuer(info) {
       var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': `https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest`,
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -164,7 +162,7 @@ function createIssuerOrganization(info) {
       var requestConfigFile = generateBodyRequestOrganizationVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': `https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest`,
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -206,14 +204,12 @@ function generateBodyRequestOrganizationVC(callbackurl, id, pin, info){
     "registration": {
       "clientName": "Verifiable Credential Expert Sample"
     },
-    "issuance": {
-       "type": "VerifiedCredentialExpert", 
-       "manifest": `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientOrganization`, 
-       "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
-      }
-    }
-    return body;
+    "type": "VerifiedCredentialExpert", 
+    "manifest": "https://verifiedid.did.msidentity.com/v1.0/tenants/50bdb227-100d-4808-b4b9-aac426e28c4f/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRwYXRpZW50b3JnYW5pemF0aW9u/manifest", 
+    "pin": {"value": `${pin}`,"length": 4}, 
+    "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
+  }
+  return body;
 }
 
 async function requestVC (req, res){
