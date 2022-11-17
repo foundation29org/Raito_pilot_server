@@ -75,12 +75,17 @@ function deleteDocument (req, res){
 
 
 async function uploadFile (req, res){
-	var data2 = await saveBlob(req.body.containerName, req.body.url, req.files.thumbnail);
-	if(data2){
-		res.status(200).send({message: "Done"})
+	if(req.files!=null){
+		var data2 = await saveBlob(req.body.containerName, req.body.url, req.files.thumbnail);
+		if(data2){
+			res.status(200).send({message: "Done"})
+		}else{
+			res.status(500).send({message: `Error: ${err}`})
+		}
 	}else{
-		res.status(500).send({message: `Error: ${err}`})
+		res.status(500).send({message: `Error: no files`})
 	}
+	
 }
 
 async function saveBlob (containerName, url, thumbnail){

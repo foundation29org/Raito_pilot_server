@@ -31,9 +31,7 @@ const serviceEmail = require('../../services/email')
  *   "menu":{
  *     "Dashboard": "Home"
  *     "Login": "Login",
- *     "Register": "Register",
- *     "Forgot Password": "Forgot password",
- *     "New Password": "New password",
+ *     "Register": "Register"
  *   },
  *   "profile":{
  * 	  "Save the changes": "Please, save the changes",
@@ -64,7 +62,7 @@ function requestLangFile (req, res){
 	let lang = req.body.lang;
 	let jsonData = req.body.jsonData;
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
@@ -122,7 +120,7 @@ function requestLangFile (req, res){
 function requestaddlang (req, res){
 	let userId= crypt.decrypt(req.params.userId);
 	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "password" : false, "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
+	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
 		if (err) return res.status(500).send({message: 'Error making the request:'})
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 

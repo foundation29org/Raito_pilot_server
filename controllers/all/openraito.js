@@ -78,7 +78,7 @@ function getUserName(individualShare) {
         if(individualShare.idUser!=null){
             let idUser = crypt.decrypt(individualShare.idUser);
             //añado  {"_id" : false} para que no devuelva el _id
-            User.findById(idUser, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
+            User.findById(idUser, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
                 if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
                 if (user) {
                     var res = JSON.parse(JSON.stringify(individualShare))
@@ -167,7 +167,7 @@ async function generateQR(info) {
 
         let userId = crypt.decrypt(info.individualShare.idUser);
         //añado  {"_id" : false} para que no devuelva el _id
-        User.findById(userId, { "_id": false, "password": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, async (err, user) => {
+        User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, async (err, user) => {
             if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
             if (user) {
                 info.userInfo= { userName: user.userName, lastName: user.lastName, email: user.email };

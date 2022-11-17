@@ -21,7 +21,7 @@ const eoCtrl = require('../../controllers/superadmin/eousers')
 const f29azureService = require("../../services/f29azure")
 
 function deleteAccount (req, res){
-	User.getAuthenticatedUserId(req.params.userId, req.body.password, function (err, user, reason) {
+	User.getAuthenticatedUserId(req.params.userId, req.body.ethAddress, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
@@ -187,9 +187,6 @@ function deleteUser (res, userId){
 	User.findById(userId, (err, user) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 		if(user){
-			/*if(user.moralisId!=''){
-				eoCtrl.deleteMoralis(user.moralisId)
-			}*/
 			user.remove(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 				//savePatient(userId);
