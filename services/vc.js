@@ -66,7 +66,7 @@ function generateBodyRequestVC(callbackurl, id, pin, info){
     },
     "issuance": {
        "type": "VerifiedCredentialExpert", 
-       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientClinician`, 
+       "manifest": `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientClinician`, 
        "pin": {"value": `${pin}`,"length": 4}, 
        "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
       }
@@ -111,7 +111,7 @@ function createIssuer(info) {
       var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -164,7 +164,7 @@ function createIssuerOrganization(info) {
       var requestConfigFile = generateBodyRequestOrganizationVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -208,7 +208,7 @@ function generateBodyRequestOrganizationVC(callbackurl, id, pin, info){
     },
     "issuance": {
        "type": "VerifiedCredentialExpert", 
-       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientOrganization`, 
+       "manifest": `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientOrganization`, 
        "pin": {"value": `${pin}`,"length": 4}, 
        "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
       }
@@ -240,7 +240,7 @@ async function requestVC (req, res){
     var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, null);
     var options = {
       'method': 'POST',
-      'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+      'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
       'headers': {
         'Content-Type': 'Application/json',
         'Authorization': auth
