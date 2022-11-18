@@ -280,7 +280,7 @@ async function issuanceCallback (req, res){
     // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
     // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
     console.log(issuanceResponse);
-    if ( issuanceResponse.code == "request_retrieved" ) {
+    if ( issuanceResponse.requestStatus == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for issuance to complete...";
 
       var sessionData = {
@@ -298,7 +298,7 @@ async function issuanceCallback (req, res){
           
     }
 
-    if ( issuanceResponse.code == "issuance_successful" ) {
+    if ( issuanceResponse.requestStatus == "issuance_successful" ) {
       message = "Credential successfully issued";
       var sessionData = {
         "status" : "issuance_successful",
@@ -314,7 +314,7 @@ async function issuanceCallback (req, res){
       })     
     }
 
-    if ( issuanceResponse.code == "issuance_error" ) {
+    if ( issuanceResponse.requestStatus == "issuance_error" ) {
       var sessionData = {
         "status" : "issuance_error",
         "message": issuanceResponse.error.message,
