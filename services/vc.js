@@ -205,7 +205,7 @@ function generateBodyRequestOrganizationVC(callbackurl, id, pin, info){
       "clientName": "Verifiable Credential Expert Sample"
     },
     "type": "VerifiedCredentialExpert", 
-    "manifest": "https://verifiedid.did.msidentity.com/v1.0/tenants/50bdb227-100d-4808-b4b9-aac426e28c4f/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRwYXRpZW50b3JnYW5pemF0aW9u/manifest", 
+    "manifest": "https://verifiedid.did.msidentity.com/v1.0/tenants/50bdb227-100d-4808-b4b9-aac426e28c4f/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb24/manifest", 
     "pin": {"value": `${pin}`,"length": 4}, 
     "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
   }
