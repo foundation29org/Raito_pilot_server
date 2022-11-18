@@ -64,14 +64,12 @@ function generateBodyRequestVC(callbackurl, id, pin, info){
     "registration": {
       "clientName": "Verifiable Credential Expert Sample"
     },
-    "issuance": {
-       "type": "VerifiedCredentialExpert", 
-       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientClinician`, 
-       "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
-      }
-    }
-    return body;
+    "type": "VerifiedCredentialExpert",
+    "manifest": `https://verifiedid.did.msidentity.com/v1.0/tenants/${config.VC.TENANT_ID}/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRjbGluaWNpYW5yYWl0bw/manifest`, 
+    "pin": {"value": `${pin}`,"length": 4}, 
+    "claims": {"given_patient": info.patientId,"given_to": userId, "user_name": info.userInfo.userName, "user_lastName": info.userInfo.lastName, "user_email": info.userInfo.email, "infoPermissions": infoPermissions, "notes": info.individualShare.notes, "id": id.toString()}
+  }
+  return body;
 }
 
 function generatePin( digits ) {
@@ -111,7 +109,7 @@ function createIssuer(info) {
       var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': `https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest`,
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -156,7 +154,7 @@ function createIssuerOrganization(info) {
       }
       var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
       if(config.client_server=='http://localhost:4200'){
-        callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
+        callbackurl = "https://ebd0-88-11-6-116.eu.ngrok.io:/api/issuer/issuanceCallback"
       }
       var token = await getToken();
       var auth = 'Bearer '+token;
@@ -164,7 +162,7 @@ function createIssuerOrganization(info) {
       var requestConfigFile = generateBodyRequestOrganizationVC(callbackurl, sessionStored._id, pin, info);
       var options = {
         'method': 'POST',
-        'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest",
         'headers': {
           'Content-Type': 'Application/json',
           'Authorization': auth
@@ -206,14 +204,12 @@ function generateBodyRequestOrganizationVC(callbackurl, id, pin, info){
     "registration": {
       "clientName": "Verifiable Credential Expert Sample"
     },
-    "issuance": {
-       "type": "VerifiedCredentialExpert", 
-       "manifest": `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiableCredential/contracts/VerifiedPatientOrganization`, 
-       "pin": {"value": `${pin}`,"length": 4}, 
-       "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
-      }
-    }
-    return body;
+    "type": "VerifiedCredentialExpert",
+    "manifest": `https://verifiedid.did.msidentity.com/v1.0/tenants/${config.VC.TENANT_ID}/verifiableCredentials/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw/manifest`, 
+    "pin": {"value": `${pin}`,"length": 4}, 
+    "claims": {"given_patient": info.patientId,"given_organization": info.groupName, "id": id.toString()}
+  }
+  return body;
 }
 
 async function requestVC (req, res){
@@ -232,7 +228,7 @@ async function requestVC (req, res){
 		}
     var callbackurl = `${config.client_server}api/issuer/issuanceCallback`;
     if(config.client_server=='http://localhost:4200'){
-      callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/issuer/issuanceCallback"
+      callbackurl = "https://ebd0-88-11-6-116.eu.ngrok.io:/api/issuer/issuanceCallback"
     }
     var token = await getToken();
     var auth = 'Bearer '+token;
@@ -240,7 +236,7 @@ async function requestVC (req, res){
     var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, null);
     var options = {
       'method': 'POST',
-      'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+      'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest",
       'headers': {
         'Content-Type': 'Application/json',
         'Authorization': auth

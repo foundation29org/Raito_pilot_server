@@ -90,7 +90,7 @@ async function presentationRequest (req, res){
     var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id);
     var options = {
       'method': 'POST',
-      'url': `https://beta.eu.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+      'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
       'headers': {
         'Content-Type': 'Application/json',
         'Authorization': auth
