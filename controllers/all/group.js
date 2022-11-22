@@ -113,8 +113,8 @@ function getGroups (req, res){
  * @apiGroup Groups
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   var groupName = "GroupName"
- *   this.http.get('https://raito.care/api/group/'+groupName)
+ *   var groupId = "groupId"
+ *   this.http.get('https://raito.care/api/group/'+groupId)
  *    .subscribe( (res : any) => {
  *      console.log('result Ok');
  *     }, (err) => {
@@ -126,54 +126,56 @@ function getGroups (req, res){
  *     {
  *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
- * @apiParam {String} groupName The name of the group of patients. More info here:  [Get groupName](#api-Groups-getGroupsNames)
+ * @apiParam {String} groupId The id of the group of patients. More info here:  [Get groupName](#api-Groups-getGroupsNames)
  * @apiSuccess {String} _id Group unique ID.
  * @apiSuccess {String} email Group admin email address
  * @apiSuccess {String} subscription Type of subscription of the group in Raito
  * @apiSuccess {String} name Group name.
  * @apiSuccess {Object[]} medications Group medications.
  * @apiSuccess {Object[]} phenotype Group symptoms.
+ * @apiSuccess {Object[]} questionnaires Group questionnaires.
  * @apiSuccess {String} defaultLang Group default lang.
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  * {
- * 	  "_id" : <id>,
- * 	  "email" : <admin_email>,
- * 	  "subscription" : "Premium",
- * 	  "name" : "GroupName",
- *  	"medications" : [ {
- * 		  "drugs" : [
- * 			  {
- * 				  "drugsSideEffects" : [
- * 					  "Cushingoid",
- * 					  "Weight gain",
- * 					  "Growth stunting",
- * 					  "Delayed puberty",
- * 				  	"Mood changes",
- * 				  	"Fungal infections",
- * 			  		"Other dermatologic complications",
- * 				  	"Cataract",
- * 				  	"Adrenal surpression",
- * 				  	"Bone density"
- * 			  	],
- * 			  	"translations" : [
- * 					  {
- * 					  	"name" : "Prednisolone",
- * 					  	"code" : "en"
- * 					  },
- * 					  {
- * 					  	"name" : "Prednisolone",
- * 					  	"code" : "es"
- * 				  	},
- * 				  	{
- * 					  	"name" : "Corticosteroïden - Prednison",
- * 						  "code" : "nl"
- * 					  }
- * 				  ],
- * 				  "name" : "Prednisolone"
- * 			  }
- *      ]
- * 		  "sideEffects" : [
+ *  "_id" : <id>,
+ *  "email" : <admin_email>,
+ *  "subscription" : "Premium",
+ *  "name" : "GroupName",
+ *  "medications" : [ {
+ *    "drugs" : [
+ *      {
+ *        "drugsSideEffects" : [
+ *          "Cushingoid",
+ *          "Weight gain",
+ *          "Growth stunting",
+ *          "Delayed puberty",
+ *          "Mood changes",
+ *          "Fungal infections",
+ *          "Other dermatologic complications",
+ *          "Cataract",
+ *          "Adrenal surpression",
+ *          "Bone density"
+ *      ],
+ *        "translations" : [
+ *          {
+ *            "name" : "Prednisolone",
+ *            "code" : "en"
+ *          },
+ *          {
+ *            "name" : "Prednisolone",
+ *            "code" : "es"
+ *          },
+ *          {
+ *            "name" : "Corticosteroïden - Prednison",
+ *            "code" : "nl"
+ *          }
+ *        ],
+ *      "name" : "Prednisolone",
+ *      "snomed": "snomedcode"
+ *      }
+ *    ],
+ *    "sideEffects" : [
  * 			  {
  * 				  "translationssideEffect" : [
  * 				  	{
@@ -192,24 +194,29 @@ function getGroups (req, res){
  * 				  "name" : "Bone density"
  * 			  }
  * 		  ],
- * 		  "adverseEffects" : [ ]
- * 	  ],
- * 	  "phenotype" : [
- * 		  {
- * 			  "id" : "HP:0001250",
- * 			  "name" : "seizures"
- * 		  }
- * 	  ],
- * 	  "__v" : 0,
- * 	  "defaultLang" : "es"
+ *    "adverseEffects" : [ ]
+ *  ],
+ *  "phenotype" : [
+ *    {
+ *      "id" : "HP:0001250",
+ *      "name" : "seizures"
+ *    }
+ *  ],
+ *  "questionnaires" : [
+ *    {
+ *      "id" : "q1dravet"
+ *    }
+ *  ],
+ *  "__v" : 0,
+ *  "defaultLang" : "es"
  * }
  */
 
 function getGroup (req, res){
-	let groupName= req.params.groupName;
+	let groupId= req.params.groupId;
   //Group.findById(groupName, {"_id" : false }, (err, group) => {
   //Group.find({"name": groupName}, function(err, group) {
-  Group.findOne({ 'name': groupName}, (err, group) => {
+  Group.findById(groupId, (err, group) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(!group) return res.status(202).send({message: `The group does not exist`})
 
@@ -350,13 +357,13 @@ function deleteGroup (req, res){
 
 
 /**
- * @api {get} https://raito.care/api/group/phenotype/:groupName Get phenotype
+ * @api {get} https://raito.care/api/group/phenotype/:groupId Get phenotype
  * @apiName getPhenotypeGroup
  * @apiDescription This method return the phenotype associated with a group
  * @apiGroup Groups
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://raito.care/group/phenotype/'+"None")
+ *   this.http.get('https://raito.care/group/phenotype/'+"groupid")
  *    .subscribe( (res : any) => {
  *      console.log('Phenotype info: '+ res.infoPhenotype.data);
  *     }, (err) => {
@@ -368,7 +375,7 @@ function deleteGroup (req, res){
  *     {
  *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
- * @apiParam {String} groupName The name of a group.  More info here:  [Get groupName](doc/#api-Groups-getGroupsNames)
+ * @apiParam {String} groupId The id of a group.  More info here:  [Get groupName](doc/#api-Groups-getGroupsNames)
  * @apiSuccess {Object} infoPhenotype The symptoms associated with the group. For each symptom, you get the <a href="https://en.wikipedia.org/wiki/Human_Phenotype_Ontology" target="_blank">HPO</a> and the name
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -386,8 +393,8 @@ function deleteGroup (req, res){
  */
 
 function getPhenotypeGroup (req, res){
-	let groupName= req.params.groupName;
-  Group.findOne({ 'name': groupName }, function (err, phenotype) {
+	let groupId= req.params.groupId;
+  Group.findById(groupId, function (err, phenotype) {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(!phenotype) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
@@ -657,13 +664,13 @@ function updateMedicationsGroup (req, res){
 
 
 /**
- * @api {get} https://raito.care/api/group/questionnaires/:groupId Get medications
+ * @api {get} https://raito.care/api/group/questionnaires/:groupId Get questionnaires
  * @apiName geQuestionnairesGroup
  * @apiDescription This method return the questionnaires associated with a group
  * @apiGroup Groups
  * @apiVersion 1.0.0
  * @apiExample {js} Example usage:
- *   this.http.get('https://raito.care/group/questionnaires/'+"None")
+ *   this.http.get('https://raito.care/group/questionnaires/'+"groupid")
  *    .subscribe( (res : any) => {
  *      console.log('Get questionnaires ok ');
  *     }, (err) => {
@@ -675,7 +682,7 @@ function updateMedicationsGroup (req, res){
  *     {
  *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
- * @apiParam {String} groupName The name of a group.  More info here:  [Get groupName](doc/#api-Groups-getGroupsNames)
+ * @apiParam {String} groupId The id of a group.  More info here:  [Get groupName](#api-Groups-getGroupsNames)
  * @apiSuccess {Object} questionnaires An object with the information abour the questionnaires associated with the group of patients.
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK

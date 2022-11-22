@@ -153,8 +153,8 @@ api.delete('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtr
 //groups
 api.get('/groupsnames', groupCtrl.getGroupsNames)
 api.get('/groups', groupCtrl.getGroups)
-api.get('/group/:groupName', auth(roles.All), groupCtrl.getGroup)
-api.get('/group/phenotype/:groupName', auth(roles.All), groupCtrl.getPhenotypeGroup)
+api.get('/group/:groupId', auth(roles.All), groupCtrl.getGroup)
+api.get('/group/phenotype/:groupId', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
 api.get('/group/questionnaires/:groupId', groupCtrl.getQuestionnairesGroup)
 api.put('/group/medications/:userId', auth(roles.SuperAdmin), groupCtrl.updateMedicationsGroup)

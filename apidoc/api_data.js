@@ -10,7 +10,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"aa@aa.com\", password: passwordsha512 };\n this.http.post('https://raito.care/api/signin',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"You have successfully logged in\"){\n      console.log(res.lang);\n      console.log(res.token);\n    }else{\n      this.isloggedIn = false;\n    }\n }, (err) => {\n   this.isloggedIn = false;\n }",
+        "content": "var formValue = { email: \"aa@aa.com\" };\n this.http.post('https://raito.care/api/signin',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"You have successfully logged in\"){\n      console.log(res.lang);\n      console.log(res.token);\n    }else{\n      this.isloggedIn = false;\n    }\n }, (err) => {\n   this.isloggedIn = false;\n }",
         "type": "js"
       }
     ],
@@ -23,20 +23,13 @@ define({ "api": [
             "optional": false,
             "field": "email",
             "description": "<p>User email</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "password",
-            "description": "<p>User password using hash <a href=\"https://es.wikipedia.org/wiki/SHA-2\" target=\"_blank\">sha512</a></p>"
           }
         ]
       },
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "{\n  \"email\": \"example@ex.com\",\n  \"password\": \"f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f\"\n}",
+          "content": "{\n  \"email\": \"example@ex.com\"\n}",
           "type": "json"
         }
       ]
@@ -98,7 +91,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var passwordsha512 = sha512(\"fjie76?vDh\");\nvar formValue = { email: \"example@ex.com\", userName: \"Peter\", password: passwordsha512, lang: \"en\", group: \"None\"};\n this.http.post('https://raito.care/api/signup',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"Account created\"){\n      console.log(\"Check the email to activate the account\");\n    }else if(res.message == 'Fail sending email'){\n      //contact with Raito\n    }else if(res.message == 'user exists'){\n     ...\n    }\n }, (err) => {\n   ...\n }",
+        "content": "var formValue = { email: \"example@ex.com\", userName: \"Peter\", lang: \"en\", group: \"None\"};\n this.http.post('https://raito.care/api/signup',formValue)\n  .subscribe( (res : any) => {\n    if(res.message == \"Account created\"){\n      console.log(\"Check the email to activate the account\");\n    }else if(res.message == 'Fail sending email'){\n      //contact with Raito\n    }else if(res.message == 'user exists'){\n     ...\n    }\n }, (err) => {\n   ...\n }",
         "type": "js"
       }
     ],
@@ -123,13 +116,6 @@ define({ "api": [
             "group": "body",
             "type": "String",
             "optional": false,
-            "field": "password",
-            "description": "<p>User password using hash <a href=\"https://es.wikipedia.org/wiki/SHA-2\" target=\"_blank\">sha512</a></p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
             "field": "lang",
             "description": "<p>Lang of the User. For this, go to  <a href=\"#api-Languages-getLangs\">Get the available languages</a>. We currently have 5 languages, but we will include more. The current languages are:</p> <ul> <li>English: en</li> <li>Spanish: es</li> <li>German: de</li> <li>Dutch: nl</li> <li>Portuguese: pt</li> </ul>"
           },
@@ -145,7 +131,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "{\n  \"email\": \"example@ex.com\",\n  \"userName\": \"Peter\",\n  \"password\": \"f74f2603939a53656948480ce71f1ce46457b6654fd22c61c1f2ccd3e2c96d1cd02d162b560c4beaf1ae45f4574571dc5cbc1ce040701c0b5c38457988aa00fe97f\",\n  \"group\": \"None\",\n  \"lang\": \"en\"\n}",
+          "content": "{\n  \"email\": \"example@ex.com\",\n  \"userName\": \"Peter\",\n  \"group\": \"None\",\n  \"lang\": \"en\"\n}",
           "type": "json"
         }
       ]
@@ -176,7 +162,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "https://raito.care/api/group/questionnaires/:groupId",
-    "title": "Get medications",
+    "title": "Get questionnaires",
     "name": "geQuestionnairesGroup",
     "description": "<p>This method return the questionnaires associated with a group</p>",
     "group": "Groups",
@@ -184,7 +170,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://raito.care/group/questionnaires/'+\"None\")\n .subscribe( (res : any) => {\n   console.log('Get questionnaires ok ');\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/group/questionnaires/'+\"groupid\")\n .subscribe( (res : any) => {\n   console.log('Get questionnaires ok ');\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -215,8 +201,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "groupName",
-            "description": "<p>The name of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
+            "field": "groupId",
+            "description": "<p>The id of a group.  More info here:  <a href=\"#api-Groups-getGroupsNames\">Get groupName</a></p>"
           }
         ]
       }
@@ -264,7 +250,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var groupName = \"GroupName\"\nthis.http.get('https://raito.care/api/group/'+groupName)\n .subscribe( (res : any) => {\n   console.log('result Ok');\n  }, (err) => {\n   ...\n  }",
+        "content": "var groupId = \"groupId\"\nthis.http.get('https://raito.care/api/group/'+groupId)\n .subscribe( (res : any) => {\n   console.log('result Ok');\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -295,8 +281,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "groupName",
-            "description": "<p>The name of the group of patients. More info here:  <a href=\"#api-Groups-getGroupsNames\">Get groupName</a></p>"
+            "field": "groupId",
+            "description": "<p>The id of the group of patients. More info here:  <a href=\"#api-Groups-getGroupsNames\">Get groupName</a></p>"
           }
         ]
       }
@@ -348,6 +334,13 @@ define({ "api": [
           },
           {
             "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "questionnaires",
+            "description": "<p>Group questionnaires.</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "defaultLang",
@@ -358,7 +351,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\t  \"_id\" : <id>,\n\t  \"email\" : <admin_email>,\n\t  \"subscription\" : \"Premium\",\n\t  \"name\" : \"GroupName\",\n \t\"medications\" : [ {\n\t\t  \"drugs\" : [\n\t\t\t  {\n\t\t\t\t  \"drugsSideEffects\" : [\n\t\t\t\t\t  \"Cushingoid\",\n\t\t\t\t\t  \"Weight gain\",\n\t\t\t\t\t  \"Growth stunting\",\n\t\t\t\t\t  \"Delayed puberty\",\n\t\t\t\t  \t\"Mood changes\",\n\t\t\t\t  \t\"Fungal infections\",\n\t\t\t  \t\t\"Other dermatologic complications\",\n\t\t\t\t  \t\"Cataract\",\n\t\t\t\t  \t\"Adrenal surpression\",\n\t\t\t\t  \t\"Bone density\"\n\t\t\t  \t],\n\t\t\t  \t\"translations\" : [\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Prednisolone\",\n\t\t\t\t\t  \t\"code\" : \"es\"\n\t\t\t\t  \t},\n\t\t\t\t  \t{\n\t\t\t\t\t  \t\"name\" : \"Corticosteroïden - Prednison\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Prednisolone\"\n\t\t\t  }\n     ]\n\t\t  \"sideEffects\" : [\n\t\t\t  {\n\t\t\t\t  \"translationssideEffect\" : [\n\t\t\t\t  \t{\n\t\t\t\t\t\t  \"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"es\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t\t  \"name\" : \"Botdichtheid\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Bone density\"\n\t\t\t  }\n\t\t  ],\n\t\t  \"adverseEffects\" : [ ]\n\t  ],\n\t  \"phenotype\" : [\n\t\t  {\n\t\t\t  \"id\" : \"HP:0001250\",\n\t\t\t  \"name\" : \"seizures\"\n\t\t  }\n\t  ],\n\t  \"__v\" : 0,\n\t  \"defaultLang\" : \"es\"\n}",
+          "content": "HTTP/1.1 200 OK\n{\n \"_id\" : <id>,\n \"email\" : <admin_email>,\n \"subscription\" : \"Premium\",\n \"name\" : \"GroupName\",\n \"medications\" : [ {\n   \"drugs\" : [\n     {\n       \"drugsSideEffects\" : [\n         \"Cushingoid\",\n         \"Weight gain\",\n         \"Growth stunting\",\n         \"Delayed puberty\",\n         \"Mood changes\",\n         \"Fungal infections\",\n         \"Other dermatologic complications\",\n         \"Cataract\",\n         \"Adrenal surpression\",\n         \"Bone density\"\n     ],\n       \"translations\" : [\n         {\n           \"name\" : \"Prednisolone\",\n           \"code\" : \"en\"\n         },\n         {\n           \"name\" : \"Prednisolone\",\n           \"code\" : \"es\"\n         },\n         {\n           \"name\" : \"Corticosteroïden - Prednison\",\n           \"code\" : \"nl\"\n         }\n       ],\n     \"name\" : \"Prednisolone\",\n     \"snomed\": \"snomedcode\"\n     }\n   ],\n   \"sideEffects\" : [\n\t\t\t  {\n\t\t\t\t  \"translationssideEffect\" : [\n\t\t\t\t  \t{\n\t\t\t\t\t\t  \"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"en\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t  \t\"name\" : \"Bone density\",\n\t\t\t\t\t\t  \"code\" : \"es\"\n\t\t\t\t\t  },\n\t\t\t\t\t  {\n\t\t\t\t\t\t  \"name\" : \"Botdichtheid\",\n\t\t\t\t\t\t  \"code\" : \"nl\"\n\t\t\t\t\t  }\n\t\t\t\t  ],\n\t\t\t\t  \"name\" : \"Bone density\"\n\t\t\t  }\n\t\t  ],\n   \"adverseEffects\" : [ ]\n ],\n \"phenotype\" : [\n   {\n     \"id\" : \"HP:0001250\",\n     \"name\" : \"seizures\"\n   }\n ],\n \"questionnaires\" : [\n   {\n     \"id\" : \"q1dravet\"\n   }\n ],\n \"__v\" : 0,\n \"defaultLang\" : \"es\"\n}",
           "type": "json"
         }
       ]
@@ -542,7 +535,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "https://raito.care/api/group/phenotype/:groupName",
+    "url": "https://raito.care/api/group/phenotype/:groupId",
     "title": "Get phenotype",
     "name": "getPhenotypeGroup",
     "description": "<p>This method return the phenotype associated with a group</p>",
@@ -551,7 +544,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "this.http.get('https://raito.care/group/phenotype/'+\"None\")\n .subscribe( (res : any) => {\n   console.log('Phenotype info: '+ res.infoPhenotype.data);\n  }, (err) => {\n   ...\n  }",
+        "content": "this.http.get('https://raito.care/group/phenotype/'+\"groupid\")\n .subscribe( (res : any) => {\n   console.log('Phenotype info: '+ res.infoPhenotype.data);\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -582,8 +575,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "groupName",
-            "description": "<p>The name of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
+            "field": "groupId",
+            "description": "<p>The id of a group.  More info here:  <a href=\"doc/#api-Groups-getGroupsNames\">Get groupName</a></p>"
           }
         ]
       }
@@ -2217,6 +2210,33 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "https://raito.care/api/group/configfile/:groupId",
+    "title": "Get config file",
+    "name": "getConfigFile",
+    "description": "<p>This method return the config file for a group.</p>",
+    "group": "Organizations",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/group/configfile/'+\"groupid\")\n .subscribe( (res : any) => {\n   console.log(res);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"data\":{\n      \"drugs\":{\n          \"daysToUpdate\":180\n      },\n      \"phenotypes\":{\n          \"daysToUpdate\":180\n      },\n      \"feels\":{\n          \"daysToUpdate\":30\n      },\n      \"seizures\":{\n          \"daysToUpdate\":30\n      },\n      \"weight\": {\n          \"daysToUpdate\":180\n      },\n      \"height\":{\n          \"daysToUpdate\":180\n      }\n  },    \n  \"meta\":{\n      \"id\":\"G40.4\"\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Organizations"
+  },
+  {
+    "type": "get",
     "url": "https://raito.care/api/eo/drugs/:groupId",
     "title": "Get drugs",
     "name": "getDrugs",
@@ -3248,202 +3268,6 @@ define({ "api": [
     "groupTitle": "Patients"
   },
   {
-    "type": "post",
-    "url": "https://raito.care/api/patients/:userId",
-    "title": "New Patient",
-    "name": "savePatient",
-    "description": "<p>This method allows to create a new Patient</p>",
-    "group": "Patients",
-    "version": "1.0.0",
-    "examples": [
-      {
-        "title": "Example usage:",
-        "content": "var patient = {patientName: '', surname: '', street: '', postalCode: '', citybirth: '', provincebirth: '', countrybirth: null, city: '', province: '', country: null, phone1: '', phone2: '', birthDate: null, gender: null, siblings: [], parents: []};\nthis.http.post('https://raito.care/api/patients/'+userId, patient)\n .subscribe( (res : any) => {\n   console.log('patient info: '+ res.patientInfo);\n  }, (err) => {\n   ...\n  }",
-        "type": "js"
-      }
-    ],
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "authorization",
-            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Header-Example:",
-          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "userId",
-            "description": "<p>User unique ID. More info here:  <a href=\"#api-Access_token-signIn\">Get token and userId</a></p>"
-          }
-        ],
-        "body": [
-          {
-            "group": "body",
-            "type": "string",
-            "allowedValues": [
-              "\"male\"",
-              "\"female\""
-            ],
-            "optional": false,
-            "field": "gender",
-            "description": "<p>Gender of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "phone1",
-            "description": "<p>Phone number of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "phone2",
-            "description": "<p>Other phone number of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "country",
-            "description": "<p>Country code of residence of the Patient. (<a href=\"https://github.com/astockwell/countries-and-provinces-states-regions\" target=\"_blank\">ISO_3166-2</a>)</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "province",
-            "description": "<p>Province or region code of residence of the Patient. (<a href=\"https://github.com/astockwell/countries-and-provinces-states-regions\" target=\"_blank\">ISO_3166-2</a>)</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "city",
-            "description": "<p>City of residence of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": true,
-            "field": "postalCode",
-            "description": "<p>PostalCode of residence of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": true,
-            "field": "street",
-            "description": "<p>Street of residence of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "countrybirth",
-            "description": "<p>Country birth of the Patient. (<a href=\"https://github.com/astockwell/countries-and-provinces-states-regions\" target=\"_blank\">ISO_3166-2</a>)</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "provincebirth",
-            "description": "<p>Province birth of the Patient. (<a href=\"https://github.com/astockwell/countries-and-provinces-states-regions\" target=\"_blank\">ISO_3166-2</a>)</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "citybirth",
-            "description": "<p>City birth of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "Date",
-            "optional": false,
-            "field": "birthDate",
-            "description": "<p>Date of birth of the patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "patientName",
-            "description": "<p>Name of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "String",
-            "optional": false,
-            "field": "surname",
-            "description": "<p>Surname of the Patient.</p>"
-          },
-          {
-            "group": "body",
-            "type": "Object",
-            "optional": true,
-            "field": "parents",
-            "description": "<p>Data about parents of the Patient. The highEducation field can be ... The profession field is a free field</p>"
-          },
-          {
-            "group": "body",
-            "type": "Object",
-            "optional": true,
-            "field": "siblings",
-            "description": "<p>Data about siblings of the Patient. The affected field can be yes or no. The gender field can be male or female</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "patientInfo",
-            "description": "<p>patientId, name, and surname.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>If the patient has been created correctly, it returns the message 'Patient created'.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\"patientInfo\":\n {\n  \"sub\": \"1499bb6faef2c95364e2f4tt2c9aef05abe2c9c72110a4514e8c4c3fb038ff30\",\n  \"patientName\": \"Jhon\",\n  \"surname\": \"Doe\"\n },\n\"message\": \"Patient created\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "controllers/user/patient.js",
-    "groupTitle": "Patients"
-  },
-  {
     "type": "put",
     "url": "https://raito.care/api/patients/:patientId",
     "title": "Update Patient",
@@ -3964,6 +3788,251 @@ define({ "api": [
     },
     "filename": "controllers/user/patient/phenotype.js",
     "groupTitle": "Phenotype"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/resources/questionnaire/:questionnaireId",
+    "title": "Get questionnaire",
+    "name": "getQuestionnaire",
+    "description": "<p>This method return a questionnaire.</p>",
+    "group": "Questionnaires",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/resources/questionnaire/'+\"questionnaireId\")\n .subscribe( (res : any) => {\n   console.log(res);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "questionnaireId",
+            "description": "<p>The id of a questionnaire.  More info here:  <a href=\"#api-Groups-geQuestionnairesGroup\">Get questionnaires</a></p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "questionnaire",
+            "description": "<p>A questionnaire associated with the group.</p>"
+          }
+        ],
+        "Success 208": [
+          {
+            "group": "Success 208",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>If there is questionnaire, it will return: &quot;The questionnaire does not exist&quot;</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"resourceType\": \"Questionnaire\",\n   \"id\": \"q1dravet\",\n   \"createdById\":\"61bb38fad6e0cb14f08881c0\",\n   \"title\": \"General questions of Dravet syndrome\",\n   \"description\": \"General questions for patients with Dravet Syndrome.\",\n   \"created by\": \"Foundation29\",\n   \"items\":[\n       {\n           \"idProm\": \"1\",\n           \"text\": \"Is the number of seizures the most relevant problem for you?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"no\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"2\",\n           \"text\": \"Does your child have pro…lking or with movement?\",\n           \"answers\": [\n               {\n                   \"text\": \"S/he can't do it\",\n                   \"value\": \"cant do it\"\n               },\n               {\n                   \"text\": \"S/he does it with a lot of difficulty\",\n                   \"value\": \"does it with a lot of difficulty\"\n               },\n               {\n                   \"text\": \"S/he does it with difficulty\",\n                   \"value\": \"does it with difficulty\"\n               },\n               {\n                   \"text\": \"It is usually fine\",\n                   \"value\": \"It is usually fine\"\n               },\n               {\n                   \"text\": \"No problems at all\",\n                   \"value\": \"No problems at all\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"3\",\n           \"text\": \"How does your child's appetite change due to their treatment?\",\n           \"answers\": [\n               {\n                   \"text\": \"S/he does not want to eat\",\n                   \"value\": \"does not want to eat\"\n               },\n               {\n                   \"text\": \"S/he eats less than usual\",\n                   \"value\": \"eats less than usual\"\n               },\n               {\n                   \"text\": \"No change\",\n                   \"value\": \"No change\"\n               },\n               {\n                   \"text\": \"S/he eats more than usual\",\n                   \"value\": \"eats more than usual\"\n               },\n               {\n                   \"text\": \"S/he does much more than usual\",\n                   \"value\": \"does much more than usual\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"4\",\n           \"text\": \"Can your child understand verbal instructions?\",\n           \"answers\": [\n               {\n                   \"text\": \"S/he can't do it\",\n                   \"value\": \"cant do it\"\n               },\n               {\n                   \"text\": \"S/he does it with a lot of difficulty\",\n                   \"value\": \"does it with a lot of difficulty\"\n               },\n               {\n                   \"text\": \"S/he does it with difficulty\",\n                   \"value\": \"does it with difficulty\"\n               },\n               {\n                   \"text\": \"It is usually fine\",\n                   \"value\": \"It is usually fine\"\n               },\n               {\n                   \"text\": \"No problems at all\",\n                   \"value\": \"does not want to eat\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"5\",\n           \"text\": \"Does your child always experience seizures in the same way or do they vary?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"6\",\n           \"text\": \"Is there anything you think triggers your child's seizures?\",\n           \"answers\": [\n               {\n                   \"text\": \"Bright or patterned lights\",\n                   \"value\": \"Brightorpatternedlights\"\n               },\n               {\n                   \"text\": \"Warm or cold temperatures\",\n                   \"value\": \"Warmorcoldtemperatures\"\n               },\n               {\n                   \"text\": \"Physical movement or activity\",\n                   \"value\": \"Physicalmovementoractivity\"\n               },\n               {\n                   \"text\": \"Noise\",\n                   \"value\": \"Noise\"\n               },\n               {\n                   \"text\": \"Geometric patterns\",\n                   \"value\": \"Geometricpatterns\"\n               },\n               {\n                   \"text\": \"Changes in emotional state\",\n                   \"value\": \"Changesinemotionalstate\"\n               },\n               {\n                   \"text\": \"Tiredness\",\n                   \"value\": \"Tiredness\"\n               },\n               {\n                   \"text\": \"Other\",\n                   \"value\": \"Other\"\n               }\n           ],\n           \"other\": \"Other\",\n           \"type\": \"ChoiceSet\"\n       },\n       {\n           \"idProm\": \"7\",\n           \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       },\n       {\n           \"idProm\": \"8\",\n           \"text\": \"If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?\",\n           \"answers\": [\n               {\n                   \"text\": \"Reduction in seizures\",\n                   \"value\": \"Reduction in seizures\"\n               },\n               {\n                   \"text\": \"Less severe seizures\",\n                   \"value\": \"Less severe seizures\"\n               },\n               {\n                   \"text\": \"Improvement in other symptoms:\",\n                   \"value\": \"Improvement in other symptoms\"\n               }\n           ],\n           \"other\": \"Improvement in other symptoms\",\n           \"type\": \"radioButtons\"\n       }\n   ]\n}\n\nHTTP/1.1 208 OK\n{message: 'The questionnaire does not exist'}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Questionnaires"
+  },
+  {
+    "type": "post",
+    "url": "https://raito.care/api/resources/questionnaire/:groupId",
+    "title": "New questionnaire",
+    "name": "saveQuestionnaire",
+    "description": "<p>This method create a new questionnaire and links it to the group.</p>",
+    "group": "Questionnaires",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"createdById\":\"656fcb14f08881c0\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"created by\": \"Foundation29\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.post('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>An object with the information about the execution.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{message: 'added'}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Forbidden\n{\nmessage: 'not added'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Questionnaires"
+  },
+  {
+    "type": "put",
+    "url": "https://raito.care/api/resources/questionnaire/:groupId",
+    "title": "Update questionnaire",
+    "name": "updateQuestionnaire",
+    "description": "<p>This method update a questionnaire.</p>",
+    "group": "Questionnaires",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"createdById\":\"656fcb14f08881c0\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"created by\": \"Foundation29\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.put('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>An object with the information about the execution.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{message: 'updated'}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 202 OK\n{message: 'dont exists'}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Forbidden\n{\nmessage: 'not added'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Questionnaires"
   },
   {
     "type": "get",
