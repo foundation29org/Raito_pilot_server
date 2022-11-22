@@ -240,6 +240,8 @@ api.post('/verifier/presentation-response-b2c', verifierServiceCtrl.presentation
 api.get('/resources/questionnaire/:questionnaireId',auth(roles.All), resourcesCtrl.getQuestionnaire)
 api.post('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.newQuestionnaire)
 api.put('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.updateQuestionnaire)
+api.post('/resources/questionnaire/add/:groupId',auth(roles.All), resourcesCtrl.addlinkQuestionnaire)
+api.post('/resources/questionnaire/remove/:groupId',auth(roles.All), resourcesCtrl.deletelinkQuestionnaire)
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //ruta privada

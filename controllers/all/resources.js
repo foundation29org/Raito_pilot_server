@@ -233,15 +233,15 @@ const Group = require('../../models/group')
  * @apiSuccess (Success 208) {String} message If there is questionnaire, it will return: "The questionnaire does not exist"
  */
 
-function getQuestionnaire (req, res){
-	var url = './raito_resources/questionnaires/'+req.params.questionnaireId+'.json'
+function getQuestionnaire(req, res) {
+	var url = './raito_resources/questionnaires/' + req.params.questionnaireId + '.json'
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
 	} catch (error) {
-		res.status(208).send({message: 'The questionnaire does not exist'})
+		res.status(208).send({ message: 'The questionnaire does not exist' })
 	}
-	
+
 }
 
 /**
@@ -304,41 +304,41 @@ function getQuestionnaire (req, res){
  *	}
  */
 
-function newQuestionnaire (req, res){
+function newQuestionnaire(req, res) {
 	var bodyReq = req.body;
 
-	var url = './raito_resources/questionnaires/'+req.body.id+'.json'
+	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
 
 	try {
 		if (fs.existsSync(url)) {
-		  //file exists
-		  res.status(200).send({message: 'already exists'})
-		}else{
-			let groupId= req.params.groupId;
+			//file exists
+			res.status(200).send({ message: 'already exists' })
+		} else {
+			let groupId = req.params.groupId;
 			Group.findOne({ '_id': groupId }, function (err, group) {
-					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-					if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
+				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 
 				var questionnaires = group.questionnaires;
-				questionnaires.push({id:req.body.id});
-				Group.findOneAndUpdate({_id: groupId}, {$set:{questionnaires:questionnaires}}, function(err, groupUpdated){
-					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-					fs.writeFile('./raito_resources/questionnaires/'+req.body.id+'.json', JSON.stringify(bodyReq), (err) => {
+				questionnaires.push({ id: req.body.id });
+				Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
+					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
 						if (err) {
 							console.log(err);
-							res.status(403).send({message: 'not added'})
+							res.status(403).send({ message: 'not added' })
 						}
 						//res.status(200).send({message: 'added'})
 					});
-					res.status(200).send({message: 'added'})
+					res.status(200).send({ message: 'added' })
 				})
 
-				})
-			
+			})
+
 		}
-	  } catch(err) {
+	} catch (err) {
 		console.error(err)
-	  }	
+	}
 }
 
 /**
@@ -405,34 +405,192 @@ function newQuestionnaire (req, res){
  *	}
  */
 
-function updateQuestionnaire (req, res){
+function updateQuestionnaire(req, res) {
 	var bodyReq = req.body;
 
-	var url = './raito_resources/questionnaires/'+req.body.id+'.json'
-	try{
+	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		let groupId= req.params.groupId;
-		if(json.createdById==groupId){
+		let groupId = req.params.groupId;
+		if (json.createdById == groupId) {
 			//subir file
-			fs.writeFile('./raito_resources/questionnaires/'+req.body.id+'.json', JSON.stringify(bodyReq), (err) => {
+			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
 				if (err) {
-					res.status(403).send({message: 'not added'})
+					res.status(403).send({ message: 'not added' })
 				}
 
-				res.status(200).send({message: 'updated'})
+				res.status(200).send({ message: 'updated' })
 			});
-		}else{
-			res.status(200).send({message: 'dont have permissions'})
+		} else {
+			res.status(200).send({ message: 'dont have permissions' })
 		}
-		
 
-	}catch (err){
-		res.status(202).send({message: 'dont exists'})
+
+	} catch (err) {
+		res.status(202).send({ message: 'dont exists' })
 		console.log(err);
 	}
-	
 
-	
+
+
+}
+
+/**
+ * @api {post} https://raito.care/api/resources/questionnaire/add/:groupId Add link questionnaire
+ * @apiName addlinkQuestionnaire
+ * @apiDescription This method associates an existing questionnaire with a group of patients.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   var json = {
+ *    "id": "q2dravet"
+ *    };
+ *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result An object with the information about the execution.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {message: 'added'}
+ *
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 403 Forbidden
+ *	{
+ *	message: 'not added'
+ *	}
+ */
+
+function addlinkQuestionnaire(req, res) {
+	//req.body.id
+
+	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+
+	try {
+		if (!fs.existsSync(url)) {
+			//file exists
+			res.status(403).send({ message: 'not added' })
+		} else {
+			let groupId = req.params.groupId;
+			Group.findOne({ '_id': groupId }, function (err, group) {
+				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+
+				var questionnaires = group.questionnaires;
+
+				for (var i = 0; i < questionnaires.length && !found; i++) {
+					if (questionnaires[i].id == req.body.id) {
+						found = true;
+					}
+				}
+				if (!found) {
+					questionnaires.push({ id: req.body.id });
+					Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
+						if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+						res.status(200).send({ message: 'added' })
+					})
+				} else {
+					res.status(403).send({ message: 'not added' })
+				}
+			})
+
+		}
+	} catch (err) {
+		console.error(err)
+	}
+}
+
+
+/**
+ * @api {post} https://raito.care/api/resources/questionnaire/remove/:groupId Delete link questionnaire
+ * @apiName deletelinkQuestionnaire
+ * @apiDescription This method disassociates an existing questionnaire with a group of patients.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   var json = {
+ *    "id": "q2dravet"
+ *    };
+ *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result An object with the information about the execution.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {message: 'removed'}
+ *
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 403 Forbidden
+ *	{
+ *	message: 'not removed'
+ *	}
+ */
+
+ function deletelinkQuestionnaire(req, res) {
+	//req.body.id
+
+	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+
+	try {
+		if (!fs.existsSync(url)) {
+			//file exists
+			res.status(403).send({ message: 'not removed' })
+		} else {
+			let groupId = req.params.groupId;
+			Group.findOne({ '_id': groupId }, function (err, group) {
+				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+
+				var questionnaires = group.questionnaires;
+				var newQuestionnaires = [];
+				for (var i = 0; i < questionnaires.length; i++) {
+					if (questionnaires[i].id == req.body.id) {
+						found = true;
+					}else{
+						newQuestionnaires.push({ id: questionnaires.id });
+					}
+				}
+				if (found) {
+					Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: newQuestionnaires } }, function (err, groupUpdated) {
+						if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+						res.status(200).send({ message: 'removed' })
+					})
+				} else {
+					res.status(403).send({ message: 'not removed' })
+				}
+			})
+
+		}
+	} catch (err) {
+		console.error(err)
+	}
 }
 
 /**
@@ -480,8 +638,8 @@ function updateQuestionnaire (req, res){
 
 
 async function getconfigFile(req, res) {
-    let groupId= req.params.groupId;
-	let url = './raito_resources/groups/'+groupId+'/config.json';
+	let groupId = req.params.groupId;
+	let url = './raito_resources/groups/' + groupId + '/config.json';
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
@@ -491,12 +649,14 @@ async function getconfigFile(req, res) {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
 	}
-	
+
 }
 
 module.exports = {
 	getQuestionnaire,
 	newQuestionnaire,
 	updateQuestionnaire,
+	addlinkQuestionnaire,
+	deletelinkQuestionnaire,
 	getconfigFile
 }
