@@ -338,6 +338,7 @@ function consentgroup (req, res){
 			Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
 				//delete and create new one
 				sessions.forEach(function(session) {
+					//revokeVC(session)
 					session.remove(err => {
 						if(err) console.log({message: `Error deleting the sessions: ${err}`})
 					})
@@ -350,6 +351,33 @@ function consentgroup (req, res){
 		
 
 	})
+}
+function revokeVC(session){
+ //searchCredential
+
+	var claimvalue = session._id;
+	var contractid = "NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw";
+	var crypto = require('crypto');
+	var input = contractid + claimvalue;
+	var inputasbytes = Encoding.UTF8.GetBytes(input);
+	const hash = crypto.createHash('sha256').update(inputasbytes).digest('base64');
+
+	var options = {
+		'method': 'GET',
+		'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities/:authorityId/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw/credentials?filter=indexclaim",
+		'headers': {
+		'Content-Type': 'Application/json',
+		'Authorization': auth
+		},
+		body: JSON.stringify(requestConfigFile)
+	
+	};
+	request(options, function (error, response) {
+		if (error) throw new Error(error);
+		var respJson = JSON.parse(response.body)
+	});
+
+	//revokeCredential
 }
 
 async function generateQR(info) {

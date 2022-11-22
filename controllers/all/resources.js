@@ -2,12 +2,307 @@
 const fs = require('fs');
 const Group = require('../../models/group')
 
+/**
+ * @api {get} https://raito.care/api/resources/questionnaire/:questionnaireId Get questionnaire
+ * @apiName getQuestionnaire
+ * @apiDescription This method return a questionnaire.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/api/resources/questionnaire/'+"questionnaireId")
+ *    .subscribe( (res : any) => {
+ *      console.log(res);
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * @apiParam {String} questionnaireId The id of a questionnaire.  More info here:  [Get questionnaires](#api-Groups-geQuestionnairesGroup)
+ * @apiSuccess {Object} questionnaire A questionnaire associated with the group.
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *    "resourceType": "Questionnaire",
+ *    "id": "q1dravet",
+ *    "createdById":"61bb38fad6e0cb14f08881c0",
+ *    "title": "General questions of Dravet syndrome",
+ *    "description": "General questions for patients with Dravet Syndrome.",
+ *    "created by": "Foundation29",
+ *    "items":[
+ *        {
+ *            "idProm": "1",
+ *            "text": "Is the number of seizures the most relevant problem for you?",
+ *            "answers": [
+ *                {
+ *                    "text": "Yes",
+ *                    "value": "yes"
+ *                },
+ *                {
+ *                    "text": "No",
+ *                    "value": "no"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "2",
+ *            "text": "Does your child have pro…lking or with movement?",
+ *            "answers": [
+ *                {
+ *                    "text": "S/he can't do it",
+ *                    "value": "cant do it"
+ *                },
+ *                {
+ *                    "text": "S/he does it with a lot of difficulty",
+ *                    "value": "does it with a lot of difficulty"
+ *                },
+ *                {
+ *                    "text": "S/he does it with difficulty",
+ *                    "value": "does it with difficulty"
+ *                },
+ *                {
+ *                    "text": "It is usually fine",
+ *                    "value": "It is usually fine"
+ *                },
+ *                {
+ *                    "text": "No problems at all",
+ *                    "value": "No problems at all"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "3",
+ *            "text": "How does your child's appetite change due to their treatment?",
+ *            "answers": [
+ *                {
+ *                    "text": "S/he does not want to eat",
+ *                    "value": "does not want to eat"
+ *                },
+ *                {
+ *                    "text": "S/he eats less than usual",
+ *                    "value": "eats less than usual"
+ *                },
+ *                {
+ *                    "text": "No change",
+ *                    "value": "No change"
+ *                },
+ *                {
+ *                    "text": "S/he eats more than usual",
+ *                    "value": "eats more than usual"
+ *                },
+ *                {
+ *                    "text": "S/he does much more than usual",
+ *                    "value": "does much more than usual"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "4",
+ *            "text": "Can your child understand verbal instructions?",
+ *            "answers": [
+ *                {
+ *                    "text": "S/he can't do it",
+ *                    "value": "cant do it"
+ *                },
+ *                {
+ *                    "text": "S/he does it with a lot of difficulty",
+ *                    "value": "does it with a lot of difficulty"
+ *                },
+ *                {
+ *                    "text": "S/he does it with difficulty",
+ *                    "value": "does it with difficulty"
+ *                },
+ *                {
+ *                    "text": "It is usually fine",
+ *                    "value": "It is usually fine"
+ *                },
+ *                {
+ *                    "text": "No problems at all",
+ *                    "value": "does not want to eat"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "5",
+ *            "text": "Does your child always experience seizures in the same way or do they vary?",
+ *            "answers": [
+ *                {
+ *                    "text": "Yes",
+ *                    "value": "Yes"
+ *                },
+ *                {
+ *                    "text": "No",
+ *                    "value": "No"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "6",
+ *            "text": "Is there anything you think triggers your child's seizures?",
+ *            "answers": [
+ *                {
+ *                    "text": "Bright or patterned lights",
+ *                    "value": "Brightorpatternedlights"
+ *                },
+ *                {
+ *                    "text": "Warm or cold temperatures",
+ *                    "value": "Warmorcoldtemperatures"
+ *                },
+ *                {
+ *                    "text": "Physical movement or activity",
+ *                    "value": "Physicalmovementoractivity"
+ *                },
+ *                {
+ *                    "text": "Noise",
+ *                    "value": "Noise"
+ *                },
+ *                {
+ *                    "text": "Geometric patterns",
+ *                    "value": "Geometricpatterns"
+ *                },
+ *                {
+ *                    "text": "Changes in emotional state",
+ *                    "value": "Changesinemotionalstate"
+ *                },
+ *                {
+ *                    "text": "Tiredness",
+ *                    "value": "Tiredness"
+ *                },
+ *                {
+ *                    "text": "Other",
+ *                    "value": "Other"
+ *                }
+ *            ],
+ *            "other": "Other",
+ *            "type": "ChoiceSet"
+ *        },
+ *        {
+ *            "idProm": "7",
+ *            "text": "Are you or your child able to predict when they will have a seizure?",
+ *            "answers": [
+ *                {
+ *                    "text": "Yes",
+ *                    "value": "Yes"
+ *                },
+ *                {
+ *                    "text": "No",
+ *                    "value": "No"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        },
+ *        {
+ *            "idProm": "8",
+ *            "text": "If a drug company were to develop a new treatment for Dravet syndrome what would you like to see in terms of improvement for your child?",
+ *            "answers": [
+ *                {
+ *                    "text": "Reduction in seizures",
+ *                    "value": "Reduction in seizures"
+ *                },
+ *                {
+ *                    "text": "Less severe seizures",
+ *                    "value": "Less severe seizures"
+ *                },
+ *                {
+ *                    "text": "Improvement in other symptoms:",
+ *                    "value": "Improvement in other symptoms"
+ *                }
+ *            ],
+ *            "other": "Improvement in other symptoms",
+ *            "type": "radioButtons"
+ *        }
+ *    ]
+ *}
+ *
+ * HTTP/1.1 208 OK
+ * {message: 'The questionnaire does not exist'}
+ * @apiSuccess (Success 208) {String} message If there is questionnaire, it will return: "The questionnaire does not exist"
+ */
+
 function getQuestionnaire (req, res){
 	var url = './raito_resources/questionnaires/'+req.params.questionnaireId+'.json'
+	try {
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+		res.status(200).send(json)
+	} catch (error) {
+		res.status(208).send({message: 'The questionnaire does not exist'})
+	}
 	
-	var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-	res.status(200).send(json)
 }
+
+/**
+ * @api {post} https://raito.care/api/resources/questionnaire/:groupId New questionnaire
+ * @apiName saveQuestionnaire
+ * @apiDescription This method create a new questionnaire and links it to the group.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   var json = {
+ *    "resourceType": "Questionnaire",
+ *    "id": "q2dravet",
+ *    "createdById":"656fcb14f08881c0",
+ *    "title": "General questions of Dravet syndrome",
+ *    "description": "General questions for patients with Dravet Syndrome.",
+ *    "created by": "Foundation29",
+ *    "items":[{
+ *            "idProm": "7",
+ *            "text": "Are you or your child able to predict when they will have a seizure?",
+ *            "answers": [
+ *                {
+ *                    "text": "Yes",
+ *                    "value": "Yes"
+ *                },
+ *                {
+ *                    "text": "No",
+ *                    "value": "No"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        }] 
+ *    };
+ *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result An object with the information about the execution.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {message: 'added'}
+ *
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 403 Forbidden
+ *	{
+ *	message: 'not added'
+ *	}
+ */
 
 function newQuestionnaire (req, res){
 	var bodyReq = req.body;
@@ -46,6 +341,70 @@ function newQuestionnaire (req, res){
 	  }	
 }
 
+/**
+ * @api {put} https://raito.care/api/resources/questionnaire/:groupId Update questionnaire
+ * @apiName updateQuestionnaire
+ * @apiDescription This method update a questionnaire.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   var json = {
+ *    "resourceType": "Questionnaire",
+ *    "id": "q2dravet",
+ *    "createdById":"656fcb14f08881c0",
+ *    "title": "General questions of Dravet syndrome",
+ *    "description": "General questions for patients with Dravet Syndrome.",
+ *    "created by": "Foundation29",
+ *    "items":[{
+ *            "idProm": "7",
+ *            "text": "Are you or your child able to predict when they will have a seizure?",
+ *            "answers": [
+ *                {
+ *                    "text": "Yes",
+ *                    "value": "Yes"
+ *                },
+ *                {
+ *                    "text": "No",
+ *                    "value": "No"
+ *                }
+ *            ],
+ *            "other": null,
+ *            "type": "radioButtons"
+ *        }] 
+ *    };
+ *   this.http.put('https://raito.care/resources/questionnaire/'+groupId, json)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result An object with the information about the execution.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {message: 'updated'}
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 202 OK
+ * {message: 'dont exists'}
+ *
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 403 Forbidden
+ *	{
+ *	message: 'not added'
+ *	}
+ */
+
 function updateQuestionnaire (req, res){
 	var bodyReq = req.body;
 
@@ -68,13 +427,56 @@ function updateQuestionnaire (req, res){
 		
 
 	}catch (err){
-		res.status(200).send({message: 'dont exists'})
+		res.status(202).send({message: 'dont exists'})
 		console.log(err);
 	}
 	
 
 	
 }
+
+/**
+ * @api {get} https://raito.care/api/group/configfile/:groupId Get config file
+ * @apiName getConfigFile
+ * @apiDescription This method return the config file for a group.
+ * @apiGroup Organizations
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/api/group/configfile/'+"groupid")
+ *    .subscribe( (res : any) => {
+ *      console.log(res);
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "data":{
+ *       "drugs":{
+ *           "daysToUpdate":180
+ *       },
+ *       "phenotypes":{
+ *           "daysToUpdate":180
+ *       },
+ *       "feels":{
+ *           "daysToUpdate":30
+ *       },
+ *       "seizures":{
+ *           "daysToUpdate":30
+ *       },
+ *       "weight": {
+ *           "daysToUpdate":180
+ *       },
+ *       "height":{
+ *           "daysToUpdate":180
+ *       }
+ *   },    
+ *   "meta":{
+ *       "id":"G40.4"
+ *   }
+ * }
+ */
 
 
 async function getconfigFile(req, res) {

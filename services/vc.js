@@ -279,7 +279,6 @@ async function issuanceCallback (req, res){
     // the request will be deleted from the server immediately.
     // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
     // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
-    console.log(issuanceResponse);
     if ( issuanceResponse.requestStatus == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for issuance to complete...";
 
