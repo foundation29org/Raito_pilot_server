@@ -644,8 +644,7 @@ function rateQuestionnaire(req, res) {
 		
 					var newavg = value/(ids.length)
 					json.rate = {avg:newavg, ids: ids}
-		
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
+					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', json, (err) => {
 						if (err) {
 							console.log(req.body.id)
 							console.log(json);
