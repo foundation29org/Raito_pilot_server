@@ -618,37 +618,51 @@ function rateQuestionnaire(req, res) {
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		let groupId = req.params.groupId;
-		if (json.createdById != groupId) {
-			//subir file
-			var ids = json.rate.ids;
-			let found =false;
-			let value = 0;
-			for(var i=0;i<ids.length;i++){
-				if(req.params.groupId==ids[i].id){
-					found = true;
-					ids[i].value = req.body.value;
+		//verificar que el grupo existe
+		Group.findOne({ '_id': groupId }, function (err, group) {
+			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+			if(group){
+				
+				if (json.createdById != groupId) {
+					//subir file
+					var ids = json.rate.ids;
+					let found =false;
+					let value = 0;
+					for(var i=0;i<ids.length;i++){
+						if(req.params.groupId==ids[i].id){
+							found = true;
+							ids[i].value = req.body.value;
+						}
+						value = value + ids[i].value;
+					}
+		
+					if(!found){
+						ids.push({"id":req.params.groupId, "value": req.body.value})
+						value = value + req.body.value;
+					}
+		
+					var newavg = value/(ids.length)
+					json.rate = {avg:newavg, ids: ids}
+		
+					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
+						if (err) {
+							console.log(req.body.id)
+							console.log(json);
+							console.log(err)
+							res.status(403).send({ message: 'not added' })
+						}
+		
+						res.status(200).send({ message: 'updated' })
+					});
+				} else {
+					res.status(200).send({ message: 'dont have permissions' })
 				}
-				value = value + ids[i].value;
 			}
+		})
 
-			if(!found){
-				ids.push({"id":req.params.groupId, "value": req.body.value})
-				value = value + req.body.value;
-			}
 
-			var newavg = value/(ids.length)
-			json.rate = {avg:newavg, ids: ids}
-
-			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
-				if (err) {
-					res.status(403).send({ message: 'not added' })
-				}
-
-				res.status(200).send({ message: 'updated' })
-			});
-		} else {
-			res.status(200).send({ message: 'dont have permissions' })
-		}
+		
 
 
 	} catch (err) {
