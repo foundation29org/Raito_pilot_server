@@ -1425,7 +1425,7 @@ function getQuestionnairesGroup(groupId) {
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
 		console.log(questionnaireId);
-		var url = './dist/assets/raito_resources/questionnaires/'+questionnaireId+'.json'
+		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
 		try {
 			var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 			resolve (json)
