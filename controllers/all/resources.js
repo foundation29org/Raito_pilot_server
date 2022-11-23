@@ -644,9 +644,10 @@ function rateQuestionnaire(req, res) {
 		
 					var newavg = value/(ids.length)
 					json.rate = {avg:newavg, ids: ids}
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', json, (err) => {
+					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
 						if (err) {
 							console.log(req.body.id)
+							console.log(JSON.stringify(json));
 							console.log(json);
 							console.log(err)
 							res.status(403).send({ message: 'not added' })
