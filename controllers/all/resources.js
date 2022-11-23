@@ -654,6 +654,7 @@ function rateQuestionnaire(req, res) {
 							filehandle = await fs.promises.open(url, 'w')
 							// Write to file
 							await filehandle.writeFile(JSON.stringify(json))
+							res.status(200).send({ message: 'updated' })
 						} finally {
 							if (filehandle) {
 								// Close the file if it is opened.
@@ -665,7 +666,7 @@ function rateQuestionnaire(req, res) {
 						const newContent = newBuff.toString()
 						console.log(`\nNew content of the file :\n${newContent}`)
 
-						res.status(200).send({ message: 'updated' })
+						
 
 					/*fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
 						if (err) {
