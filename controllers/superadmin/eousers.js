@@ -1402,6 +1402,7 @@ function getQuestionnairesGroup(groupId) {
 				var promises = [];
 				if (group.questionnaires.length > 0) {
 					for (var index in group.questionnaires) {
+						console.log(group.questionnaires);
 						promises.push(getQuestionnaire(group.questionnaires[index].id));
 					}
 				}else {
@@ -1423,6 +1424,7 @@ function getQuestionnairesGroup(groupId) {
 
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
+		console.log(questionnaireId);
 		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
 		try {
 			var json = JSON.parse(fs.readFileSync(url, 'utf8'));
