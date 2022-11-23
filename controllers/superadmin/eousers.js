@@ -1424,8 +1424,14 @@ function getQuestionnairesGroup(groupId) {
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
 		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		resolve (json)
+		try {
+			var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+			resolve (json)
+		} catch (error) {
+			console.log(error);
+			resolve ([])
+		}
+		
 	});
 }
 

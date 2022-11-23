@@ -490,7 +490,7 @@ function addlinkQuestionnaire(req, res) {
 				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 
 				var questionnaires = group.questionnaires;
-
+				var found = false;
 				for (var i = 0; i < questionnaires.length && !found; i++) {
 					if (questionnaires[i].id == req.body.id) {
 						found = true;
@@ -553,7 +553,7 @@ function addlinkQuestionnaire(req, res) {
  *	}
  */
 
- function deletelinkQuestionnaire(req, res) {
+function deletelinkQuestionnaire(req, res) {
 	//req.body.id
 
 	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
@@ -570,11 +570,12 @@ function addlinkQuestionnaire(req, res) {
 
 				var questionnaires = group.questionnaires;
 				var newQuestionnaires = [];
+				var found = false;
 				for (var i = 0; i < questionnaires.length; i++) {
 					if (questionnaires[i].id == req.body.id) {
 						found = true;
-					}else{
-						newQuestionnaires.push({ id: questionnaires.id });
+					} else {
+						newQuestionnaires.push({ id: questionnaires[i].id });
 					}
 				}
 				if (found) {
@@ -592,6 +593,73 @@ function addlinkQuestionnaire(req, res) {
 		console.error(err)
 	}
 }
+
+async function getAllQuestionnaires(req, res) {
+	var result = []
+	fs.readdir('./raito_resources/questionnaires/', function (err, files) {
+		files.forEach(file => {
+			var nameFile = file.split('.json');
+			try {
+				var url = './raito_resources/questionnaires/' + file
+				var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+				result.push({ id: nameFile[0], data: json })
+			} catch (error) {
+				result.push({ id: nameFile[0], data: [] })
+			}
+		});
+		res.status(200).send(result)
+	});
+
+}
+
+function rateQuestionnaire(req, res) {
+
+	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	try {
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
+		let groupId = req.params.groupId;
+		if (json.createdById != groupId) {
+			//subir file
+			var ids = json.rate.ids;
+			let found =false;
+			let value = 0;
+			for(var i=0;i<ids.length;i++){
+				if(req.params.groupId==ids[i].id){
+					found = true;
+					ids[i].value = req.body.value;
+				}
+				value = value + ids[i].value;
+			}
+
+			if(!found){
+				ids.push({"id":req.params.groupId, "value": req.body.value})
+				value = value + req.body.value;
+			}
+
+			var newavg = value/(ids.length)
+			json.rate = {avg:newavg, ids: ids}
+
+			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
+				if (err) {
+					res.status(403).send({ message: 'not added' })
+				}
+
+				res.status(200).send({ message: 'updated' })
+			});
+		} else {
+			res.status(200).send({ message: 'dont have permissions' })
+		}
+
+
+	} catch (err) {
+		res.status(202).send({ message: 'dont exists' })
+		console.log(err);
+	}
+
+
+
+}
+
 
 /**
  * @api {get} https://raito.care/api/group/configfile/:groupId Get config file
@@ -649,7 +717,6 @@ async function getconfigFile(req, res) {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
 	}
-
 }
 
 module.exports = {
@@ -658,5 +725,7 @@ module.exports = {
 	updateQuestionnaire,
 	addlinkQuestionnaire,
 	deletelinkQuestionnaire,
+	getAllQuestionnaires,
+	rateQuestionnaire,
 	getconfigFile
 }

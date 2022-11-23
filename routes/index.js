@@ -242,6 +242,8 @@ api.post('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.newQ
 api.put('/resources/questionnaire/:groupId',auth(roles.All), resourcesCtrl.updateQuestionnaire)
 api.post('/resources/questionnaire/add/:groupId',auth(roles.All), resourcesCtrl.addlinkQuestionnaire)
 api.post('/resources/questionnaire/remove/:groupId',auth(roles.All), resourcesCtrl.deletelinkQuestionnaire)
+api.get('/resources/questionnaires/all',auth(roles.All), resourcesCtrl.getAllQuestionnaires)
+api.post('/resources/questionnaire/rate/:groupId',auth(roles.All), resourcesCtrl.rateQuestionnaire)
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //ruta privada

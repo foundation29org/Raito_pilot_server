@@ -4,7 +4,8 @@
     "createdById":"61bb38fad6e0cb14f08881c0",
     "title": "General questions of Dravet syndrome",
     "description": "General questions for patients with Dravet Syndrome.",
-    "created by": "Foundation29",
+    "createdby": "Foundation29",
+    "rate":{"avg":3.15, "ids": [{"id":"dfsdfsdfssd", "value": 4}, {"id":"dfsdaf3fsdfssd", "value": 2} ]},
     "items":[
         {
             "idProm": "1",
@@ -198,5 +199,6 @@
             "other": "Improvement in other symptoms",
             "type": "radioButtons"
         }
-    ]
+    ],
+    "img": "https://foundation29.org/assets/img/logo-f29.webp"
 }
