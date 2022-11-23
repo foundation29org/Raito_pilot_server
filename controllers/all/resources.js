@@ -662,9 +662,9 @@ function rateQuestionnaire(req, res) {
 							}
 						}
 						// New content after write operation
-						const newBuff = fs.readFileSync(url)
+						/*const newBuff = fs.readFileSync(url)
 						const newContent = newBuff.toString()
-						console.log(`\nNew content of the file :\n${newContent}`)
+						console.log(`\nNew content of the file :\n${newContent}`)*/
 
 						
 
