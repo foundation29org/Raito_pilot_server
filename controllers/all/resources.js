@@ -616,12 +616,10 @@ function rateQuestionnaire(req, res) {
 
 	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
 	try {
-		const oldBuff = fs.readFileSync(url, 'utf8')
-		var json = JSON.parse(oldBuff);
-		
+		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		let groupId = req.params.groupId;
 		//verificar que el grupo existe
-		Group.findOne({ '_id': groupId }, async function (err, group) {
+		Group.findOne({ '_id': groupId }, function (err, group) {
 			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 			if(group){
@@ -646,29 +644,7 @@ function rateQuestionnaire(req, res) {
 		
 					var newavg = value/(ids.length)
 					json.rate = {avg:newavg, ids: ids}
-
-					//write
-					let filehandle = null
-  
-						try {
-							filehandle = await fs.promises.open(url, 'w')
-							// Write to file
-							await filehandle.writeFile(JSON.stringify(json))
-							res.status(200).send({ message: 'updated' })
-						} finally {
-							if (filehandle) {
-								// Close the file if it is opened.
-								await filehandle.close();
-							}
-						}
-						// New content after write operation
-						/*const newBuff = fs.readFileSync(url)
-						const newContent = newBuff.toString()
-						console.log(`\nNew content of the file :\n${newContent}`)*/
-
-						
-
-					/*fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
+					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
 						if (err) {
 							console.log(req.body.id)
 							console.log(JSON.stringify(json));
@@ -678,7 +654,7 @@ function rateQuestionnaire(req, res) {
 						}
 		
 						res.status(200).send({ message: 'updated' })
-					});*/
+					});
 				} else {
 					res.status(200).send({ message: 'dont have permissions' })
 				}
