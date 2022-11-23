@@ -234,7 +234,7 @@ const Group = require('../../models/group')
  */
 
 function getQuestionnaire(req, res) {
-	var url = './raito_resources/questionnaires/' + req.params.questionnaireId + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.params.questionnaireId + '.json'
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
@@ -307,7 +307,7 @@ function getQuestionnaire(req, res) {
 function newQuestionnaire(req, res) {
 	var bodyReq = req.body;
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.body.id + '.json'
 
 	try {
 		if (fs.existsSync(url)) {
@@ -323,7 +323,7 @@ function newQuestionnaire(req, res) {
 				questionnaires.push({ id: req.body.id });
 				Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
 					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
+					fs.writeFile('./dist/assets/raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
 						if (err) {
 							console.log(err);
 							res.status(403).send({ message: 'not added' })
@@ -408,13 +408,13 @@ function newQuestionnaire(req, res) {
 function updateQuestionnaire(req, res) {
 	var bodyReq = req.body;
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.body.id + '.json'
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		let groupId = req.params.groupId;
 		if (json.createdById == groupId) {
 			//subir file
-			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
+			fs.writeFile('./dist/assets/raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
 				if (err) {
 					res.status(403).send({ message: 'not added' })
 				}
@@ -477,7 +477,7 @@ function updateQuestionnaire(req, res) {
 function addlinkQuestionnaire(req, res) {
 	//req.body.id
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.body.id + '.json'
 
 	try {
 		if (!fs.existsSync(url)) {
@@ -556,7 +556,7 @@ function addlinkQuestionnaire(req, res) {
 function deletelinkQuestionnaire(req, res) {
 	//req.body.id
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.body.id + '.json'
 
 	try {
 		if (!fs.existsSync(url)) {
@@ -596,11 +596,11 @@ function deletelinkQuestionnaire(req, res) {
 
 async function getAllQuestionnaires(req, res) {
 	var result = []
-	fs.readdir('./raito_resources/questionnaires/', function (err, files) {
+	fs.readdir('./dist/assets/raito_resources/questionnaires/', function (err, files) {
 		files.forEach(file => {
 			var nameFile = file.split('.json');
 			try {
-				var url = './raito_resources/questionnaires/' + file
+				var url = './dist/assets/raito_resources/questionnaires/' + file
 				var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 				result.push({ id: nameFile[0], data: json })
 			} catch (error) {
@@ -614,7 +614,7 @@ async function getAllQuestionnaires(req, res) {
 
 function rateQuestionnaire(req, res) {
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var url = './dist/assets/raito_resources/questionnaires/' + req.body.id + '.json'
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		let groupId = req.params.groupId;
@@ -644,7 +644,7 @@ function rateQuestionnaire(req, res) {
 		
 					var newavg = value/(ids.length)
 					json.rate = {avg:newavg, ids: ids}
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
+					fs.writeFile('./dist/assets/raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
 						if (err) {
 							console.log(req.body.id)
 							console.log(JSON.stringify(json));
@@ -721,13 +721,13 @@ function rateQuestionnaire(req, res) {
 
 async function getconfigFile(req, res) {
 	let groupId = req.params.groupId;
-	let url = './raito_resources/groups/' + groupId + '/config.json';
+	let url = './dist/assets/raito_resources/groups/' + groupId + '/config.json';
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
 	} catch (error) {
 		console.log(error);
-		url = './raito_resources/groups/61bb38fad6e0cb14f08881c0/config.json';
+		url = './dist/assets/raito_resources/groups/61bb38fad6e0cb14f08881c0/config.json';
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		res.status(200).send(json)
 	}

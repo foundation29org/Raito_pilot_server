@@ -739,7 +739,7 @@ async function getCreatedByIdAll(questionnaires) {
 async function getCreatedById(questionnaire) {
 	return new Promise(async function (resolve, reject) {
 
-		var url = './raito_resources/questionnaires/'+questionnaire.id+'.json'
+		var url = './dist/assets/raito_resources/questionnaires/'+questionnaire.id+'.json'
     try{
       var json = JSON.parse(fs.readFileSync(url, 'utf8'));
       var info = {"id": questionnaire.id, "createdById": json.createdById};
