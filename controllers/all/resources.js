@@ -651,7 +651,7 @@ function rateQuestionnaire(req, res) {
 					let filehandle = null
   
 						try {
-							filehandle = await fs.promises.open(url, mode = 'w')
+							filehandle = await fs.promises.open(url, 'w')
 							// Write to file
 							await filehandle.writeFile(JSON.stringify(json))
 						} finally {
