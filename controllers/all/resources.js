@@ -635,7 +635,7 @@ function deletelinkQuestionnaire(req, res) {
 
 /**
  * @api {get} https://raito.care/api/resources/questionnaires/all Get all questionnaires
- * @apiName getAlQuestionnaires
+ * @apiName getAllQuestionnaires
  * @apiDescription This method return all questionnaires of Raito.
  * @apiGroup Questionnaires
  * @apiVersion 1.0.0
