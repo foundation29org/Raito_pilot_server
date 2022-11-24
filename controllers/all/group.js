@@ -742,10 +742,10 @@ async function getCreatedById(questionnaire) {
 		var url = './raito_resources/questionnaires/'+questionnaire.id+'.json'
     try{
       var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-      var info = {"id": questionnaire.id, "createdById": json.createdById};
-      resolve(info);
+      var info = {"id": questionnaire.id, "createdById": json.createdById, "title": json.title};
+      resolve(json);
     }catch (err){
-      var info = {"id": questionnaire.id, "createdById": null};
+      var info = {"id": questionnaire.id, "createdById": null, "title": null};
       resolve(info);
     }
 	});

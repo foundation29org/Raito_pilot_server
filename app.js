@@ -38,6 +38,7 @@ app.use('/apidoc',express.static('apidoc', {'index': ['index.html']}))
 
 //ruta angular, poner carpeta dist publica
 app.use(express.static(path.join(__dirname, 'dist')));
+//app.use(express.static(path.join(__dirname, 'raito_resources')));
 // Send all other requests to the Angular app
 app.get('*', function (req, res, next) {
     res.sendFile('dist/index.html', { root: __dirname });
