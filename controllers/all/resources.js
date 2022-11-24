@@ -1,6 +1,7 @@
 'use strict'
 const fs = require('fs');
 const Group = require('../../models/group')
+var crypto = require('crypto');
 
 /**
  * @api {get} https://raito.care/api/resources/questionnaire/:questionnaireId Get questionnaire
@@ -304,10 +305,10 @@ function getQuestionnaire(req, res) {
  *	}
  */
 
-function newQuestionnaire(req, res) {
+/*function newQuestionnaire(req, res) {
 	var bodyReq = req.body;
-
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	var createId = generateRandomId()//req.body.id
+	var url = './raito_resources/questionnaires/' + createId + '.json'
 
 	try {
 		if (fs.existsSync(url)) {
@@ -320,10 +321,10 @@ function newQuestionnaire(req, res) {
 				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 
 				var questionnaires = group.questionnaires;
-				questionnaires.push({ id: req.body.id });
+				questionnaires.push({ id: createId });
 				Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
 					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
+					fs.writeFile('./raito_resources/questionnaires/' + createId + '.json', JSON.stringify(bodyReq), (err) => {
 						if (err) {
 							console.log(err);
 							res.status(403).send({ message: 'not added' })
@@ -339,6 +340,43 @@ function newQuestionnaire(req, res) {
 	} catch (err) {
 		console.error(err)
 	}
+}*/
+
+function newQuestionnaire(req, res) {
+	var bodyReq = req.body;
+	var createId = generateRandomId()//req.body.id
+	console.log(createId);
+	try {
+		let groupId = req.params.groupId;
+		Group.findOne({ '_id': groupId }, function (err, group) {
+			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+
+			var questionnaires = group.questionnaires;
+			questionnaires.push({ id: createId });
+			Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
+				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+				fs.writeFile('./raito_resources/questionnaires/' + createId + '.json', JSON.stringify(bodyReq), (err) => {
+					if (err) {
+						console.log(err);
+						res.status(403).send({ message: 'not added' })
+					}
+					//res.status(200).send({message: 'added'})
+				});
+				res.status(200).send({ message: 'added' })
+			})
+
+		})
+	} catch (err) {
+		console.error(err)
+	}
+}
+
+function generateRandomId(){
+	//var createId = crypt.encrypt(Math.random().toString(36).slice(-12))
+	var createId = crypto.randomUUID()+(new Date()).getTime().toString(36);
+	console.log(createId);
+	return createId;
 }
 
 /**
