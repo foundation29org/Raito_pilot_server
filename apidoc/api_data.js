@@ -3953,7 +3953,7 @@ define({ "api": [
     "type": "get",
     "url": "https://raito.care/api/resources/questionnaires/all",
     "title": "Get all questionnaires",
-    "name": "getAlQuestionnaires",
+    "name": "getAllQuestionnaires",
     "description": "<p>This method return all questionnaires of Raito.</p>",
     "group": "Questionnaires",
     "version": "1.0.0",
