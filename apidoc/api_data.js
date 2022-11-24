@@ -3800,7 +3800,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var json = {\n \"id\": \"q2dravet\"\n };\nthis.http.post('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "var json = {\n \"id\": \"q2dravet\"\n };\nthis.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -3880,7 +3880,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var json = {\n \"id\": \"q2dravet\"\n };\nthis.http.post('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "var json = {\n \"id\": \"q2dravet\"\n };\nthis.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],
@@ -3942,6 +3942,64 @@ define({ "api": [
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 403 Forbidden\n{\nmessage: 'not removed'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Questionnaires"
+  },
+  {
+    "type": "get",
+    "url": "https://raito.care/api/resources/questionnaires/all",
+    "title": "Get all questionnaires",
+    "name": "getAlQuestionnaires",
+    "description": "<p>This method return all questionnaires of Raito.</p>",
+    "group": "Questionnaires",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "this.http.get('https://raito.care/api/resources/questionnaires/all')\n .subscribe( (res : any) => {\n   console.log(res);\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "questionnaires",
+            "description": "<p>Aray of questionnaires of Raito.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n[\n   {\n       \"id\": \"q1dravet\",\n       \"data\": {\n           \"resourceType\": \"Questionnaire\",\n           \"id\": \"q1dravet\",\n           \"createdById\": \"61bb38fad6e0cb14f08881c0\",\n           \"title\": \"General questions of Dravet syndrome\",\n           \"description\": \"General questions for patients with Dravet Syndrome.\",\n           \"createdby\": \"Foundation29\",\n           \"rate\": {\n               \"avg\": 3.15,\n               \"ids\": [\n                   {\n                       \"id\": \"dfsdfsdfssd\",\n                       \"value\": 4\n                   },\n                   {\n                       \"id\": \"dfsdaf3fsdfssd\",\n                       \"value\": 2\n                   }\n               ]\n           },\n           \"items\": [],\n           \"img\": \"https://foundation29.org/assets/img/logo-f29.webp\"\n       }\n   },\n   {\n       \"id\": \"q1dravet2\",\n       \"data\": {\n           \"resourceType\": \"Questionnaire\",\n           \"createdById\": \"61bb38fad6e0c5b14f08881c0\",\n           \"id\": \"q1dravet2\",\n           \"title\": \"afasf\",\n           \"description\": \"General questions for patients with Dravet Syndrome.\",\n           \"createdby\": \"Foundation29\",\n           \"rate\": {\n               \"avg\": 3.3333333333333335,\n               \"ids\": [\n                   {\n                       \"id\": \"dfsdfsdfssd\",\n                       \"value\": 3\n                   },\n                   {\n                       \"id\": \"dfsdaf3fsdfssd\",\n                       \"value\": 2\n                   },\n                   {\n                       \"id\": \"61bb38fad6e0cb14f08881c0\",\n                       \"value\": 5\n                   }\n               ]\n           },\n           \"items\": [],\n           \"img\": \"https://dravet.eu/wp-content/uploads/2020/04/logo-Dravet-europa-217x230-1.png\"\n       }\n   }\n]",
           "type": "json"
         }
       ]
@@ -4031,6 +4089,101 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "https://raito.care/api/resources/questionnaire/rate/:groupId",
+    "title": "Rate questionnaire",
+    "name": "rateQuestionnaire",
+    "description": "<p>This method is used to assess a questionnaire. You can only vote if you are not the creator of the questionnaire, and you have added it to your patient group.</p>",
+    "group": "Questionnaires",
+    "version": "1.0.0",
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "var json = {\"id\":\"q1dravet2\",\"value\":5};\nthis.http.post('https://raito.care/api/resources/questionnaire/rate/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "type": "js"
+      }
+    ],
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Users unique access-key. For this, go to  <a href=\"#api-Access_token-signIn\">Get token</a></p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "{\n  \"authorization\": \"Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>Group unique ID.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "Result",
+            "description": "<p>An object with the information about the execution.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{message: 'updated'}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 202 OK\n{message: 'dont exists'}",
+          "type": "json"
+        },
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 208 OK\n{message: 'dont have permissions'}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Forbidden\n{\nmessage: 'not added'\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not found\n{\nmessage: 'The group does not exist'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "controllers/all/resources.js",
+    "groupTitle": "Questionnaires"
+  },
+  {
+    "type": "post",
     "url": "https://raito.care/api/resources/questionnaire/:groupId",
     "title": "New questionnaire",
     "name": "saveQuestionnaire",
@@ -4040,7 +4193,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"createdById\":\"656fcb14f08881c0\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"created by\": \"Foundation29\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.post('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "  var json = {\n   \"resourceType\": \"Questionnaire\",\n   \"createdById\":\"groupId\",\n\t  \"url\": \"https://foundation29.org/assets/img/logo-f29.webp\",\n   \"title\": \"General questions of Dravet syndrome\",\n   \"description\": \"General questions for patients with Dravet Syndrome.\",\n   \"created by\": \"Foundation29\",\n   \"items\":[{\n           \"idProm\": \"7\",\n           \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       }] \n   };\n  this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)\n   .subscribe( (res : any) => {\n     ...\n    }, (err) => {\n     ...\n    }",
         "type": "js"
       }
     ],
@@ -4120,7 +4273,7 @@ define({ "api": [
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"createdById\":\"656fcb14f08881c0\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"created by\": \"Foundation29\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.put('https://raito.care/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"createdById\":\"656fcb14f08881c0\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"created by\": \"Foundation29\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.put('https://raito.care/api/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
         "type": "js"
       }
     ],

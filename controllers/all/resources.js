@@ -254,8 +254,8 @@ function getQuestionnaire(req, res) {
  * @apiExample {js} Example usage:
  *   var json = {
  *    "resourceType": "Questionnaire",
- *    "id": "q2dravet",
- *    "createdById":"656fcb14f08881c0",
+ *    "createdById":"groupId",
+ * 	  "url": "https://foundation29.org/assets/img/logo-f29.webp",
  *    "title": "General questions of Dravet syndrome",
  *    "description": "General questions for patients with Dravet Syndrome.",
  *    "created by": "Foundation29",
@@ -276,7 +276,7 @@ function getQuestionnaire(req, res) {
  *            "type": "radioButtons"
  *        }] 
  *    };
- *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *   this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)
  *    .subscribe( (res : any) => {
  *      ...
  *     }, (err) => {
@@ -410,7 +410,7 @@ function generateRandomId(){
  *            "type": "radioButtons"
  *        }] 
  *    };
- *   this.http.put('https://raito.care/resources/questionnaire/'+groupId, json)
+ *   this.http.put('https://raito.care/api/resources/questionnaire/'+groupId, json)
  *    .subscribe( (res : any) => {
  *      ...
  *     }, (err) => {
@@ -483,7 +483,7 @@ function updateQuestionnaire(req, res) {
  *   var json = {
  *    "id": "q2dravet"
  *    };
- *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *   this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)
  *    .subscribe( (res : any) => {
  *      ...
  *     }, (err) => {
@@ -562,7 +562,7 @@ function addlinkQuestionnaire(req, res) {
  *   var json = {
  *    "id": "q2dravet"
  *    };
- *   this.http.post('https://raito.care/resources/questionnaire/'+groupId, json)
+ *   this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)
  *    .subscribe( (res : any) => {
  *      ...
  *     }, (err) => {
@@ -632,6 +632,90 @@ function deletelinkQuestionnaire(req, res) {
 	}
 }
 
+
+/**
+ * @api {get} https://raito.care/api/resources/questionnaires/all Get all questionnaires
+ * @apiName getAlQuestionnaires
+ * @apiDescription This method return all questionnaires of Raito.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   this.http.get('https://raito.care/api/resources/questionnaires/all')
+ *    .subscribe( (res : any) => {
+ *      console.log(res);
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * @apiSuccess {Object} questionnaires Aray of questionnaires of Raito.
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *    {
+ *        "id": "q1dravet",
+ *        "data": {
+ *            "resourceType": "Questionnaire",
+ *            "id": "q1dravet",
+ *            "createdById": "61bb38fad6e0cb14f08881c0",
+ *            "title": "General questions of Dravet syndrome",
+ *            "description": "General questions for patients with Dravet Syndrome.",
+ *            "createdby": "Foundation29",
+ *            "rate": {
+ *                "avg": 3.15,
+ *                "ids": [
+ *                    {
+ *                        "id": "dfsdfsdfssd",
+ *                        "value": 4
+ *                    },
+ *                    {
+ *                        "id": "dfsdaf3fsdfssd",
+ *                        "value": 2
+ *                    }
+ *                ]
+ *            },
+ *            "items": [],
+ *            "img": "https://foundation29.org/assets/img/logo-f29.webp"
+ *        }
+ *    },
+ *    {
+ *        "id": "q1dravet2",
+ *        "data": {
+ *            "resourceType": "Questionnaire",
+ *            "createdById": "61bb38fad6e0c5b14f08881c0",
+ *            "id": "q1dravet2",
+ *            "title": "afasf",
+ *            "description": "General questions for patients with Dravet Syndrome.",
+ *            "createdby": "Foundation29",
+ *            "rate": {
+ *                "avg": 3.3333333333333335,
+ *                "ids": [
+ *                    {
+ *                        "id": "dfsdfsdfssd",
+ *                        "value": 3
+ *                    },
+ *                    {
+ *                        "id": "dfsdaf3fsdfssd",
+ *                        "value": 2
+ *                    },
+ *                    {
+ *                        "id": "61bb38fad6e0cb14f08881c0",
+ *                        "value": 5
+ *                    }
+ *                ]
+ *            },
+ *            "items": [],
+ *            "img": "https://dravet.eu/wp-content/uploads/2020/04/logo-Dravet-europa-217x230-1.png"
+ *        }
+ *    }
+ *]
+ *
+ */
+
 async function getAllQuestionnaires(req, res) {
 	var result = []
 	fs.readdir('./raito_resources/questionnaires/', function (err, files) {
@@ -649,6 +733,59 @@ async function getAllQuestionnaires(req, res) {
 	});
 
 }
+
+
+
+/**
+ * @api {post} https://raito.care/api/resources/questionnaire/rate/:groupId Rate questionnaire
+ * @apiName rateQuestionnaire
+ * @apiDescription This method is used to assess a questionnaire. You can only vote if you are not the creator of the questionnaire, and you have added it to your patient group.
+ * @apiGroup Questionnaires
+ * @apiVersion 1.0.0
+ * @apiExample {js} Example usage:
+ *   var json = {"id":"q1dravet2","value":5};
+ *   this.http.post('https://raito.care/api/resources/questionnaire/rate/'+groupId, json)
+ *    .subscribe( (res : any) => {
+ *      ...
+ *     }, (err) => {
+ *      ...
+ *     }
+ *
+
+ * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *     }
+ * 
+ * @apiParam {String} groupId Group unique ID.
+ * @apiSuccess {Object} Result An object with the information about the execution.
+ * 
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {message: 'updated'}
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 202 OK
+ * {message: 'dont exists'}
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 208 OK
+ * {message: 'dont have permissions'}
+ *
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 403 Forbidden
+ *	{
+ *	message: 'not added'
+ *	}
+ *
+ * @apiErrorExample {json} Error-Response:
+ *	HTTP/1.1 404 Not found
+ *	{
+ *	message: 'The group does not exist'
+ *	}
+ */
 
 function rateQuestionnaire(req, res) {
 
@@ -694,7 +831,7 @@ function rateQuestionnaire(req, res) {
 						res.status(200).send({ message: 'updated' })
 					});
 				} else {
-					res.status(200).send({ message: 'dont have permissions' })
+					res.status(208).send({ message: 'dont have permissions' })
 				}
 			}
 		})
