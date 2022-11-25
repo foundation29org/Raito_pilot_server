@@ -391,10 +391,8 @@ function generateRandomId(){
  *   var json = {
  *    "resourceType": "Questionnaire",
  *    "id": "q2dravet",
- *    "createdById":"656fcb14f08881c0",
  *    "title": "General questions of Dravet syndrome",
  *    "description": "General questions for patients with Dravet Syndrome.",
- *    "created by": "Foundation29",
  *    "items":[{
  *            "idProm": "7",
  *            "text": "Are you or your child able to predict when they will have a seizure?",
