@@ -255,7 +255,7 @@ function getQuestionnaire(req, res) {
  *   var json = {
  *    "resourceType": "Questionnaire",
  *    "createdById":"groupId",
- * 	  "url": "https://foundation29.org/assets/img/logo-f29.webp",
+ * 	  "img": "https://foundation29.org/assets/img/logo-f29.webp",
  *    "title": "General questions of Dravet syndrome",
  *    "description": "General questions for patients with Dravet Syndrome.",
  *    "created by": "Foundation29",
@@ -295,7 +295,7 @@ function getQuestionnaire(req, res) {
  * 
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- * {message: 'added'}
+ * {message: 'added', questionnaireId: '74301465-29d8-4447-a8ce-00e91327c9bclawchd3g'}
  *
  * 
  * @apiErrorExample {json} Error-Response:
@@ -346,6 +346,8 @@ function newQuestionnaire(req, res) {
 	var bodyReq = req.body;
 	var createId = generateRandomId()//req.body.id
 	console.log(createId);
+	bodyReq.id =createId;
+	bodyReq.rate = {avg:0, ids: []};
 	try {
 		let groupId = req.params.groupId;
 		Group.findOne({ '_id': groupId }, function (err, group) {
@@ -363,7 +365,7 @@ function newQuestionnaire(req, res) {
 					}
 					//res.status(200).send({message: 'added'})
 				});
-				res.status(200).send({ message: 'added' })
+				res.status(200).send({ message: 'added', questionnaireId :createId })
 			})
 
 		})

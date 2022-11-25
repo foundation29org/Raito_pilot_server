@@ -4193,7 +4193,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "  var json = {\n   \"resourceType\": \"Questionnaire\",\n   \"createdById\":\"groupId\",\n\t  \"url\": \"https://foundation29.org/assets/img/logo-f29.webp\",\n   \"title\": \"General questions of Dravet syndrome\",\n   \"description\": \"General questions for patients with Dravet Syndrome.\",\n   \"created by\": \"Foundation29\",\n   \"items\":[{\n           \"idProm\": \"7\",\n           \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       }] \n   };\n  this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)\n   .subscribe( (res : any) => {\n     ...\n    }, (err) => {\n     ...\n    }",
+        "content": "  var json = {\n   \"resourceType\": \"Questionnaire\",\n   \"createdById\":\"groupId\",\n\t  \"img\": \"https://foundation29.org/assets/img/logo-f29.webp\",\n   \"title\": \"General questions of Dravet syndrome\",\n   \"description\": \"General questions for patients with Dravet Syndrome.\",\n   \"created by\": \"Foundation29\",\n   \"items\":[{\n           \"idProm\": \"7\",\n           \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       }] \n   };\n  this.http.post('https://raito.care/api/resources/questionnaire/'+groupId, json)\n   .subscribe( (res : any) => {\n     ...\n    }, (err) => {\n     ...\n    }",
         "type": "js"
       }
     ],
@@ -4245,7 +4245,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{message: 'added'}",
+          "content": "HTTP/1.1 200 OK\n{message: 'added', questionnaireId: '74301465-29d8-4447-a8ce-00e91327c9bclawchd3g'}",
           "type": "json"
         }
       ]
