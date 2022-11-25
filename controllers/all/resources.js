@@ -452,6 +452,9 @@ function updateQuestionnaire(req, res) {
 	try {
 		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
 		let groupId = req.params.groupId;
+		bodyReq.rate = json.rate
+		bodyReq.id = json.id
+		bodyReq.createdById = json.createdById
 		if (json.createdById == groupId) {
 			//subir file
 			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
