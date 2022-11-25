@@ -4273,7 +4273,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "var json = {\n \"resourceType\": \"Questionnaire\",\n \"id\": \"q2dravet\",\n \"title\": \"General questions of Dravet syndrome\",\n \"description\": \"General questions for patients with Dravet Syndrome.\",\n \"items\":[{\n         \"idProm\": \"7\",\n         \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n         \"answers\": [\n             {\n                 \"text\": \"Yes\",\n                 \"value\": \"Yes\"\n             },\n             {\n                 \"text\": \"No\",\n                 \"value\": \"No\"\n             }\n         ],\n         \"other\": null,\n         \"type\": \"radioButtons\"\n     }] \n };\nthis.http.put('https://raito.care/api/resources/questionnaire/'+groupId, json)\n .subscribe( (res : any) => {\n   ...\n  }, (err) => {\n   ...\n  }",
+        "content": "  var json = {\n   \"resourceType\": \"Questionnaire\",\n   \"id\": \"q2dravet\",\n   \"title\": \"General questions of Dravet syndrome\",\n   \"description\": \"General questions for patients with Dravet Syndrome.\",\n\t  \"img\": \"https://foundation29.org/assets/img/logo-f29.webp\"\n   \"items\":[{\n           \"idProm\": \"7\",\n           \"text\": \"Are you or your child able to predict when they will have a seizure?\",\n           \"answers\": [\n               {\n                   \"text\": \"Yes\",\n                   \"value\": \"Yes\"\n               },\n               {\n                   \"text\": \"No\",\n                   \"value\": \"No\"\n               }\n           ],\n           \"other\": null,\n           \"type\": \"radioButtons\"\n       }] \n   };\n  this.http.put('https://raito.care/api/resources/questionnaire/'+groupId, json)\n   .subscribe( (res : any) => {\n     ...\n    }, (err) => {\n     ...\n    }",
         "type": "js"
       }
     ],
@@ -4315,6 +4315,34 @@
             "optional": false,
             "field": "id",
             "description": "<p>Questionnaire Id</p>"
+          },
+          {
+            "group": "body",
+            "type": "String",
+            "optional": true,
+            "field": "title",
+            "description": "<p>Title of questionnaire</p>"
+          },
+          {
+            "group": "body",
+            "type": "String",
+            "optional": true,
+            "field": "description",
+            "description": "<p>Description of questionnaire</p>"
+          },
+          {
+            "group": "body",
+            "type": "String",
+            "optional": true,
+            "field": "img",
+            "description": "<p>Url of the image for the questionnaire</p>"
+          },
+          {
+            "group": "body",
+            "type": "String",
+            "optional": false,
+            "field": "items",
+            "description": "<p>Object with the proms</p>"
           }
         ]
       }
