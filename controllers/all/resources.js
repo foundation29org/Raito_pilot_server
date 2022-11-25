@@ -393,6 +393,7 @@ function generateRandomId(){
  *    "id": "q2dravet",
  *    "title": "General questions of Dravet syndrome",
  *    "description": "General questions for patients with Dravet Syndrome.",
+ * 	  "img": "https://foundation29.org/assets/img/logo-f29.webp"
  *    "items":[{
  *            "idProm": "7",
  *            "text": "Are you or your child able to predict when they will have a seizure?",
@@ -426,6 +427,10 @@ function generateRandomId(){
  * 
  * @apiParam {String} groupId Group unique ID.
  * @apiParam (body) {String} id Questionnaire Id
+ * @apiParam (body) {String} [title] Title of questionnaire
+ * @apiParam (body) {String} [description] Description of questionnaire
+ * @apiParam (body) {String} [img] Url of the image for the questionnaire
+ * @apiParam (body) {String} items Object with the proms
  * @apiSuccess {Object} Result An object with the information about the execution.
  * 
  * @apiSuccessExample Success-Response:
