@@ -425,6 +425,7 @@ function generateRandomId(){
  *     }
  * 
  * @apiParam {String} groupId Group unique ID.
+ * @apiParam (body) {String} id Questionnaire Id
  * @apiSuccess {Object} Result An object with the information about the execution.
  * 
  * @apiSuccessExample Success-Response:
