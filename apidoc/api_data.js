@@ -4307,6 +4307,15 @@ define({ "api": [
             "field": "groupId",
             "description": "<p>Group unique ID.</p>"
           }
+        ],
+        "body": [
+          {
+            "group": "body",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Questionnaire Id</p>"
+          }
         ]
       }
     },
