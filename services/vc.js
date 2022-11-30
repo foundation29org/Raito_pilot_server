@@ -21,12 +21,35 @@ const msalClientCredentialRequest = {
   skipCache: false, 
 };
 
+const msalClientCredentialRequestAdmin = {
+  scopes: ["6a8b4b39-c021-437c-b060-5a14a3fd65f3/.default"],
+  skipCache: false, 
+};
+
 const cca = new msal.ConfidentialClientApplication(msalConfig);
 
 async function getToken (){
   var accessToken = "";
   try {
     const result = await cca.acquireTokenByClientCredential(msalClientCredentialRequest);
+    if ( result ) {
+      accessToken = result.accessToken;
+      return accessToken;
+    }
+  } catch {
+    console.log( "failed to get access token" );
+    res.status(401).json({
+        'error': 'Could not acquire credentials to access your Azure Key Vault'
+        });  
+      return; 
+  }  
+}
+
+
+async function getTokenAdmin (){
+  var accessToken = "";
+  try {
+    const result = await cca.acquireTokenByClientCredential(msalClientCredentialRequestAdmin);
     if ( result ) {
       accessToken = result.accessToken;
       return accessToken;
@@ -363,6 +386,87 @@ async function getAllVC (req, res){
   })
 }
 
+async function revokeVC(session){
+  //get code
+  
+	/*var options = {
+		'method': 'GET',
+		'url': "https://login.microsoftonline.com/50bdb227-100d-4808-b4b9-aac426e28c4f/oauth2/v2.0/authorize",
+		'headers': {
+		'Content-Type': 'Application/json',
+		'Authorization': auth
+		}
+	
+	};
+	request(options, function (error, response) {
+		if (error) throw new Error(error);
+		//var respJson = JSON.parse(response.body)
+    console.log(response)
+	});
+*/
+
+
+	//get token
+  
+  /*var token = await getTokenAdmin();
+  var auth = 'Bearer '+token;
+  console.log(auth);
+*/
+  //get authorities
+	/*var options = {
+		'method': 'GET',
+		'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities",
+		'headers': {
+		'Content-Type': 'Application/json',
+		'Authorization': auth
+		}
+	
+	};
+	request(options, function (error, response) {
+		if (error){
+      console.log(error);
+      throw new Error(error);
+    } 
+    console.log(response.body);
+		var respJson = JSON.parse(response.body)
+    console.log(respJson)
+	});*/
+
+
+ 	//searchCredential
+	var claimvalue = session._id;
+  console.log(claimvalue);
+	var contractid = "NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw";
+	var crypto = require('crypto');
+	var input = contractid + claimvalue;
+	//var inputasbytes = Encoding.UTF8.GetBytes(input);
+	const hash = crypto.createHash('sha256').update(input).digest('base64');
+
+  console.log(hash);
+  var url = "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities/cd8e1827-a80c-dc3e-dff5-649b27a15f7c/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw/credentials?filter= indexclaim eq "+hash;
+  console.log(url);
+	var options = {
+		'method': 'GET',
+		'url': url,
+		'headers': {
+		'Content-Type': 'Application/json',
+		'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiI2YThiNGIzOS1jMDIxLTQzN2MtYjA2MC01YTE0YTNmZDY1ZjMiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81MGJkYjIyNy0xMDBkLTQ4MDgtYjRiOS1hYWM0MjZlMjhjNGYvIiwiaWF0IjoxNjY5NzM3ODUxLCJuYmYiOjE2Njk3Mzc4NTEsImV4cCI6MTY2OTc0Mjc5NSwiYWNyIjoiMSIsImFpbyI6IkFZUUFlLzhUQUFBQTZTZ21ITU5Jdmk1WG9kVS9XUllSK1ZnaHlmUVEycDBScFVHa0E2VWRlU0xSQU5Ndnk3NGtTZzhTOVpGK1E3M25PRXE0eFVHd2cwOC9OVmNEaUV6K1BaUG5lOG8wSDh1MTRsSEdUQnFhYzd2cjNOVkxZSWpaRnQrSkV6Y2Z4M29ia2t3UEtocFhDeThiWmVHcHovblBqVDE1L3gwa09hcjRaaDF5a2MyTE5Yaz0iLCJhbHRzZWNpZCI6IjE6bGl2ZS5jb206MDAwMzQwMDEwMzExQTA5MiIsImFtciI6WyJwd2QiXSwiYXBwaWQiOiI3Yjg2ZmY4NS04MWUzLTQxOGMtODU3ZC1iMjQzNzM1MTcxYWQiLCJhcHBpZGFjciI6IjEiLCJlbWFpbCI6ImZvdW5kYXRpb24yOUBvdXRsb29rLmNvbSIsImZhbWlseV9uYW1lIjoibG9hIiwiZ2l2ZW5fbmFtZSI6ImZvdW5kYXRpb24yOSIsImlkcCI6ImxpdmUuY29tIiwiaXBhZGRyIjoiODguMTEuMC4xMjEiLCJuYW1lIjoiZm91bmRhdGlvbjI5IGxvYSIsIm9pZCI6IjE2NmE5MTgzLTZiZTItNGZiNC1hNjdkLTM2YTE0YWI5YzExNiIsInB1aWQiOiIxMDAzN0ZGRUEyQjk4OEYwIiwicmgiOiIwLkFTQUFKN0s5VUEwUUNFaTB1YXJFSnVLTVR6bExpMm9od0h4RHNHQmFGS1A5WmZNZ0FFWS4iLCJzY3AiOiJmdWxsX2FjY2VzcyIsInN1YiI6InB3SDd4X2NJX0Rndkd0dldROUFTUS1xZVN4RFExQlVKcGhweUtPNjhaUzQiLCJ0aWQiOiI1MGJkYjIyNy0xMDBkLTQ4MDgtYjRiOS1hYWM0MjZlMjhjNGYiLCJ1bmlxdWVfbmFtZSI6ImxpdmUuY29tI2ZvdW5kYXRpb24yOUBvdXRsb29rLmNvbSIsInV0aSI6IkdBWlcteGNIaDBhdE1YeWNDMjNJQUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbIjY5MDkxMjQ2LTIwZTgtNGE1Ni1hYTRkLTA2NjA3NWIyYTdhOCIsIjYyZTkwMzk0LTY5ZjUtNDIzNy05MTkwLTAxMjE3NzE0NWUxMCIsImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdfQ.T_OoNpZOj9fXk1zLvG9z7OgTp1xHJabWMEaEOO1pA9T9QpDux7_HajgzTToUxNFj3mL00cGXpd3r3JQ9xqiERP85_fCJsv0lOt1W5tK21_-HL710pCepNjlAmFtxKxKQULgbQKff4_PjyYxeopqVjGpYnEH2oCGfMno1zQUS8dLZQI-xLTld1HN8iPJKTzrEzajNB0KOF_SzO2m7PR5anoSWvZ2e_morXg9kY6K9vqpaXuU5TURZiU926QE-44Mmkkm-nI0HpixTrXhDfzyOq3So3Wbf6XJjWeJzZuCokrUYf5Y2ZzcnqnRl-acy2zLneuHrDLHDdJeSsyj5CfxECg'
+		}
+	
+	};
+	request(options, function (error, response) {
+		if (error) throw new Error(error);
+    console.log(response.body);
+		var respJson = JSON.parse(response.body)
+	});
+
+	//revokeCredential
+}
+
+function revoke2 (req, res){
+  console.log(req);
+}
+
 
 
 module.exports = {
@@ -371,5 +475,7 @@ module.exports = {
   requestVC,
   issuanceCallback,
   issuanceResponse,
-  getAllVC
+  getAllVC,
+  revokeVC,
+  revoke2
 }

@@ -68,7 +68,7 @@ api.post('/massiveresources/:patientId', auth(roles.OnlyUser), importResourcesCt
 api.get('/patients-all/:userId', auth(roles.All), patientCtrl.getPatientsUser)
 api.get('/patients/:patientId', auth(roles.All), patientCtrl.getPatient)
 api.put('/patients/:patientId', auth(roles.UserClinical), patientCtrl.updatePatient)
-api.put('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.consentgroup)
+api.put('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.setconsentgroup)
 api.get('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.getConsentGroup)
 api.put('/patient/checks/:patientId', auth(roles.All), patientCtrl.setChecks)
 api.get('/patient/checks/:patientId', auth(roles.All), patientCtrl.getChecks)
@@ -229,6 +229,7 @@ api.get('/createissuer/:patientId',auth(roles.UserResearcher), vcServiceCtrl.req
 api.post('/issuer/issuanceCallback', vcServiceCtrl.issuanceCallback)
 api.get('/issuer/issuance-response/:sessionId',auth(roles.UserResearcher), vcServiceCtrl.issuanceResponse)
 api.get('/issuer/getAll/:patientId',auth(roles.UserResearcher), vcServiceCtrl.getAllVC)
+api.get('/issuer/revoke', vcServiceCtrl.revoke2)
 
 //verifier
 api.get('/verifier/:patientId',auth(roles.UserResearcher), verifierServiceCtrl.presentationRequest)

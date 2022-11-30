@@ -272,9 +272,16 @@ function updatePatient (req, res){
 	})
 }
 
-function consentgroup (req, res){
-
-	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
+function setconsentgroup (req, res){
+	//delete session
+		Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+			//delete and create new one
+			sessions.forEach(function(session) {
+				vcServiceCtrl.revokeVC(session)
+			});
+			res.status(200).send({message: 'consent changed', consent: 'true'})
+		})
+	/*let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
 	var newConsent = req.body.consentgroup;
 	if(req.body.consentgroup == 'Pending'){
 		newConsent = 'true'
@@ -315,11 +322,6 @@ function consentgroup (req, res){
                         });
                         var data = await generateQR(info);
                         return res.status(200).send({ message: 'qrgenerated', data: data })
-                        /*if(infoSession.sessionData.message!='Credential successfully issued'){
-                            res.status(200).send({infoSession})
-                        }else{
-                            res.status(200).send({ message: 'individuals share updated' })
-                        }*/
                       }
                     }else{
                         try {
@@ -338,7 +340,7 @@ function consentgroup (req, res){
 			Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
 				//delete and create new one
 				sessions.forEach(function(session) {
-					//revokeVC(session)
+					vcServiceCtrl.revokeVC(session)
 					session.remove(err => {
 						if(err) console.log({message: `Error deleting the sessions: ${err}`})
 					})
@@ -350,35 +352,9 @@ function consentgroup (req, res){
 		}
 		
 
-	})
+	})*/
 }
-function revokeVC(session){
- //searchCredential
 
-	var claimvalue = session._id;
-	var contractid = "NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw";
-	var crypto = require('crypto');
-	var input = contractid + claimvalue;
-	var inputasbytes = Encoding.UTF8.GetBytes(input);
-	const hash = crypto.createHash('sha256').update(inputasbytes).digest('base64');
-
-	var options = {
-		'method': 'GET',
-		'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities/:authorityId/contracts/NTBiZGIyMjctMTAwZC00ODA4LWI0YjktYWFjNDI2ZTI4YzRmdmVyaWZpZWRvcmdhbml6YXRpb25yYWl0bw/credentials?filter=indexclaim",
-		'headers': {
-		'Content-Type': 'Application/json',
-		'Authorization': auth
-		},
-		body: JSON.stringify(requestConfigFile)
-	
-	};
-	request(options, function (error, response) {
-		if (error) throw new Error(error);
-		var respJson = JSON.parse(response.body)
-	});
-
-	//revokeCredential
-}
 
 async function generateQR(info) {
 	return new Promise(async function (resolve, reject) {
@@ -449,7 +425,7 @@ module.exports = {
 	getPatientsUser,
 	getPatient,
 	updatePatient,
-  consentgroup,
+  setconsentgroup,
   getConsentGroup,
   setChecks,
   getChecks,
