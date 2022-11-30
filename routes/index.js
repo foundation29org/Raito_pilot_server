@@ -211,7 +211,7 @@ api.post('/weight/:patientId', auth(roles.OnlyUser), weightCtrl.saveWeight)
 api.delete('/weight/:weightId', auth(roles.OnlyUser), weightCtrl.deleteWeight)//de momento no se usa
 
 // heighteinfo routes, using the controller socialinfo, this controller has methods
-api.get('/height/:patientId', auth(roles.UserResearcher), heightCtrl.getHeight)
+api.get('/height/:patientId', heightCtrl.getHeight)
 api.get('/heights/:patientId', auth(roles.UserResearcher), heightCtrl.getHistoryHeight)
 api.post('/height/:patientId', auth(roles.OnlyUser), heightCtrl.saveHeight)
 api.delete('/height/:heightId', auth(roles.OnlyUser), heightCtrl.deleteHeight)//de momento no se usa
