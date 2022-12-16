@@ -16,6 +16,7 @@ const Prom = require('../../models/prom')
 const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
+const Appointments = require('../../models/appointments')
 const config = require('../../config')
 const fs = require('fs');
 
@@ -399,6 +400,7 @@ async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 		promises3.push(getHistoryWeight(patientId));
 		promises3.push(getHistoryHeight(patientId));
 		promises3.push(getConsent(patient, false));
+		promises3.push(getAppointments(patient));
 
 		await Promise.all(promises3)
 			.then(async function (data) {
@@ -542,6 +544,11 @@ async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 			}
 			if (data[7]) {
 				result.entry.push(data[7]);
+			}
+			if (data[8].length > 0) {
+				for (var index in data[8]) {
+					result.entry.push(data[8][index]);
+				}
 			}
 			/*result.entry.push(data[0]);
 			result.entry.push(data[1]);
@@ -1840,6 +1847,49 @@ async function getConsent (patient, isBundle){
 	
 	});
 
+}
+
+async function getAppointments(patient) {
+	return new Promise(async function (resolve, reject) {
+		await Appointments.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, appointments) {
+			if (err) {
+				console.log(err);
+				resolve(err)
+			}
+			let listAppointments = [];
+			let patientIdEnc = crypt.encrypt((patient._id).toString());
+			if (appointments) {
+				appointments.forEach(function (appointment) {
+					let actualappointment = {
+						"fullUrl": "Observation/" +appointment._id,
+						"resource": {
+							"resourceType": "Appointment",
+							"id": appointment._id,
+							"status": "proposed",
+							"description": appointment.title,
+							"start": appointment.start,
+							"end": appointment.end,
+							"created": appointment.date,
+							"comment": appointment.notes,
+							"participant": [
+								{
+								  "actor": {
+									"reference": "Patient/"+patientIdEnc,
+									"display": patient.patientName
+								  },
+								  "required": "required",
+								  "status": "accepted"
+								}
+							]
+						}
+					};
+					listAppointments.push(actualappointment);
+				});
+			}
+
+			resolve(listAppointments);
+		})
+	});
 }
 
 function saveBackup (req, res){
