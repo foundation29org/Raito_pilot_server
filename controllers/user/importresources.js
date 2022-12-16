@@ -51,6 +51,9 @@ async function saveMassiveResources (req, res){
 					promises.push(addHeight(actualResource, patientId));
 				}
 			}
+			if(actualResource.resource.resourceType=='Appointment'){
+				promises.push(addAppointments(actualResource, patientId));
+			}
 		}
 	}else{
 		res.status(200).send({message: 'Eventdb created', eventdb: []})
@@ -305,6 +308,33 @@ async function saveOneProm(actualResource, index, patientId) {
 		}
 		
 	});
+}
+
+function addAppointments(actualResource, patientId){
+	return new Promise(async function (resolve, reject) {
+		try {
+			let eventdb = new Appointments()
+			eventdb.start = actualResource.resource.start
+			eventdb.end = actualResource.resource.end
+			eventdb.date = actualResource.resource.created
+			eventdb.title = actualResource.resource.description
+			eventdb.notes = actualResource.resource.comment
+			eventdb.createdBy = patientId
+
+			eventdb.save((err, eventdbStored) => {
+				if (err) {
+					resolve ({added:false,eventdb:eventdb});
+				}
+				if(eventdbStored){
+					resolve ({added:true,eventdb:eventdb});
+				}
+			})
+		} catch (error) {
+			resolve ({added:false,appointment:actualResource.resource});
+		}
+		
+	});
+	
 }
 
 module.exports = {
