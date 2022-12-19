@@ -1,7 +1,9 @@
 'use strict'
 
 const serviceAuth = require('../services/auth')
-
+const jwt = require('jwt-simple')
+const config = require('../config')
+const Operations = require('../models/operations')
 function isAuth (roles){
 
 	return function(req, res, next) {
@@ -14,6 +16,8 @@ function isAuth (roles){
 		serviceAuth.decodeToken(token, roles)
 			.then(response => {
 				req.user = response
+				var infoFound = {method:req.method, body: req.body, query: req.query, url: req.url}
+				saveRequest('raito', infoFound, response, req.route.path);
 				next()
 			})
 			.catch(response => {
@@ -23,6 +27,29 @@ function isAuth (roles){
   }
 
 
+}
+
+function saveRequest(platform, info, patientId, route){
+	try {
+		let tempData = JSON.stringify(info)
+		let eventdb = new Operations();
+		eventdb.platform = platform
+		eventdb.route = route
+		eventdb.data = tempData
+		eventdb.createdBy = patientId
+		eventdb.save((err, eventdbStored) => {
+			if (err) {
+				console.log(1);
+				console.log(err);
+			}
+			if(eventdbStored){
+				console.log('saved track');
+			}
+		})
+	} catch (error) {
+		console.log(2);
+		console.log(error);
+	}
 }
 
 module.exports = isAuth
