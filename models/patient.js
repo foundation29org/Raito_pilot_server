@@ -30,8 +30,7 @@ const generalShareSchema = Schema({
 	data:{patientInfo:{type: Boolean, default: false}, medicalInfo:{type: Boolean, default: false},devicesInfo:{type: Boolean, default: false},genomicsInfo:{type: Boolean, default: false}},
 	notes: {type: String, default: ''},
 	date: {type: Date, default: Date.now},
-	token: {type: String, default: ''},
-	operations: {type: Object, default: []}
+	token: {type: String, default: ''}
 })
 
 const individualShareSchema = Schema({
@@ -39,7 +38,6 @@ const individualShareSchema = Schema({
 	notes: {type: String, default: ''},
 	date: {type: Date, default: Date.now},
 	token: {type: String, default: ''},
-	operations: {type: Object, default: []},
 	idUser: {type: String, default: null},
 	status: {type: String, default: 'Pending'},
 	verified: {type: String, default: ''}
@@ -91,8 +89,7 @@ const PatientSchema = Schema({
 			data:{patientInfo:false, medicalInfo:false,devicesInfo:false,genomicsInfo:false},
 			notes: '',
 			date: null,
-			token: '',
-			operations: []
+			token: ''
 		}
 	},
 	customShare: [generalShareSchema],

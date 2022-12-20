@@ -97,7 +97,6 @@ function saveRequest(platform, info, patientId, route){
 		eventdb.route = route
 		eventdb.data = tempData
 		eventdb.createdBy = patientId
-		console.log(eventdb)
 		eventdb.save((err, eventdbStored) => {
 			if (err) {
 				console.log(1);
