@@ -28,6 +28,7 @@ const openRaitoCtrl = require('../controllers/all/openraito')
 const vcServiceCtrl = require('../services/vc.js')
 const verifierServiceCtrl = require('../services/verifier.js')
 const resourcesCtrl = require('../controllers/all/resources.js')
+const openAIserviceCtrl = require('../services/openai')
 
 const auth = require('../middlewares/auth')
 const sharedCtrl = require('../middlewares/shared')
@@ -245,6 +246,9 @@ api.post('/resources/questionnaire/remove/:groupId',auth(roles.All), resourcesCt
 api.get('/resources/questionnaires/all',auth(roles.All), resourcesCtrl.getAllQuestionnaires)
 api.post('/resources/questionnaire/rate/:groupId',auth(roles.All), resourcesCtrl.rateQuestionnaire)
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
+
+//services OPENAI
+api.post('/callopenai', auth(roles.All), openAIserviceCtrl.callOpenAi)
 
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {
