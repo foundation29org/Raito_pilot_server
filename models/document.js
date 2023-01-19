@@ -12,6 +12,7 @@ const DocumentSchema = Schema({
 	description: {type: String, default: ''},
 	url: {type: String, default: ''},
 	dateDoc: {type: Date, default: null},
+	notes: {type: String, default: ''},
 	date: {type: Date, default: Date.now},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
 })
