@@ -1409,7 +1409,6 @@ function getQuestionnairesGroup(groupId) {
 				var promises = [];
 				if (group.questionnaires.length > 0) {
 					for (var index in group.questionnaires) {
-						console.log(group.questionnaires);
 						promises.push(getQuestionnaire(group.questionnaires[index].id));
 					}
 				}else {
@@ -1431,7 +1430,6 @@ function getQuestionnairesGroup(groupId) {
 
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
-		console.log(questionnaireId);
 		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
 		try {
 			var json = JSON.parse(fs.readFileSync(url, 'utf8'));
@@ -1925,6 +1923,56 @@ function saveBackup (req, res){
 	})
 }
 
+function createBackup (req, res){
+	let patientId = crypt.decrypt(req.params.patientId);
+	Patient.findById(patientId, async (err, patient) => {
+		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		if(patient){
+			var infoGroup = await geInfoGroup(patient.group);
+			var questionnaires = await getQuestionnairesGroup(patient.group);
+			var data = await getAllPatientInfo(patient, infoGroup, questionnaires);
+			res.status(200).send({data: data})
+		}else{
+			res.status(404).send({message: 'The patient does not exist'})
+		}
+	})
+}
+
+function saveFileId (req, res){
+	let userId = crypt.decrypt(req.params.userId);
+	let fileId = req.body.fileId;
+	// Save file reference to DDBB
+	var dataToSave = {id:fileId, date: Date.now()} ;
+	User.findByIdAndUpdate(userId, { backupGoogleDrive: dataToSave}, {new: true}, (err,userUpdated) => {
+		if(userUpdated){
+			res.status(200).send({message: 'Available', date: userUpdated.backupGoogleDrive.date, id:userUpdated.backupGoogleDrive.id})
+		}else{
+			res.status(500).send({message: `Error: ${err}`})
+		}
+	})
+}
+
+function checkGoogleDrive (req, res){
+	// get file reference to DDBB
+	let userId = crypt.decrypt(req.params.userId);
+	User.findById(userId, async (err, user) => {
+		var id='';
+		if(user.backupGoogleDrive){
+			if(user.backupGoogleDrive.id!=''){
+				id=user.backupGoogleDrive.id;
+				return res.status(200).send({message: 'Available', date: user.backupGoogleDrive.date, id:id})
+			}else{
+				return res.status(200).send({message: 'Not available', date: null, id:null})
+			}
+			
+		}else{
+			return res.status(200).send({message: 'Not available', date: null, id:null})
+		}
+		
+	})
+}
+
+
 const btoa = (text) => {
     return Buffer.from(text, 'binary').toString('base64');
 };
@@ -2100,6 +2148,9 @@ module.exports = {
 	getHeights,
 	haveConsent,
 	saveBackup,
+	createBackup,
+	saveFileId,
+	checkGoogleDrive,
 	checkIPFS,
 	getIPFS,
 	checkF29,

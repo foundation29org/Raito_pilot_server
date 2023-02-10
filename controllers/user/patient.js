@@ -247,7 +247,7 @@ function updatePatient (req, res){
   if(req.body.deleteConsent!=undefined){
 	if(req.body.deleteConsent){
 		req.body.consentgroup='false';
-		Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
+		/*Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
 			if (err) console.log({message: `Error deleting the feels: ${err}`})
 			if(sessions.length>0){
 				sessions.forEach(function(session) {
@@ -256,7 +256,7 @@ function updatePatient (req, res){
 					})
 				});
 			}
-		})
+		})*/
 	}
   }
 
@@ -276,13 +276,13 @@ function consentgroup (req, res){
 
 	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
 	var newConsent = req.body.consentgroup;
-	if(req.body.consentgroup == 'Pending'){
+	/*if(req.body.consentgroup == 'Pending'){
 		newConsent = 'true'
 	}else if(req.body.consentgroup == 'true'){
 		newConsent = 'Pending'
-	}
+	}*/
 	Patient.findByIdAndUpdate(patientId, { consentgroup: newConsent }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		/*if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(req.body.consentgroup == 'true'){
 			//get group name
 			Group.findOne({ '_id': patientUpdated.group }, function (err, group) {
@@ -315,11 +315,6 @@ function consentgroup (req, res){
                         });
                         var data = await generateQR(info);
                         return res.status(200).send({ message: 'qrgenerated', data: data })
-                        /*if(infoSession.sessionData.message!='Credential successfully issued'){
-                            res.status(200).send({infoSession})
-                        }else{
-                            res.status(200).send({ message: 'individuals share updated' })
-                        }*/
                       }
                     }else{
                         try {
@@ -347,8 +342,8 @@ function consentgroup (req, res){
 			})
 		}else{
 			res.status(200).send({message: 'consent changed', consent: newConsent})
-		}
-		
+		}*/
+		res.status(200).send({message: 'consent changed', consent: newConsent})
 
 	})
 }
