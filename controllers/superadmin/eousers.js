@@ -1409,7 +1409,6 @@ function getQuestionnairesGroup(groupId) {
 				var promises = [];
 				if (group.questionnaires.length > 0) {
 					for (var index in group.questionnaires) {
-						console.log(group.questionnaires);
 						promises.push(getQuestionnaire(group.questionnaires[index].id));
 					}
 				}else {
@@ -1431,7 +1430,6 @@ function getQuestionnairesGroup(groupId) {
 
 async function getQuestionnaire(questionnaireId) {
 	return new Promise(async function (resolve, reject) {
-		console.log(questionnaireId);
 		var url = './raito_resources/questionnaires/'+questionnaireId+'.json'
 		try {
 			var json = JSON.parse(fs.readFileSync(url, 'utf8'));
@@ -1959,7 +1957,6 @@ function checkGoogleDrive (req, res){
 	let userId = crypt.decrypt(req.params.userId);
 	User.findById(userId, async (err, user) => {
 		var id='';
-		console.log(user)
 		if(user.backupGoogleDrive){
 			if(user.backupGoogleDrive.id!=''){
 				id=user.backupGoogleDrive.id;
