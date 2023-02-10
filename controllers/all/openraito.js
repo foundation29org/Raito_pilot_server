@@ -108,7 +108,8 @@ function setIndividualShare(req, res) {
             console.log(err);
         }
         if (patientUpdated) {
-            if( req.body.updateStatus){
+            res.status(200).send({ message: 'individuals share updated' })
+            /*if( req.body.updateStatus){
                 Session.find({"createdBy": req.params.patientId, "type": 'Clinician'},async (err, sessions) => {
                     if (err) return res.status(500).send({message: `Error making the request: ${err}`})
                     if(sessions.length>0){
@@ -137,11 +138,6 @@ function setIndividualShare(req, res) {
                         });
                         var data = await generateQR(info);
                         return res.status(200).send({ message: 'qrgenerated', data: data })
-                        /*if(infoSession.sessionData.message!='Credential successfully issued'){
-                            res.status(200).send({infoSession})
-                        }else{
-                            res.status(200).send({ message: 'individuals share updated' })
-                        }*/
                       }
                     }else{
                         try {
@@ -156,7 +152,7 @@ function setIndividualShare(req, res) {
                   })
             }else{
                 res.status(200).send({ message: 'individuals share updated' })
-            }
+            }*/
             
         }
     })
