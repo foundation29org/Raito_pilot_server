@@ -29,6 +29,7 @@ const vcServiceCtrl = require('../services/vc.js')
 const verifierServiceCtrl = require('../services/verifier.js')
 const resourcesCtrl = require('../controllers/all/resources.js')
 const openAIserviceCtrl = require('../services/openai')
+const openAIserviceCtrl2 = require('../services/openai2')
 
 const auth = require('../middlewares/auth')
 const sharedCtrl = require('../middlewares/shared')
@@ -256,6 +257,7 @@ api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //services OPENAI
 api.post('/callopenai', auth(roles.All), openAIserviceCtrl.callOpenAi)
+api.post('/callopenai2', auth(roles.All), openAIserviceCtrl2.callOpenAi)
 
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {
