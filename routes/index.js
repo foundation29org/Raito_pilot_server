@@ -263,7 +263,7 @@ api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //services OPENAI
 api.post('/callopenai', auth(roles.All), openAIserviceCtrl.callOpenAi)
-api.post('/callopenai2', auth(roles.All), openAIserviceCtrl2.callOpenAi)
+api.post('/callopenai2', openAIserviceCtrl2.callOpenAi)
 
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {
