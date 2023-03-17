@@ -19,6 +19,7 @@ const seizuresCtrl = require('../controllers/user/patient/seizures')
 const appointmentsCtrl = require('../controllers/user/patient/appointments')
 const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
+const doseCtrl = require('../controllers/user/patient/dose')
 const feelCtrl = require('../controllers/user/patient/feel')
 const promCtrl = require('../controllers/user/patient/prom')
 const docsCtrl = require('../controllers/user/patient/documents')
@@ -187,6 +188,11 @@ api.put('/medication/stoptaking/:medicationId', auth(roles.OnlyUser), medication
 api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicationCtrl.changenotes)
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 api.post('/massivesdrugs/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMassiveDrugs)
+
+api.get('/dose', doseCtrl.getDoses)
+api.post('/dose/:patientId', auth(roles.OnlyUser), doseCtrl.saveDose)
+api.post('/massiveseizuresdose/:patientId', auth(roles.OnlyUser), doseCtrl.saveMassiveDose)
+
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.post('/openraito/feels/dates/:patientId', sharedCtrl.shared(), feelCtrl.getFeelsDates)
