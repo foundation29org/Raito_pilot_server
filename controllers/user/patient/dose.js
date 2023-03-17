@@ -78,6 +78,7 @@ async function testOneDose(actualdose, patientId){
 			eventdb.name = actualdose.name
 			eventdb.max = actualdose.max
 			eventdb.min = actualdose.min
+			eventdb.age = actualdose.age;
 			eventdb.createdBy = patientId
 			var res1 = saveOneDose(eventdb)
 			// when you save, returns an id in eventdbStored to access that social-info
