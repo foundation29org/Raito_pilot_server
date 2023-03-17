@@ -189,7 +189,7 @@ api.put('/medication/changenotes/:medicationId', auth(roles.OnlyUser), medicatio
 api.put('/medication/sideeffect/:medicationId', auth(roles.OnlyUser), medicationCtrl.sideeffect)
 api.post('/massivesdrugs/:patientId', auth(roles.OnlyUser), medicationCtrl.saveMassiveDrugs)
 
-api.get('/dose', doseCtrl.getDoses)
+api.get('/dose/:patientId', doseCtrl.getDoses)
 api.post('/dose/:patientId', auth(roles.OnlyUser), doseCtrl.saveDose)
 api.post('/massiveseizuresdose/:patientId', auth(roles.OnlyUser), doseCtrl.saveMassiveDose)
 
