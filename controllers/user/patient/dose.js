@@ -9,7 +9,8 @@ const crypt = require('../../../services/crypt')
 
 
 function getDoses (req, res){
-	Dose.find({}, {"createdBy" : false},(err, eventsdb) => {
+	let patientId= crypt.decrypt(req.params.patientId);
+	Dose.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var listEventsdb = [];
 
@@ -26,6 +27,7 @@ function saveDose (req, res){
 	let eventdb = new Dose()
 	eventdb.min = req.body.min;
 	eventdb.max = req.body.max;
+	eventdb.age = req.body.age;
 	eventdb.name = req.body.name;
 	eventdb.createdBy = patientId
 
