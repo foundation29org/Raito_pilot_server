@@ -84,11 +84,28 @@ async function testOneDose(actualdose, patientId, res){
 			// when you save, returns an id in eventdbStored to access that social-info
 			functionDone = true;
 		}else{
+			//update the Dose
+			eventdb2.max = actualdose.max
+			eventdb2.min = actualdose.min
+			eventdb2.actualDrugs = actualdose.actualDrugs;
+			var res1 = updateDose(eventdb2, res)
+			
 			functionDone = true;
 		}
 	})
 
 	return functionDone
+}
+
+async function updateDose (actualdose, res){
+	//update DOSE
+	Dose.findByIdAndUpdate(actualdose._id, actualdose, { select: '-createdBy', new: true }, (err, doseUpdated) => {
+		if (err){
+			res.status(500).send({message: `Failed to update in the database: ${err} `})
+		}else{
+			return(doseUpdated);
+		} 
+	  })
 }
 
 async function saveOneDose(eventdb, res){
