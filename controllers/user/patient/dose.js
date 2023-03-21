@@ -25,8 +25,7 @@ function getDoses (req, res){
 function saveDose (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let eventdb = new Dose()
-	eventdb.min = req.body.min;
-	eventdb.max = req.body.max;
+	eventdb.recommendedDose = req.body.recommendedDose;
 	eventdb.actualDrugs = req.body.actualDrugs;
 	eventdb.name = req.body.name;
 	eventdb.createdBy = patientId
@@ -76,8 +75,7 @@ async function testOneDose(actualdose, patientId, res){
 		if(!eventdb2){
 			let eventdb = new Dose()
 			eventdb.name = actualdose.name
-			eventdb.max = actualdose.max
-			eventdb.min = actualdose.min
+			eventdb.recommendedDose = actualdose.recommendedDose
 			eventdb.actualDrugs = actualdose.actualDrugs;
 			eventdb.createdBy = patientId
 			var res1 = saveOneDose(eventdb, res)
@@ -85,8 +83,7 @@ async function testOneDose(actualdose, patientId, res){
 			functionDone = true;
 		}else{
 			//update the Dose
-			eventdb2.max = actualdose.max
-			eventdb2.min = actualdose.min
+			eventdb2.recommendedDose = actualdose.recommendedDose
 			eventdb2.actualDrugs = actualdose.actualDrugs;
 			var res1 = updateDose(eventdb2, res)
 			

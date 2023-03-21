@@ -8,8 +8,7 @@ const Patient = require('./patient')
 const { conndbaccounts } = require('../db_connect')
 
 const DoseSchema = Schema({
-	min: { type: Number },
-	max: { type: Number },
+	recommendedDose: { type: Number },
 	actualDrugs: String,
 	name: String,
 	date: {type: Date, default: Date.now},
