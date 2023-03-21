@@ -17,11 +17,12 @@ function callOpenAi (req, res){
   //comprobar créditos del usuario
   
   var jsonText = req.body.value;
+  var content = req.body.context;
   (async () => {
     try {
       const gptResponse = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{role: "user", content:jsonText}],
+        messages: [{role: "user", content:jsonText}, {role: "system", content: content}],
         //prompt: jsonText,
         temperature: 0,
         max_tokens: 400,

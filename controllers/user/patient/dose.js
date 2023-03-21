@@ -27,7 +27,7 @@ function saveDose (req, res){
 	let eventdb = new Dose()
 	eventdb.min = req.body.min;
 	eventdb.max = req.body.max;
-	eventdb.age = req.body.age;
+	eventdb.actualDrugs = req.body.actualDrugs;
 	eventdb.name = req.body.name;
 	eventdb.createdBy = patientId
 
@@ -50,7 +50,7 @@ async function saveMassiveDose (req, res){
 	if (req.body.length > 0) {
 		for (var i = 0; i<(req.body).length;i++){
 			var actualdose = (req.body)[i];
-			promises.push(testOneDose(actualdose, patientId));
+			promises.push(testOneDose(actualdose, patientId, res));
 		}
 	}else{
 		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
@@ -69,7 +69,7 @@ async function saveMassiveDose (req, res){
 
 }
 
-async function testOneDose(actualdose, patientId){
+async function testOneDose(actualdose, patientId, res){
 	var functionDone = false;
 	await Dose.findOne({name: actualdose.name}, (err, eventdb2) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
@@ -78,9 +78,9 @@ async function testOneDose(actualdose, patientId){
 			eventdb.name = actualdose.name
 			eventdb.max = actualdose.max
 			eventdb.min = actualdose.min
-			eventdb.age = actualdose.age;
+			eventdb.actualDrugs = actualdose.actualDrugs;
 			eventdb.createdBy = patientId
-			var res1 = saveOneDose(eventdb)
+			var res1 = saveOneDose(eventdb, res)
 			// when you save, returns an id in eventdbStored to access that social-info
 			functionDone = true;
 		}else{
@@ -91,7 +91,7 @@ async function testOneDose(actualdose, patientId){
 	return functionDone
 }
 
-async function saveOneDose(eventdb){
+async function saveOneDose(eventdb, res){
 	var functionDone2 = false;
 	await eventdb.save((err, eventdbStored) => {
 		if (err) {
