@@ -10,6 +10,7 @@ const { conndbaccounts } = require('../db_connect')
 const DoseSchema = Schema({
 	recommendedDose: { type: Number },
 	actualDrugs: String,
+	units: String,
 	name: String,
 	date: {type: Date, default: Date.now},
 	createdBy: { type: Schema.Types.ObjectId, ref: "Patient"}
