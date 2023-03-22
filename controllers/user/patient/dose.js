@@ -27,6 +27,7 @@ function saveDose (req, res){
 	let eventdb = new Dose()
 	eventdb.recommendedDose = req.body.recommendedDose;
 	eventdb.actualDrugs = req.body.actualDrugs;
+	eventdb.units = req.body.units;
 	eventdb.name = req.body.name;
 	eventdb.createdBy = patientId
 
@@ -77,6 +78,7 @@ async function testOneDose(actualdose, patientId, res){
 			eventdb.name = actualdose.name
 			eventdb.recommendedDose = actualdose.recommendedDose
 			eventdb.actualDrugs = actualdose.actualDrugs;
+			eventdb.units = actualdose.units;
 			eventdb.createdBy = patientId
 			var res1 = saveOneDose(eventdb, res)
 			// when you save, returns an id in eventdbStored to access that social-info
@@ -85,6 +87,7 @@ async function testOneDose(actualdose, patientId, res){
 			//update the Dose
 			eventdb2.recommendedDose = actualdose.recommendedDose
 			eventdb2.actualDrugs = actualdose.actualDrugs;
+			eventdb2.units = actualdose.units;
 			var res1 = updateDose(eventdb2, res)
 			
 			functionDone = true;
