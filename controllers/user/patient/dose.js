@@ -71,7 +71,7 @@ async function saveMassiveDose (req, res){
 
 async function testOneDose(actualdose, patientId, res){
 	var functionDone = false;
-	await Dose.findOne({name: actualdose.name}, (err, eventdb2) => {
+	await Dose.findOne({name: actualdose.name, createdBy: patientId}, (err, eventdb2) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(!eventdb2){
 			let eventdb = new Dose()
