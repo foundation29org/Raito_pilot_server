@@ -163,8 +163,7 @@ async function deleteBackups (userId){
 	var result = await f29azureService.deleteBlob('backups', fileName);
 
 	let userIdDecrypt = crypt.decrypt(userId);
-	var dataToSave = {url:'', date: null} ;
-	User.findByIdAndUpdate(userIdDecrypt, { backupIPFS: dataToSave, backupF29: null}, {new: true}, (err,userUpdated) => {
+	User.findByIdAndUpdate(userIdDecrypt, { backupF29: null}, {new: true}, (err,userUpdated) => {
 		
 	})
 }

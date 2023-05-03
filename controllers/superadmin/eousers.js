@@ -20,16 +20,11 @@ const Appointments = require('../../models/appointments')
 const config = require('../../config')
 const fs = require('fs');
 
-/* import moralis */
-const Moralis = require("moralis/node");
+
+
 var https = require('follow-redirects').https;
 const request = require("request");
 
-/* Moralis init code */
-const serverUrl = config.MORALIS.SERVER_URL;
-const appId = config.MORALIS.APP_ID;
-const masterKey = config.MORALIS.MARTER_KEY;
-Moralis.start({ serverUrl, appId, masterKey });
 
 /**
  * @api {post} https://raito.care/api/eo/onlypatients/:groupId Get only patients
@@ -1900,14 +1895,7 @@ function saveBackup (req, res){
 			var questionnaires = await getQuestionnairesGroup(patient.group);
 			var data = await getAllPatientInfo(patient, infoGroup, questionnaires);
 			var userId = crypt.encrypt((patient.createdBy).toString());
-			if(location=='IPFS'){
-				var data2 = await saveIPFS(data, userId);
-				if(data2){
-					res.status(200).send({message: "Done"})
-				}else{
-					res.status(500).send({message: `Error: ${err}`})
-				}
-			}else if(location=='F29'){
+			if(location=='F29'){
 				var data2 = await saveF29(data.result, userId);
 				if(data2){
 					res.status(200).send({message: "Done"})
@@ -1973,50 +1961,6 @@ function checkGoogleDrive (req, res){
 }
 
 
-const btoa = (text) => {
-    return Buffer.from(text, 'binary').toString('base64');
-};
-
-async function saveIPFS (data, userId){
-	return new Promise(async function (resolve, reject) {
-		const converted = toBinary(JSON.stringify(data.result));
-		// Save file input to IPFS
-		const fileName = userId+'.json';
-		const file = new Moralis.File(fileName, {
-		base64: btoa(converted),
-		});
-		try {
-			await file.saveIPFS({useMasterKey:true});
-
-			// Save file reference to DDBB
-			let userIdDecrypt = crypt.decrypt(userId);
-			var dataToSave = {url:file.hash(), date: Date.now()} ;
-			User.findByIdAndUpdate(userIdDecrypt, { backupIPFS: dataToSave}, {new: true}, (err,userUpdated) => {
-				
-			})
-			resolve(true);
-		} catch (error) {
-			console.log(error);
-			resolve(false);
-		}
-		
-	});
-}
-
-function toBinary(string) {
-	const codeUnits = Uint16Array.from(
-	  { length: string.length },
-	  (element, index) => string.charCodeAt(index)
-	);
-	const charCodes = new Uint8Array(codeUnits.buffer);
-  
-	let result = "";
-	charCodes.forEach((char) => {
-	  result += String.fromCharCode(char);
-	});
-	return result;
-  }
-
   function fromBinary(binary) {
 	const bytes = Uint8Array.from({ length: binary.length }, (element, index) =>
 	  binary.charCodeAt(index)
@@ -2029,65 +1973,6 @@ function toBinary(string) {
 	});
 	return result;
   }
-
-async function getIPFS(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	User.findById(userId, async (err, user) => {
-		if(user.backupIPFS.url!=''){
-			var options = {
-				'method': 'GET',
-				'hostname': 'gateway.moralisipfs.com',
-				'path': `/ipfs/${user.backupIPFS.url}`,
-				'headers': {
-					'Content-Type': 'application/json'
-				},
-				'maxRedirects': 20
-			  };
-			  
-			  var req = https.request(options, function (res1) {
-				var chunks = [];
-			  
-				res1.on("data", function (chunk) {
-				  chunks.push(chunk);
-				});
-			  
-				res1.on("end", function (chunk) {
-				  var body = Buffer.concat(chunks);
-				  const original = fromBinary(body.toString());
-				  return res.status(200).send({result: JSON.parse(original)})
-				});
-			  
-				res1.on("error", function (error) {
-				  console.error(error);
-				  res.status(500).send({message: error})
-				});
-			  });
-			  
-			  req.end();
-			/*const url = `https://gateway.moralisipfs.com/ipfs/${user.backupIPFS}`;
-			const response = await fetch(url);
-			return await response.json();*/
-		}else{
-			return res.status(200).send({message: 'Not available'})
-		}
-		
-	})
-	
-  }
-
-  async function checkIPFS(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	User.findById(userId, async (err, user) => {
-		if(user.backupIPFS.url!=''){
-			return res.status(200).send({message: 'Available', date: user.backupIPFS.date})
-		}else{
-			return res.status(200).send({message: 'Not available', date: null})
-		}
-		
-	})
-	
-  }
-
 
   async function saveF29 (data, userId){
 	return new Promise(async function (resolve, reject) {
@@ -2151,8 +2036,6 @@ module.exports = {
 	createBackup,
 	saveFileId,
 	checkGoogleDrive,
-	checkIPFS,
-	getIPFS,
 	checkF29,
 	getF29
 }

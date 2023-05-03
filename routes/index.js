@@ -120,10 +120,8 @@ api.get('/eo/createbackup/:patientId', auth(roles.OnlyUser), eoCtrl.createBackup
 api.post('/eo/backupfile/:userId', auth(roles.OnlyUser), eoCtrl.saveFileId)
 api.get('/eo/checkgoogledrive/:userId', auth(roles.OnlyUser), eoCtrl.checkGoogleDrive)
 
-//ipfs and f29
+//f29
 api.post('/eo/backup/:patientId', auth(roles.OnlyUser), eoCtrl.saveBackup)
-api.get('/eo/checkipfs/:userId', auth(roles.OnlyUser), eoCtrl.checkIPFS)
-api.get('/eo/backupipfs/:userId', auth(roles.OnlyUser), eoCtrl.getIPFS)
 api.get('/eo/checkf29/:userId', auth(roles.OnlyUser), eoCtrl.checkF29)
 api.get('/eo/backupf29/:userId', auth(roles.OnlyUser), eoCtrl.getF29)
 
