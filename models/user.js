@@ -21,11 +21,6 @@ const ParentSchema = Schema({
 	profession: String
 })
 
-const backupIPFSSchema = Schema({
-	url: { type: String, default: '' },
-	date: { type: Date, default: Date.now },
-})
-
 const backupGoogleDrivechema = Schema({
 	id: { type: String, default: '' },
 	date: { type: Date, default: Date.now },
@@ -70,12 +65,6 @@ const UserSchema = Schema({
 	iscaregiver: { type: Boolean, default: false },
 	phone: { type: String, default: '' },
 	provider: { type: String, default: '' },
-	backupIPFS: {
-		type: backupIPFSSchema, default:{
-			url:'',
-			date: null
-		}
-	},
 	backupGoogleDrive: {
 		type: backupGoogleDrivechema, default:{
 			id:'',
