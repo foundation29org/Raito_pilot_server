@@ -58,7 +58,7 @@ const UserSchema = Schema({
 	lengthunit: { type: String, required: true, default: 'cm' },
 	blockedaccount: { type: Boolean, default: false },
 	permissions: { type: Object, default: {} },
-	modules: { type: Object, default: ["seizures"] },
+
 	platform: { type: String, default: '' },
 	countryselectedPhoneCode: { type: String, default: '' },
 	rangeDate: { type: String, default: 'month' },
@@ -133,7 +133,7 @@ UserSchema.statics.getAuthenticated = function (ethAddress, cb) {
 		if (err) return cb(err);
 		return cb(null, user);
 
-	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions modules platform shared');
+	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
 };
 
 UserSchema.statics.getAuthenticatedUserId = function (userId, ethAddress, cb) {

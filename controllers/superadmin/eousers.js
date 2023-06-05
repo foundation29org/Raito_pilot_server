@@ -73,8 +73,14 @@ function getOnlyPatients (req, res){
 	let meta = req.body.meta;
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		var data = await getBasicInfoPatients(patients, meta);
-		res.status(200).send(data)
+		if(patients.length>0){
+			console.log(patients)
+			var data = await getBasicInfoPatients(patients, meta);
+			res.status(200).send(data)
+		}else{
+			res.status(200).send([])
+		}
+		
 	})
 }
 
@@ -1390,8 +1396,12 @@ function getProms (req, res){
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var questionnaires = await getQuestionnairesGroup(req.params.groupId);
-		var data = await getPromsPatients(patients, questionnaires);
-		res.status(200).send(data)
+		if(patients.length>0){
+			var data = await getPromsPatients(patients, questionnaires);
+			res.status(200).send(data)
+		}else{
+			res.status(200).send({message: 'No data'})
+		}
 	})
 }
 

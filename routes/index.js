@@ -16,6 +16,7 @@ const f29azureserviceCtrl = require('../services/f29azure')
 const f29gatewayCtrl = require('../services/f29gateway')
 const supportCtrl = require('../controllers/all/support')
 const seizuresCtrl = require('../controllers/user/patient/seizures')
+const immunodeficienciesCtrl = require('../controllers/user/patient/immunodeficiencies')
 const appointmentsCtrl = require('../controllers/user/patient/appointments')
 const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
@@ -54,7 +55,6 @@ api.get('/users/settings/:userId', auth(roles.All), userCtrl.getSettings)
 api.put('/users/:userId', auth(roles.AllLessResearcher), userCtrl.updateUser)
 api.delete('/users/:userId', auth(roles.AllLessResearcher), userCtrl.deleteUser)//de momento no se usa
 api.get('/users/name/:userId', auth(roles.All), userCtrl.getUserName)
-api.get('/users/modules/:userId', auth(roles.All), userCtrl.getModules)
 api.get('/users/email/:userId', auth(roles.All), userCtrl.getUserEmail)
 api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
 api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
@@ -77,6 +77,7 @@ api.get('/patient/consentgroup/:patientId', auth(roles.All), patientCtrl.getCons
 api.put('/patient/checks/:patientId', auth(roles.All), patientCtrl.setChecks)
 api.get('/patient/checks/:patientId', auth(roles.All), patientCtrl.getChecks)
 api.put('/patient/birthdate/:patientId', auth(roles.All), patientCtrl.setBirthDate)
+api.get('/patient/modules/:patientId', auth(roles.All), patientCtrl.getModules)
 
 // phenotypeinfo routes, using the controller socialinfo, this controller has methods
 api.post('/openraito/phenotypes/:patientId', sharedCtrl.shared(), phenotypeCtrl.getPhenotype)
@@ -150,6 +151,12 @@ api.post('/seizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveSeizure)
 api.put('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.updateSeizure)
 api.delete('/seizures/:seizureId', auth(roles.OnlyUser), seizuresCtrl.deleteSeizure)
 api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveMassiveSeizure)
+
+api.get('/immunodeficiencies/:patientId', auth(roles.UserResearcher), immunodeficienciesCtrl.getImmunodeficiencies)
+api.post('/immunodeficiencies/:patientId', auth(roles.UserResearcher), immunodeficienciesCtrl.saveImmunodeficiencies)
+api.put('/immunodeficiencies/:inmunoId', auth(roles.UserResearcher), immunodeficienciesCtrl.updateImmunodeficiencies)
+api.get('/eo/immunodeficienciesfhir/:groupId', auth(roles.Admin), immunodeficienciesCtrl.getFhirImmunodeficiencies)
+api.get('/eo/immunodeficiencies/:groupId', auth(roles.Admin), immunodeficienciesCtrl.getAllImmunodeficiencies)
 
 //appointments
 api.get('/lastappointments/:patientId', auth(roles.UserResearcher), appointmentsCtrl.getLastAppointments)

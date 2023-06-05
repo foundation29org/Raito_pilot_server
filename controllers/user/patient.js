@@ -260,11 +260,11 @@ function updatePatient (req, res){
 	}
   }
 
-  Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup }, {new: true}, async (err,patientUpdated) => {
+  Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup, modules: req.body.modules, tobaccoUse: req.body.tobaccoUse, avgCigarettesPerDay: req.body.avgCigarettesPerDay, numberSmokingYears: req.body.numberSmokingYears, specificDiet: req.body.specificDiet, specificDietDescription: req.body.specificDietDescription, physicalExercise: req.body.physicalExercise, physicalExerciseDescription: req.body.physicalExerciseDescription}, {new: true}, async (err,patientUpdated) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		var id = patientUpdated._id.toString();
 		var idencrypt= crypt.encrypt(id);
-		var patientInfo = {sub:idencrypt, patientName: patientUpdated.patientName, surname: patientUpdated.surname, birthDate: patientUpdated.birthDate, gender: patientUpdated.gender, country: patientUpdated.country, previousDiagnosis: patientUpdated.previousDiagnosis, avatar: patientUpdated.avatar, group: patientUpdated.group, consentgroup: patientUpdated.consentgroup};
+		var patientInfo = {sub:idencrypt, patientName: patientUpdated.patientName, surname: patientUpdated.surname, birthDate: patientUpdated.birthDate, gender: patientUpdated.gender, country: patientUpdated.country, previousDiagnosis: patientUpdated.previousDiagnosis, avatar: patientUpdated.avatar, group: patientUpdated.group, consentgroup: patientUpdated.consentgroup, modules: patientUpdated.modules, tobaccoUse: patientUpdated.tobaccoUse, avgCigarettesPerDay:patientUpdated.avgCigarettesPerDay, numberSmokingYears:patientUpdated.numberSmokingYears, specificDiet: patientUpdated.specificDiet, specificDietDescription: patientUpdated.specificDietDescription, physicalExercise: patientUpdated.physicalExercise, physicalExerciseDescription: patientUpdated.physicalExerciseDescription};
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
 		res.status(200).send({message: 'Patient updated', patientInfo})
@@ -440,6 +440,22 @@ function setBirthDate (req, res){
 	})
 }
 
+function getModules(req, res) {
+	let patientId = crypt.decrypt(req.params.patientId);
+	Patient.findById(patientId, { "_id": false}, (err, patient) => {
+		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		if (patient) {
+			if (patient.modules) {
+				res.status(200).send({ modules: patient.modules })
+			}else{
+				res.status(200).send({ modules: ["seizures"] })
+			}
+		}else{
+			res.status(200).send({ modules: ["seizures"]})
+		}
+	})
+}
+
 module.exports = {
 	getPatientsUser,
 	getPatient,
@@ -448,5 +464,6 @@ module.exports = {
   getConsentGroup,
   setChecks,
   getChecks,
-  setBirthDate
+  setBirthDate,
+  getModules
 }

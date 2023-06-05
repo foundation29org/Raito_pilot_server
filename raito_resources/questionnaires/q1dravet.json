@@ -2,7 +2,7 @@
     "resourceType": "Questionnaire",
     "id": "q1dravet",
     "createdById":"61bb38fad6e0cb14f08881c0",
-    "title": "General questions of Dravet syndrome",
+    "title": "General questions for Dravet syndrome",
     "description": "General questions for patients with Dravet Syndrome.",
     "createdby": "Foundation29",
     "rate":{"avg":3.15, "ids": [{"id":"dfsdfsdfssd", "value": 4}, {"id":"dfsdaf3fsdfssd", "value": 2} ]},

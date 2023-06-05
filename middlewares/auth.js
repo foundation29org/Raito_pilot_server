@@ -17,7 +17,7 @@ function isAuth (roles){
 			.then(response => {
 				req.user = response
 				var infoFound = {method:req.method, body: req.body, query: req.query, url: req.url}
-				saveRequest('raito', infoFound, response, req.route.path);
+				//saveRequest('raito', infoFound, response, req.route.path);
 				next()
 			})
 			.catch(response => {
