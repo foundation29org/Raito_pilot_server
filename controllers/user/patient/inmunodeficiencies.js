@@ -254,7 +254,7 @@ function getInmunodeficienciesFHIR (patientId){
 				}
 				
 				//Variables Inmunológicas
-				forEach(eventdb.data.immunologicalVariables.serumIgGList, function (serumIgG, next) {
+				forEach(eventdb.data.inmunologicalVariables.serumIgGList, function (serumIgG, next) {
 					var actualResource = {
 						"fullUrl": "Observation/serumIgG",
 						"resource": {
@@ -276,7 +276,7 @@ function getInmunodeficienciesFHIR (patientId){
 					}
 				});
 				
-				forEach(eventdb.data.immunologicalVariables.serumIgAList, function (serumIgA, next) {
+				forEach(eventdb.data.inmunologicalVariables.serumIgAList, function (serumIgA, next) {
 					var actualResource = {
 						"fullUrl": "Observation/serumIgA",
 						"resource": {
@@ -298,7 +298,7 @@ function getInmunodeficienciesFHIR (patientId){
 					}
 				});
 
-				forEach(eventdb.data.immunologicalVariables.serumIgMList, function (serumIgM, next) {
+				forEach(eventdb.data.inmunologicalVariables.serumIgMList, function (serumIgM, next) {
 					var actualResource = {
 						"fullUrl": "Observation/serumIgM",
 						"resource": {
@@ -320,7 +320,7 @@ function getInmunodeficienciesFHIR (patientId){
 					}
 				});
 
-				forEach(eventdb.data.immunologicalVariables.serumIgEList, function (serumIgE, next) {
+				forEach(eventdb.data.inmunologicalVariables.serumIgEList, function (serumIgE, next) {
 					var actualResource = {
 						"fullUrl": "Observation/serumIgE",
 						"resource": {
@@ -342,7 +342,7 @@ function getInmunodeficienciesFHIR (patientId){
 					}
 				});
 
-				forEach(eventdb.data.immunologicalVariables.hbList, function (hb, next) {
+				forEach(eventdb.data.inmunologicalVariables.hbList, function (hb, next) {
 					var actualResource = {
 						"fullUrl": "Observation/hb",
 						"resource": {
@@ -365,7 +365,7 @@ function getInmunodeficienciesFHIR (patientId){
 				});
 
 
-				forEach(eventdb.data.immunologicalVariables.plateletsList, function (platelets, next) {
+				forEach(eventdb.data.inmunologicalVariables.plateletsList, function (platelets, next) {
 					var actualResource = {
 						"fullUrl": "Observation/platelets",
 						"resource": {
@@ -387,7 +387,7 @@ function getInmunodeficienciesFHIR (patientId){
 					}
 				});
 
-				forEach(eventdb.data.immunologicalVariables.lymphocytesList, function (lymphocytes, next) {
+				forEach(eventdb.data.inmunologicalVariables.lymphocytesList, function (lymphocytes, next) {
 					var actualResource = {
 						"fullUrl": "Observation/lymphocytes",
 						"resource": {
