@@ -528,7 +528,6 @@ async function getInmunodeficienciesPatients(patients) {
 			.then(async function (data) {
 				var res = [];
 				data.forEach(function(onePatient) {
-					console.log(onePatient)
 					if(onePatient){
 						console.log('entrando en onePatient')
 						res.push(onePatient);

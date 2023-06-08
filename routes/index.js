@@ -155,7 +155,7 @@ api.post('/massiveseizures/:patientId', auth(roles.OnlyUser), seizuresCtrl.saveM
 api.get('/inmunodeficiencies/:patientId', auth(roles.UserResearcher), inmunodeficienciesCtrl.getInmunodeficiencies)
 api.post('/inmunodeficiencies/:patientId', auth(roles.UserResearcher), inmunodeficienciesCtrl.saveInmunodeficiencies)
 api.put('/inmunodeficiencies/:inmunoId', auth(roles.UserResearcher), inmunodeficienciesCtrl.updateInmunodeficiencies)
-api.get('/eo/inmunodeficiencies/:groupId', auth(roles.Admin), inmunodeficienciesCtrl.getFhirInmunodeficiencies)
+api.get('/eo/inmunodeficienciesfhir/:groupId', auth(roles.Admin), inmunodeficienciesCtrl.getFhirInmunodeficiencies)
 api.get('/eo/inmunodeficiencies/:groupId', auth(roles.Admin), inmunodeficienciesCtrl.getAllInmunodeficiencies)
 
 //appointments
