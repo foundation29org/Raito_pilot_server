@@ -93,7 +93,15 @@ const PatientSchema = Schema({
 		}
 	},
 	customShare: [generalShareSchema],
-	individualShare: [individualShareSchema]
+	individualShare: [individualShareSchema],
+	modules: { type: [String], default: ["seizures"] },
+	tobaccoUse: {type: String, default: ''},
+	avgCigarettesPerDay: {type: String, default: ''},
+	numberSmokingYears: {type: String, default: ''},
+	specificDiet: {type: String, default: ''},
+	specificDietDescription: {type: String, default: ''},
+	physicalExercise: {type: String, default: ''},
+	physicalExerciseDescription: {type: String, default: ''}
 })
 
 module.exports = conndbaccounts.model('Patient',PatientSchema)

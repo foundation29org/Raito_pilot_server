@@ -537,7 +537,7 @@ function updateUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
 	let update = req.body
 
-	User.findByIdAndUpdate(userId, update, { select: '-_id userName lastName lang email signupDate massunit lengthunit iscaregiver modules', new: true }, (err, userUpdated) => {
+	User.findByIdAndUpdate(userId, update, { select: '-_id userName lastName lang email signupDate massunit lengthunit iscaregiver', new: true }, (err, userUpdated) => {
 		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
 
 		res.status(200).send({ user: userUpdated })
@@ -571,19 +571,6 @@ function getUserName(req, res) {
 			res.status(200).send({ userName: user.userName, lastName: user.lastName, idUser: req.params.userId, email: user.email, iscaregiver: user.iscaregiver })
 		}else{
 			res.status(200).send({ userName: '', lastName: '', idUser: req.params.userId, iscaregiver: false})
-		}
-	})
-}
-
-function getModules(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-		if (user) {
-			res.status(200).send({ modules: user.modules})
-		}else{
-			res.status(200).send({ modules: ["seizures"]})
 		}
 	})
 }
@@ -679,7 +666,6 @@ module.exports = {
 	deleteUser,
 	sendEmail,
 	getUserName,
-	getModules,
 	getUserEmail,
 	isVerified,
 	setInfoVerified,
