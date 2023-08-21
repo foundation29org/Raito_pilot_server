@@ -36,18 +36,22 @@ const InfoVerifiedSchema = Schema({
 const UserSchema = Schema({
 	email: {
 		type: String,
+		index: true,
 		trim: true,
 		lowercase: true,
-		default: ''
+		unique: true,
+		required: 'Email address is required',
+		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
 	},
+	password: { type: String, select: false, required: true, minlength: [8, 'Password too short'] },
 	role: { type: String, required: true, enum: ['User', 'Clinical', 'Admin'], default: 'User' },
-	subrole: String,
+	confirmed: { type: Boolean, default: false },
+	subrole: { type: String, default: null },
 	group: { type: String, required: true, default: 'None' },
 	confirmationCode: String,
 	signupDate: { type: Date, default: Date.now },
 	lastLogin: { type: Date, default: null },
 	userName: { type: String, default: '' },
-	ethAddress: { type: String, default: '' },
 	lastName: { type: String, default: '' },
 	loginAttempts: { type: Number, required: true, default: 0 },
 	lockUntil: { type: Number },
@@ -77,7 +81,9 @@ const UserSchema = Schema({
 			isVerified:false,
 			info: {}
 		}
-	}
+	},
+	provider: { type: String, default: '' },
+	emailVerified: { type: Boolean, default: false }
 })
 
 
@@ -86,6 +92,28 @@ UserSchema.virtual('isLocked').get(function () {
 	// check for a future lockUntil timestamp
 	return !!(this.lockUntil && this.lockUntil > Date.now());
 });
+
+UserSchema.pre('save', function (next) {
+	let user = this
+	if (!user.isModified('password')) return next()
+
+	bcrypt.genSalt(10, (err, salt) => {
+		if (err) return next(err)
+
+		bcrypt.hash(user.password, salt, null, (err, hash) => {
+			if (err) return next(err)
+
+			user.password = hash
+			next()
+		})
+	})
+})
+
+UserSchema.methods.comparePassword = function (candidatePassword, cb) {
+	bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
+		cb(err, isMatch)
+	});
+}
 
 
 UserSchema.methods.incLoginAttempts = function (cb) {
@@ -115,45 +143,65 @@ var reasons = UserSchema.statics.failedLogin = {
 	WRONG_PLATFORM: 5
 };
 
-UserSchema.statics.getAuthenticated = function (ethAddress, cb) {
-	this.findOne({ ethAddress: ethAddress}, function (err, user) {
-
+UserSchema.statics.getAuthenticated = function (email, password, cb) {
+	this.findOne({ email: email }, function (err, user) {
 		if (err) return cb(err);
-
 		// make sure the user exists
 		if (!user) {
 			return cb(null, null, reasons.NOT_FOUND);
 		}
-		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
-			return cb(null, null, reasons.WRONG_PLATFORM);
-		}
+		//Check if the account is activated.
+		/*if (!user.confirmed) {
+			return cb(null, null, reasons.UNACTIVATED);
+		}*/
 		if (user.blockedaccount) {
 			return cb(null, null, reasons.BLOCKED);
 		}
-		if (err) return cb(err);
-		return cb(null, user);
-
-	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
-};
-
-UserSchema.statics.getAuthenticatedUserId = function (userId, ethAddress, cb) {
-	let userIdDecrypt = crypt.decrypt(userId);
-	this.findOne({ _id: userIdDecrypt, ethAddress: ethAddress}, function (err, user) {
-		if (err) return cb(err);
-
-		// make sure the user exists
-		if (!user) {
-			return cb(null, null, reasons.NOT_FOUND);
+		// check if the account is currently locked
+		if (user.isLocked) {
+			// just increment login attempts if account is already locked
+			return user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.MAX_ATTEMPTS);
+			});
 		}
-		if (user.role != 'User' && user.role != 'Admin' && user.role != 'SuperAdmin') {
-			return cb(null, null, reasons.WRONG_PLATFORM);
-		}
-		if (user.blockedaccount) {
-			return cb(null, null, reasons.BLOCKED);
-		}
-		if (err) return cb(err);
-		return cb(null, user);
-	}).select('_id email ethAddress loginAttempts lockUntil lastLogin role subrole userName lang randomCodeRecoverPass dateTimeRecoverPass group blockedaccount permissions platform shared');
+
+		// test for a matching password
+		user.comparePassword(password, function (err, isMatch) {
+			if (err) return cb(err);
+
+
+			// check if the password was a match
+			if (isMatch) {
+				// if there's no lock or failed attempts, just return the user
+				if (!user.loginAttempts && !user.lockUntil) {
+					var updates = {
+						$set: { lastLogin: Date.now() }
+					};
+					return user.update(updates, function (err) {
+						if (err) return cb(err);
+						return cb(null, user);
+					});
+					return cb(null, user)
+				}
+				// reset attempts and lock info
+				var updates = {
+					$set: { loginAttempts: 0, lastLogin: Date.now() },
+					$unset: { lockUntil: 1 }
+				};
+				return user.update(updates, function (err) {
+					if (err) return cb(err);
+					return cb(null, user);
+				});
+			}
+
+			// password is incorrect, so increment login attempts before responding
+			user.incLoginAttempts(function (err) {
+				if (err) return cb(err);
+				return cb(null, null, reasons.PASSWORD_INCORRECT);
+			});
+		});
+	}).select('_id email +password loginAttempts lockUntil confirmed lastLogin role userName lang randomCodeRecoverPass dateTimeRecoverPass blockedaccount');
 };
 
 module.exports = conndbaccounts.model('User', UserSchema)

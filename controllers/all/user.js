@@ -12,94 +12,123 @@ const crypt = require('../../services/crypt')
 const f29azureService = require("../../services/f29azure")
 const jose = require('jose')
 
-/**
- * @api {post} https://raito.care/api/api/signUp New account
- * @apiName signUp
- * @apiVersion 1.0.0
- * @apiGroup Account
- * @apiDescription This method allows you to create a user account in Raito
- * @apiExample {js} Example usage:
- *  var formValue = { email: "example@ex.com", userName: "Peter", lang: "en", group: "None"};
- *   this.http.post('https://raito.care/api/signup',formValue)
- *    .subscribe( (res : any) => {
- *      if(res.message == "Account created"){
- *        console.log("Check the email to activate the account");
- *      }else if(res.message == 'Fail sending email'){
- *        //contact with Raito
- *      }else if(res.message == 'user exists'){
- *       ...
- *      }
- *   }, (err) => {
- *     ...
- *   }
- *
- * @apiParam (body) {String} email User email
- * @apiParam (body) {String} userName User name
- * @apiParam (body) {String} lang Lang of the User. For this, go to  [Get the available languages](#api-Languages-getLangs).
- * We currently have 5 languages, but we will include more. The current languages are:
- * * English: en
- * * Spanish: es
- * * German: de
- * * Dutch: nl
- * * Portuguese: pt
- * @apiParam (body) {String} [group] Group to which the user belongs, if it does not have a group or do not know the group to which belongs, it will be 'None'. If the group is not set, it will be set to 'None' by default.
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": "example@ex.com",
- *       "userName": "Peter",
- *       "group": "None",
- *       "lang": "en"
- *     }
- * @apiSuccess {String} message Information about the request. One of the following answers will be obtained:
- * * Account created (The user should check the email to activate the account)
- * * Fail sending email
- * * user exists
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {
- *  "message": "Account created"
- * }
- *
- */
+function signWith(req, res) {
+	// attempt to authenticate user
+	req.body.email = (req.body.email).toLowerCase();
+	console.log(req.body)
+	User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+		if (err) return res.status(500).send({ message: err })
 
-
-function signUp(req, res) {
-	let randomstring = Math.random().toString(36).slice(-12);
-	const user = new User({
-		email: req.body.email,
-		ethAddress: req.body.ethAddress,
-		subrole: req.body.subrole,
-		userName: req.body.userName,
-		lastName: req.body.lastName,
-		confirmationCode: randomstring,
-		lang: req.body.lang,
-		group: req.body.group,
-		permissions: req.body.permissions,
-		platform: 'Raito'
-	})
-	User.findOne({ 'ethAddress': req.body.ethAddress }, function (err, user2) {
-		if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-		if (!user2) {
-			user.save((err, userSaved) => {
-				if (err) return res.status(500).send({ message: `Error creating the user: ${err}` })
-				//Create the patient
-				var userId = userSaved._id.toString();
-				savePatient(userId, req);
-				res.status(200).send({
-					message: 'You have successfully logged in',
-					token: serviceAuth.createToken(userSaved),
-					lang: userSaved.lang,
-					platform: userSaved.platform,
-					isFirstTime:true
-				})
+		// login was successful if we have a user
+		if (user) {
+			// handle login success
+			Patient.findOne({"createdBy": user._id},(err, patient) => {
+				if (err){
+					insights.error(err)
+					return res.status(500).send({
+						message: 'Fail login 2'
+					})
+				}
+				if(patient){
+					return res.status(200).send({
+						message: 'You have successfully logged in',
+						token: serviceAuth.createToken(user),
+						lang: user.lang
+					})
+				}else{
+					trySavePatient(user, req, res)
+				}
 			})
+			/*return res.status(200).send({
+				message: 'You have successfully logged in',
+				token: serviceAuth.createToken(user),
+				lang: user.lang
+			})*/
 		} else {
-			res.status(202).send({ message: 'user exists' })
+			req.body.email = (req.body.email).toLowerCase();
+			let randomstring = Math.random().toString(36).slice(-12);
+			const user = new User({
+				email: req.body.email,
+				password: req.body.password,
+				subrole: req.body.subrole,
+				userName: req.body.userName,
+				lastName: req.body.lastName,
+				confirmationCode: randomstring,
+				lang: req.body.lang,
+				group: req.body.group,
+				permissions: req.body.permissions,
+				provider: req.body.provider,
+				emailVerified: req.body.emailVerified,
+				platform: 'Raito'
+			})
+			
+			User.findOne({ 'email': req.body.email }, function (err, user2) {
+				if (err){
+					insights.error(err);
+					return res.status(500).send({ message: `Error creating the user: ${err}` })
+				}
+				if (!user2) {
+					user.save(async (err, userSaved) => {
+						if (err){
+							insights.error(err);
+							return res.status(500).send({ message: `Error creating the user: ${err}` })
+						}
+						if(userSaved){
+							trySavePatient(userSaved, req, res)
+						}else{
+							return res.status(500).send({ message: `Error creating the user: ${err}` })
+						}
+						
+					})
+				} else {
+					Patient.findOne({"createdBy": user2._id},(err, patient) => {
+						if (err){
+							insights.error(err)
+							return res.status(500).send({
+								message: 'Fail login 2'
+							})
+						}
+						if(patient){
+							return res.status(200).send({
+								message: 'You have successfully logged in',
+								token: serviceAuth.createToken(user2),
+								lang: user2.lang
+							})
+						}else{
+							trySavePatient(user2, req, res)
+						}
+					})
+					//RETURN ERROR
+					
+					/*return res.status(200).send({
+								message: 'You have successfully logged in',
+								token: serviceAuth.createToken(user2),
+								lang: user2.lang
+							})*/
+				}
+			})
 		}
+
 	})
 }
 
+async function trySavePatient(userSaved, req, res){
+	var userId = userSaved._id.toString();
+	var data3 = await savePatient(userId, req);
+	if(data3){
+		return res.status(200).send({
+			message: 'You have successfully logged in',
+			token: serviceAuth.createToken(userSaved),
+			lang: userSaved.lang
+		})
+	}else{
+		trySavePatient(userSaved, req, res)
+	}
+}
+
 function savePatient(userId, req) {
+	return new Promise(async function (resolve, reject) {
+		console.log('intentar crear patient')
 	let patient = new Patient()
 	patient.patientName = ''
 	patient.surname = ''
@@ -136,18 +165,38 @@ function savePatient(userId, req) {
 			console.log(err);
 			console.log({ message: `Failed to save in the database: ${err} ` })
 		}
-		var id = patientStored._id.toString();
-		var idencrypt = crypt.encrypt(id);
-		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
-		let containerName = (idencrypt).substr(1);
-		var result = await f29azureService.createContainers(containerName);
-		if (result) {
-			//res.status(200).send({message: 'Patient created', patientInfo})
-		} else {
-			deletePatientAndCreateOther(patientStored._id, req, userId);
+		if(patientStored){
+			var id = patientStored._id.toString();
+			var idencrypt = crypt.encrypt(id);
+			var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
+			let containerName = (idencrypt).substr(1);
+			var result = await f29azureService.createContainers(containerName);
+			if (result) {
+				resolve(true)
+				//res.status(200).send({message: 'Patient created', patientInfo})
+			} else {
+				Patient.findById(patientId, (err, patient) => {
+					if (err) return console.log({ message: `Error deleting the patient: ${err}` })
+					if (patient) {
+						patient.remove(err => {
+							resolve(false)
+							//savePatient(userId, req)
+						})
+					} else {
+						resolve(false)
+						//savePatient(userId, req)
+					}
+				})
+				//deletePatientAndCreateOther(patientStored._id, req, userId);
+			}
+		}else{
+			resolve(false)
 		}
+		
 
 	})
+	});
+	
 }
 
 function deletePatientAndCreateOther(patientId, req, userId) {
@@ -189,279 +238,7 @@ function sendEmail(req, res) {
 		}
 	})
 }
-/**
- * @api {post} https://raito.care/api/api/signin Get the token (and the userId)
- * @apiName signIn
- * @apiVersion 1.0.0
- * @apiGroup Access token
- * @apiDescription This method gets the token and the language for the user. This token includes the encrypt id of the user, token expiration date, role, and the group to which it belongs.
- * The token are encoded using <a href="https://en.wikipedia.org/wiki/JSON_Web_Token" target="_blank">jwt</a>
- * @apiExample {js} Example usage:
- *  var formValue = { email: "aa@aa.com" };
- *   this.http.post('https://raito.care/api/signin',formValue)
- *    .subscribe( (res : any) => {
- *      if(res.message == "You have successfully logged in"){
- *        console.log(res.lang);
- *        console.log(res.token);
- *      }else{
- *        this.isloggedIn = false;
- *      }
- *   }, (err) => {
- *     this.isloggedIn = false;
- *   }
- *
- * @apiParam (body) {String} email User email
- * @apiParamExample {json} Request-Example:
- *     {
- *       "email": "example@ex.com"
- *     }
- * @apiSuccess {String} message If all goes well, the system should return 'You have successfully logged in'
- * @apiSuccess {String} token You will need this <strong>token</strong> in the header of almost all requests to the API. Whenever the user wants to access a protected route or resource, the user agent should send the JWT, in the Authorization header using the Bearer schema.
- * <p>The data contained in the token are: encrypted <strong>userId</strong>, expiration token, group, and role.
- * To decode them, you you must use some jwt decoder <a href="https://en.wikipedia.org/wiki/JSON_Web_Token" target="_blank">jwt</a>. There are multiple options to do it, for example for javascript: <a href="https://github.com/hokaccha/node-jwt-simple" target="_blank">Option 1</a> <a href="https://github.com/auth0/jwt-decode" target="_blank">Option 2</a>
- * When you decode, you will see that it has several values, these are:</p>
- * <p>
- * <ul>
- *  <li>sub: the encrypted userId. This value will also be used in many API queries. It is recommended to store only the token, and each time the userId is required, decode the token.</li>
- *  <li>exp: The expiration time claim identifies the expiration time on or after which the JWT must not be accepted for processing.</li>
- *  <li>group: Group to which the user belongs, if it does not have a group, it will be 'None'. </li>
- *  <li>role: Role of the user. Normally it will be 'User'.</li>
- * </ul>
- * </p>
- *
 
- * @apiSuccess {String} lang Lang of the User.
- * @apiSuccess (Success 202) {String} message Information about the request. The credentials are incorrect or something has gone wrong. One of the following answers will be obtained:
- * * Not found
- * * Login failed
- * * Account is temporarily locked
- * * Account is unactivated
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {
- *  "message": "You have successfully logged in",
- *  "token": "eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k",
- *  "lang": "en"
- * }
- *
- */
-function signIn(req, res) {
-	// attempt to authenticate user
-	User.getAuthenticated(req.body.ethAddress, function (err, user, reason) {
-		if (err) return res.status(500).send({ message: err })
-		// login was successful if we have a user
-		if (user) {
-			// handle login success
-			return res.status(200).send({
-				message: 'You have successfully logged in',
-				token: serviceAuth.createToken(user),
-				lang: user.lang,
-				platform: user.platform
-			})
-		} else {
-			// otherwise we can determine why we failed
-			var reasons = User.failedLogin;
-			switch (reason) {
-				case reasons.NOT_FOUND:
-					//create de new user
-					if(req.body.appPubKey && req.body.ethAddress){
-						signUp(req, res)
-						break;
-					}else{
-						return res.status(202).send({
-							message: 'Not found'
-						})
-					}
-					
-				case reasons.PASSWORD_INCORRECT:
-					// note: these cases are usually treated the same - don't tell
-					// the user *why* the login failed, only that it did
-					return res.status(202).send({
-						message: 'Login failed'
-					})
-					break;
-				case reasons.MAX_ATTEMPTS:
-					// send email or otherwise notify user that account is
-					// temporarily locked
-					return res.status(202).send({
-						message: 'Account is temporarily locked'
-					})
-					break;
-				case reasons.UNACTIVATED:
-					return res.status(202).send({
-						message: 'Account is unactivated'
-					})
-					break;
-				case reasons.BLOCKED:
-					return res.status(202).send({
-						message: 'Account is blocked'
-					})
-					break;
-				case reasons.WRONG_PLATFORM:
-					return res.status(202).send({
-						message: 'This is not your platform'
-					})
-					break;
-			}
-		}
-
-	})
-}
-
-
-
-async function verifyweb3auth(req, res) {
-	try {
-		const idToken = req.headers.authorization?.split(' ')[1];
-		// passed from the frontend in the request body
-		const app_pub_key = req.body.appPubKey;
-
-		// Get the JWK set used to sign the JWT issued by Web3Auth
-		const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
-
-		// Verify the JWT using Web3Auth's JWKS
-		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-		// Checking `app_pub_key` against the decoded JWT wallet's public_key
-		if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
-		// Verified
-			return res.status(200).json({name: 'Verification Successful'})
-		} else {
-			return res.status(400).json({name: 'Verification Failed'})
-		}
-	} catch (error) {
-		return res.status(500).send({message: `Error making the request: ${error}`})
-	}
-	
-}
-
-async function verifyweb3auth2(req, res) {
-	try {
-		// passed from the frontend in the request body
-		const idToken = req.body.idToken;
-		const app_pub_key = req.body.appPubKey;
-		const ethAddress = req.body.ethAddress;
-
-		// Get the JWK set used to sign the JWT issued by Web3Auth
-		const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
-
-		// Verify the JWT using Web3Auth's JWKS
-		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-		// Checking `app_pub_key` against the decoded JWT wallet's public_key
-		if ((jwtDecoded.payload).wallets[0].public_key === app_pub_key) {
-		// Verified
-		signIn(req, res)
-		//return res.status(200).json({name: 'Verification Successful'})
-
-		} else {
-		return res.status(400).json({name: 'Verification Failed'})
-		}
-	} catch (error) {
-		return res.status(500).send({message: `Error making the request: ${error}`})
-	}
-	
-}
-
-async function verifyweb3authwallet(req, res) {
-	try {
-		// passed from the frontend in the Authorization header
-		const idToken = req.headers.authorization?.split(' ')[1];
-
-		// passed from the frontend in the request body
-		const publicAddress = req.body.public_address;
-
-		// Get the JWK set used to sign the JWT issued by Web3Auth
-		const jwks = jose.createRemoteJWKSet(new URL("https://authjs.web3auth.io/jwks"));
-
-		// Verify the JWT using Web3Auth's JWKS
-		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-
-		// Incase of Non-Torus Users
-		// Checking Wallet's `publicAddress` against the decoded JWT wallet's address
-		
-		if (((jwtDecoded.payload).wallets[0].address).toUpperCase() === publicAddress.toUpperCase()) {
-			// Verified
-			return res.status(200).json({name: 'Verification Successful'})
-		} else {
-			return res.status(400).json({name: 'Verification Failed'})
-		}
-	} catch (error) {
-		return res.status(500).send({message: `Error making the request: ${error}`})
-	}
-	
-}
-
-async function verifyweb3auth2wallet(req, res) {
-	try {
-		// passed from the frontend in the request body
-		const idToken = req.body.idToken;
-		const app_pub_key = req.body.appPubKey;
-		const ethAddress = req.body.ethAddress;
-
-		// Get the JWK set used to sign the JWT issued by Web3Auth
-		const jwks = jose.createRemoteJWKSet(new URL("https://authjs.web3auth.io/jwks"));
-
-		// Verify the JWT using Web3Auth's JWKS
-		const jwtDecoded = await jose.jwtVerify(idToken, jwks, { algorithms: ["ES256"] });
-		// Checking `app_pub_key` against the decoded JWT wallet's public_key
-		if (((jwtDecoded.payload).wallets[0].address).toUpperCase() === ethAddress.toUpperCase()) {
-		// Verified
-		signIn(req, res)
-		//return res.status(200).json({name: 'Verification Successful'})
-
-		} else {
-		return res.status(400).json({name: 'Verification Failed'})
-		}
-	} catch (error) {
-		return res.status(500).send({message: `Error making the request: ${error}`})
-	}
-	
-}
-
-
-/**
- * @api {get} https://raito.care/api/users/:id Get user
- * @apiName getUser
- * @apiVersion 1.0.0
- * @apiGroup Users
- * @apiDescription This methods read data of a User
- * @apiExample {js} Example usage:
- *   this.http.get('https://raito.care/api/users/'+userId)
- *    .subscribe( (res : any) => {
- *      console.log(res.userName);
- *   }, (err) => {
- *     ...
- *   }
- *
- * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
- *     }
- * @apiParam {String} userId User unique ID. More info here:  [Get token and userId](#api-Access_token-signIn)
- * @apiSuccess {String} email Email of the User.
- * @apiSuccess {String} userName UserName of the User.
- * @apiSuccess {String} lang lang of the User.
- * @apiSuccess {String} group Group of the User.
- * @apiSuccess {Date} signupDate Signup date of the User.
- * @apiError UserNotFound The <code>id</code> of the User was not found.
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 Not Found
- *     {
- *       "error": "UserNotFound"
- *     }
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {"user":
- *  {
- *   "email": "John@example.com",
- *   "userName": "Doe",
- *   "lang": "en",
- *   "group": "nameGroup",
- *   "signupDate": "2018-01-26T13:25:31.077Z"
- *  }
- * }
- *
- */
 
 function getUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
@@ -484,54 +261,6 @@ function getSettings(req, res) {
 		res.status(200).send({ user })
 	})
 }
-
-
-/**
- * @api {put} https://raito.care/api/users/:id Update user
- * @apiName updateUser
- * @apiVersion 1.0.0
- * @apiDescription This method allows to change the user's data
- * @apiGroup Users
- * @apiExample {js} Example usage:
- *   this.http.put('https://raito.care/api/users/'+userId, this.user)
- *    .subscribe( (res : any) => {
- *      console.log('User update: '+ res.user);
- *     }, (err) => {
- *      ...
- *     }
- *
- * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
- *     }
- * @apiParam {String} userId User unique ID. More info here:  [Get token and userId](#api-Access_token-signIn)
- * @apiParam (body) {String} [userName] UserName of the User.
- * @apiParam (body) {String} [lang] lang of the User.
- * @apiSuccess {String} email Email of the User.
- * @apiSuccess {String} userName UserName of the User.
- * @apiSuccess {String} lang lang of the User.
- * @apiSuccess {String} group Group of the User.
- * @apiSuccess {Date} signupDate Signup date of the User.
- * @apiError UserNotFound The <code>id</code> of the User was not found.
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 404 Not Found
- *     {
- *       "error": "UserNotFound"
- *     }
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- * {"user":
- *  {
- *   "email": "John@example.com",
- *   "userName": "Doe",
- *   "lang": "en",
- *   "group": "nameGroup",
- *   "signupDate": "2018-01-26T13:25:31.077Z"
- *  }
- * }
- *
- */
 
 function updateUser(req, res) {
 	let userId = crypt.decrypt(req.params.userId);
@@ -654,12 +383,7 @@ function changeRangeDate (req, res){
 }
 
 module.exports = {
-	signUp,
-	signIn,
-	verifyweb3auth,
-	verifyweb3auth2,
-	verifyweb3authwallet,
-	verifyweb3auth2wallet,
+	signWith,
 	getUser,
 	getSettings,
 	updateUser,
