@@ -21,7 +21,8 @@ const eoCtrl = require('../../controllers/superadmin/eousers')
 const f29azureService = require("../../services/f29azure")
 
 function deleteAccount (req, res){
-	User.getAuthenticatedUserId(req.params.userId, req.body.ethAddress, function (err, user, reason) {
+	req.body.email = (req.body.email).toLowerCase();
+		User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user

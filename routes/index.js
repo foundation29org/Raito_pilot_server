@@ -40,13 +40,7 @@ const api = express.Router()
 
 // user routes, using the controller user, this controller has methods
 //routes for login-logout
-api.post('/signup', userCtrl.signUp)
-api.post('/signin', userCtrl.signIn)
-api.post('/verifyweb3auth', userCtrl.verifyweb3auth)
-api.post('/verifyweb3auth2', userCtrl.verifyweb3auth2)
-api.post('/verifyweb3authwallet', userCtrl.verifyweb3authwallet)
-api.post('/verifyweb3auth2wallet', userCtrl.verifyweb3auth2wallet)
-
+api.post('/signwith', userCtrl.signWith)
 // activarcuenta
 api.post('/sendEmail', userCtrl.sendEmail)
 
