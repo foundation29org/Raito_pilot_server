@@ -4,9 +4,11 @@
 'use strict'
 
 const express = require('express')
+const compression = require('compression');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const app = express()
+app.use(compression());
 const api = require ('./routes')
 const path = require('path')
 //CORS middleware
