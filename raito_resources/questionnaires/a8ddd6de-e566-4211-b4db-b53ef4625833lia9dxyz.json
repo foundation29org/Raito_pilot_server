@@ -1,0 +1,911 @@
+{
+    "resourceType": "Questionnaire",
+    "createdById": "6475e7704c8258109c2fb179",
+    "createdby": "immunodeficiency",
+    "id": "a8ddd6de-e566-4211-b4db-b53ef4625833lia9dxyz",
+    "title": "Cuestionario CVID_QoL",
+    "description": "Health-Related Quality of Life Score  Health-Related Quality of Life questionnaire for adults with common variable immunodeficiency proposed by Isabella Quinti (quinti 2016), the CVID_QoL Questionnaire. The questionnaire comprises 32 items with responses given on a 4-point scale, with 0 = “never” and 4 = “always,” with higher values indicating poorer results (range, 0 to 160 points).",
+    "items": [
+        {
+            "text": "Me he estado sintiendo triste",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 1,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido que cambiar mi dieta",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 2,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He sentido ira",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 3,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido diarrea",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 4,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido que renunciar a hacer planes a largo plazo",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 5,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido tos y/o mucosidad",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 6,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "No he podido cuidar de los que amo como quisiera",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 7,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de que mi salud se deteriore",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 8,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido malestar y/o dolor en mis articulaciones",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 9,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He necesitado ayuda para cuidarme",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 10,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de quedarme sin medicación y/o tratamiento con inmunoglobulinas",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 11,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de los efectos secundarios de la terapia con inmunoglobulina",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 12,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He estado preocupado por mi futuro",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 13,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He evitado salir de mi casa por la diarrea",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 14,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Me he sentido menos independiente de lo habitual",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 15,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de contagiar a otros con mis infecciones",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 16,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Ha sido difícil para mí hacer mi trabajo/estudios habituales",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 17,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de morir",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 18,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He evitado salir de casa por mi tos",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 19,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tendido a aislarme",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 20,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de enfermarme",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 21,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Me he sentido débil",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 22,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Mi actividad sexual se ha visto afectada",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 23,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "La terapia con inmunoglobulina ha sido problemática",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 24,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Ha sido difícil realizar mis actividades de ocio habituales",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 25,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Me he sentido incómodo por problemas de mi piel (manchas, rojeces, erupciones, infecciones)",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 26,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Ha sido difícil relacionarme con las personas con las que paso tiempo",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 27,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Me he sentido como un enfermo",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 28,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He estado avergonzado",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 29,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido miedo de contagiarme de enfermedades ajenas",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 30,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "He tenido problemas para relacionarme con otros pacientes con la misma enfermedad",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 31,
+            "type": "radioButtons",
+            "other": null
+        },
+        {
+            "text": "Me he sentido cansado",
+            "answers": [
+                {
+                    "text": "Nunca",
+                    "value": "Nunca"
+                },
+                {
+                    "text": "Raramente",
+                    "value": "Raramente"
+                },
+                {
+                    "text": "A veces",
+                    "value": "A veces"
+                },
+                {
+                    "text": "A menudo",
+                    "value": "A menudo"
+                },
+                {
+                    "text": "Siempre",
+                    "value": "Siempre"
+                }
+            ],
+            "idProm": 32,
+            "type": "radioButtons",
+            "other": null
+        }
+    ],
+    "img": "https://www.comunidad.madrid/hospital/clinicosancarlos/sites/clinicosancarlos/files/logo_clinicosancarlos.png",
+    "rate": {
+        "avg": 0,
+        "ids": []
+    }
+}
