@@ -11,7 +11,7 @@ const Phenotype = require('../../models/phenotype')
 const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
-const Prom = require('../../models/prom')
+const Questionnaire = require('../../models/questionnaire')
 const Appointments = require('../../models/appointments')
 const medicationCtrl = require('./patient/medication')
 
@@ -32,7 +32,7 @@ async function saveMassiveResources (req, res){
 				promises.push(updateConsent(actualResource, patientId));
 			}*/
 			if(actualResource.resource.resourceType=='QuestionnaireResponse'){
-				promises.push(addProms(actualResource, patientId));
+				promises.push(addQuestionnaires(actualResource, patientId));
 			}
 			if(actualResource.resource.resourceType=='Observation'){
 				if(actualResource.resource.code.text=='Phenotype'){
@@ -234,13 +234,42 @@ function addHeight (actualResource, patientId){
 	
 }
 
-async function addProms(actualResource, patientId) {
+async function addQuestionnaires(actualResource, patientId) {
 	return new Promise(async function (resolve, reject) {
 		let promises = [];
 		if (actualResource.resource.item.length > 0) {
+			let values = [];
 			for (let index in actualResource.resource.item) {
-				promises.push(saveOneProm(actualResource.resource, index, patientId));
+				let haveOther = actualResource.resource.item[index].answer[0].valueString.indexOf(':');
+				let valueString = actualResource.resource.item[index].answer[0].valueString;
+				let other = '';
+				if(haveOther!=-1){
+					let dataparse = actualResource.resource.item[index].answer[0].valueString.split(':');
+					valueString = dataparse[0];
+					other = dataparse[1];
+				}
+				values.push({idProm: actualResource.resource.resource.item[index].linkId, data: valueString, other: other});
 			}
+
+			let eventdb = new Questionnaire()
+			eventdb.idQuestionnaire = actualResource.resource.id;
+			eventdb.values = values;
+			eventdb.dateFinish = actualResource.resource.authored;
+			eventdb.createdBy = patientId
+			Questionnaire.findOne({ "idQuestionnaire": eventdb.idQuestionnaire, "dateFinish": eventdb.dateFinish, "createdBy": eventdb.createdBy}, (err, haveeventsdb) => {
+				if(!haveeventsdb){
+					eventdb.save((err, eventdbStored) => {
+						if (err) {
+							resolve('fail')
+						}
+						if (eventdbStored) {
+							resolve('done')
+						}
+					})
+				}else{
+					resolve('done')
+				}
+			});
 		} else {
 			resolve('No data')
 		}
@@ -252,61 +281,6 @@ async function addProms(actualResource, patientId) {
 				resolve ({added:false,actualResource:actualResource.resource});
 			});
 
-	});
-}
-
-async function saveOneProm(actualResource, index, patientId) {
-	return new Promise(async function (resolve, reject) {
-		try {
-			let eventdb = new Prom()
-			eventdb.idQuestionnaire = actualResource.id;
-			eventdb.idProm = actualResource.item[index].linkId;
-			let haveOther = actualResource.item[index].answer[0].valueString.indexOf(':');
-			let valueString = actualResource.item[index].answer[0].valueString;
-			let other = '';
-			if(haveOther!=-1){
-				let dataparse = actualResource.item[index].answer[0].valueString.split(':');
-				valueString = dataparse[0];
-				other = dataparse[1];
-			}
-			eventdb.data = valueString;
-			eventdb.other = other;
-			eventdb.createdBy = patientId
-			console.log(eventdb.idQuestionnaire, eventdb.idProm, eventdb.createdBy);
-			// when you save, returns an id in eventdbStored to access that Prom
-			Prom.findOne({ "idQuestionnaire": eventdb.idQuestionnaire, "idProm": eventdb.idProm, "createdBy": eventdb.createdBy}, (err, haveeventsdb) => {
-				if(haveeventsdb){
-					haveeventsdb.data = eventdb.data;
-					haveeventsdb.other = eventdb.other;
-					Prom.findByIdAndUpdate(haveeventsdb._id, haveeventsdb, { select: '-createdBy', new: true }, (err, promUpdated) => {
-						if (err) {
-							console.log(err);
-							resolve('fail')
-						}
-						if (promUpdated) {
-							resolve('done')
-						}
-			
-					})
-				}else{
-					eventdb.save((err, eventdbStored) => {
-						if (err) {
-							resolve('fail')
-						}
-						if (eventdbStored) {
-							var copyprom = JSON.parse(JSON.stringify(eventdbStored));
-							delete copyprom.createdBy;
-							resolve('done')
-						}
-					})
-				}
-			});
-			
-			
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
-		}
-		
 	});
 }
 

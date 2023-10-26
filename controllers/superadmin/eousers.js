@@ -12,7 +12,7 @@ const Group = require('../../models/group')
 const Medication = require('../../models/medication')
 const Feel = require('../../models/feel')
 const Phenotype = require('../../models/phenotype')
-const Prom = require('../../models/prom')
+const Questionnaire = require('../../models/questionnaire')
 const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
@@ -74,7 +74,6 @@ function getOnlyPatients (req, res){
 	Patient.find({group: req.params.groupId}, async (err, patients) => {
 		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
 		if(patients.length>0){
-			console.log(patients)
 			var data = await getBasicInfoPatients(patients, meta);
 			res.status(200).send(data)
 		}else{
@@ -152,9 +151,9 @@ async function getNumFeel(patientId) {
 	});
 }
 
-async function getNumProm(patientId) {
+async function getNumQuestionnaires(patientId) {
 	return new Promise(async function (resolve, reject) {
-		const proms = await Prom.find({"createdBy": patientId}).sort({date: -1});
+		const proms = await Questionnaire.find({"createdBy": patientId, dateFinish: { $ne: null }}).sort({date: -1});
 		var numProms = 0;
 		var date = null;
 		if (proms.length>0) {
@@ -218,7 +217,7 @@ async function getAllBacicPatientInfo(patient, meta) {
 			promises.push(getNumMedications(patient.id));
 			promises.push(getNumPhenotype(patient.id));
 			promises.push(getNumFeel(patient.id));
-			promises.push(getNumProm(patient.id));
+			promises.push(getNumQuestionnaires(patient.id));
 			promises.push(getNumSeizure(patient.id));
 			promises.push(getNumWeight(patient.id));
 			promises.push(getNumHeight(patient.id));
@@ -396,7 +395,7 @@ async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 		promises3.push(getMedications(patientId, infoGroup, patient));
 		promises3.push(getPhenotype(patientId));
 		promises3.push(getFeel(patientId));
-		promises3.push(getProm(patient, questionnaires));
+		promises3.push(getQuestionnaireData(patient, questionnaires));
 		promises3.push(getSeizure(patientId));
 		promises3.push(getHistoryWeight(patientId));
 		promises3.push(getHistoryHeight(patientId));
@@ -862,6 +861,95 @@ async function getProm(patient, questionnaires) {
 		})
 	});
 }
+
+async function getQuestionnaireData(patient, questionnaires) {
+    return new Promise(async function (resolve, reject) {
+        // Filtrar solo cuestionarios que tienen dateFinish definido
+        await Questionnaire.find({ createdBy: patient._id, dateFinish: { $ne: null } }, { "createdBy": false }).exec(function (err, responses) {
+            if (err) {
+                console.log(err);
+                resolve(err)
+            }
+
+            var listQuestionnaires = [];
+
+            responses.forEach(response => {
+                let patientIdEnc = crypt.encrypt((patient._id).toString());
+                var questionnaireRes = {
+                    "fullUrl": "QuestionnaireResponse/" + response.idQuestionnaire,
+                    "resource": {
+                        "resourceType": "QuestionnaireResponse",
+                        "id": response.idQuestionnaire,
+                        "status": "completed",
+                        "subject": {
+                            "reference": "Patient/" + patientIdEnc,
+                            "display": patient.patientName
+                        },
+                        "authored": response.dateFinish, // Puedes ajustar esta fecha si la tienes en el response
+                        "source": {
+                            "reference": "Practitioner/" + response.idQuestionnaire
+                        },
+                        "item": []
+                    }
+                };
+
+                response.values.forEach(function (value) {
+                    questionnaires.forEach(function (questionnaire) {
+                        if (response.idQuestionnaire == questionnaire.id) {
+                            questionnaire.items.forEach(function (item) {
+                                var question = '';
+                                if (value.idProm == item.idProm) {
+                                    question = item.text;
+                                    var actualValue = {
+                                        "linkId": value.idProm,
+                                        "text": question,
+                                        "answer": [{
+                                            "valueString": value.data
+                                        }]
+                                    };
+									if(value.other && item.type!='ChoiceSet'){
+										actualprom.answer[0].valueString = actualprom.answer[0].valueString + ': '+ value.other;
+									}
+									if(item.type=='ChoiceSet'){
+										var answers = '';
+										Object.keys(value.data).forEach(function(key2) {
+											item.answers.forEach(function (answer){
+												if(key2 == answer.value && value.data[key2]){
+													
+													if(item.other==key2){
+														answers = answers+ answer.text+': '+value.other+', ';
+													}else{
+														answers = answers+ answer.text+', ';
+													}
+												}
+											})
+										})
+										actualprom = {
+											"linkId": value.idProm,
+											"text": question,
+											"answer": [
+											{
+												"valueString": answers
+											}
+											]
+										}
+									}
+                                    questionnaireRes.resource.item.push(actualValue);
+                                }
+                            });
+                        }
+                    });
+                });
+
+                listQuestionnaires.push(questionnaireRes);
+            });
+
+            resolve(listQuestionnaires);
+        });
+    });
+}
+
+
 
 async function getSeizure(patientId) {
 	return new Promise(async function (resolve, reject) {
@@ -1454,7 +1542,7 @@ async function getPromsPatients(patients, questionnaires) {
 		if (patients.length > 0) {
 			for (var index in patients) {
 				if(patients[index].consentgroup=='true'){
-					promises.push(getProm(patients[index], questionnaires));
+					promises.push(getQuestionnaireData(patients[index], questionnaires));
 				}
 			}
 		} else {

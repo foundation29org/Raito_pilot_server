@@ -14,7 +14,7 @@ const PhenotypeHistory = require('../../models/phenotype-history')
 const Seizures = require('../../models/seizures')
 const Weight = require('../../models/weight')
 const Height = require('../../models/height')
-const Prom = require('../../models/prom')
+const Questionnaire = require('../../models/questionnaire')
 const Appointments = require('../../models/appointments')
 const eoCtrl = require('../../controllers/superadmin/eousers')
 
@@ -43,7 +43,7 @@ function deleteAccount (req, res){
 					deleteAppointment(patientId);
 					deletePhenotype(patientId);
 					deletePhenotypeHistory(patientId);
-					deleteProms(patientId);
+					deleteQuestionnaire(patientId);
 					deleteBackups(req.params.userId);
 					deletePatient(res, patientId, containerName, userId);
 				});
@@ -148,12 +148,12 @@ function deletePhenotypeHistory (patientId){
 	})
 }
 
-function deleteProms (patientId){
-	Prom.find({ 'createdBy': patientId }, (err, proms) => {
-		if (err) console.log({message: `Error deleting the proms: ${err}`})
-		proms.forEach(function(prom) {
-			prom.remove(err => {
-				if(err) console.log({message: `Error deleting the proms: ${err}`})
+function deleteQuestionnaire (patientId){
+	Questionnaire.find({ 'createdBy': patientId }, (err, questionnaires) => {
+		if (err) console.log({message: `Error deleting the questionnaires: ${err}`})
+		questionnaires.forEach(function(questionnaire) {
+			questionnaire.remove(err => {
+				if(err) console.log({message: `Error deleting the questionnaires: ${err}`})
 			})
 		});
 	})
