@@ -907,5 +907,6 @@
     "rate": {
         "avg": 0,
         "ids": []
-    }
+    },
+    "periodicity": 90
 }

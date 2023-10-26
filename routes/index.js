@@ -22,7 +22,7 @@ const groupCtrl = require('../controllers/all/group')
 const medicationCtrl = require('../controllers/user/patient/medication')
 const doseCtrl = require('../controllers/user/patient/dose')
 const feelCtrl = require('../controllers/user/patient/feel')
-const promCtrl = require('../controllers/user/patient/prom')
+const promCtrl = require('../controllers/user/patient/questionnaire')
 const docsCtrl = require('../controllers/user/patient/documents')
 const weightCtrl = require('../controllers/user/patient/weight')
 const heightCtrl = require('../controllers/user/patient/height')
@@ -204,11 +204,7 @@ api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
 
 //proms
 api.post('/prom/dates/:patientId', auth(roles.UserResearcher), promCtrl.getPromsDates)
-api.get('/prom/:patientId', auth(roles.UserResearcher), promCtrl.getProms)
-api.post('/prom/:patientId', auth(roles.OnlyUser), promCtrl.saveProm)
-api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.savesProm)
-api.put('/prom/:promId', auth(roles.OnlyUser), promCtrl.updateProm)
-api.delete('/prom/:promId', auth(roles.OnlyUser), promCtrl.deleteProm)
+api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.saveQuestionnaire)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.get('/documents/:patientId', auth(roles.UserResearcher), docsCtrl.getDocuments)
