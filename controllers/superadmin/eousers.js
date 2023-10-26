@@ -908,7 +908,7 @@ async function getQuestionnaireData(patient, questionnaires) {
                                         }]
                                     };
 									if(value.other && item.type!='ChoiceSet'){
-										actualprom.answer[0].valueString = actualprom.answer[0].valueString + ': '+ value.other;
+										actualValue.answer[0].valueString = actualValue.answer[0].valueString + ': '+ value.other;
 									}
 									if(item.type=='ChoiceSet'){
 										var answers = '';
@@ -924,7 +924,7 @@ async function getQuestionnaireData(patient, questionnaires) {
 												}
 											})
 										})
-										actualprom = {
+										actualValue = {
 											"linkId": value.idProm,
 											"text": question,
 											"answer": [
