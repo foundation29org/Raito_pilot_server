@@ -32,11 +32,30 @@ const verifierServiceCtrl = require('../services/verifier.js')
 const resourcesCtrl = require('../controllers/all/resources.js')
 const openAIserviceCtrl = require('../services/openai')
 const openAIserviceCtrl2 = require('../services/openai2')
+const bookCtrl = require('../services/book')
 
 const auth = require('../middlewares/auth')
 const sharedCtrl = require('../middlewares/shared')
 const roles = require('../middlewares/roles')
+const cors = require('cors');
 const api = express.Router()
+const config= require('../config')
+const whitelist = config.allowedOrigins;
+
+  // Middleware personalizado para CORS
+function corsWithOptions(req, res, next) {
+    const corsOptions = {
+      origin: function (origin, callback) {
+        if (whitelist.includes(origin)) {
+          callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+      },
+    };
+  
+    cors(corsOptions)(req, res, next);
+  }
 
 // user routes, using the controller user, this controller has methods
 //routes for login-logout
@@ -257,8 +276,9 @@ api.post('/resources/questionnaire/rate/:groupId',auth(roles.All), resourcesCtrl
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //services OPENAI
-api.post('/callopenai', auth(roles.All), openAIserviceCtrl.callOpenAi)
-api.post('/callopenai2', openAIserviceCtrl2.callOpenAi)
+api.post('/callopenai', auth(roles.All), corsWithOptions, openAIserviceCtrl.callOpenAi)
+api.post('/callopenai2', corsWithOptions, openAIserviceCtrl2.callOpenAi)
+api.post('/callbook', auth(roles.All), corsWithOptions, bookCtrl.callBook)
 
 //ruta privada
 api.get('/private', auth(roles.AllLessResearcher), (req, res) => {
