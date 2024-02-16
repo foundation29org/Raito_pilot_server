@@ -222,7 +222,7 @@ api.post('/feel/:patientId', auth(roles.OnlyUser), feelCtrl.saveFeel)
 api.delete('/feel/:feelId', auth(roles.OnlyUser), feelCtrl.deleteFeel)
 
 //proms
-api.post('/prom/dates/:patientId', auth(roles.UserResearcher), promCtrl.getPromsDates)
+api.post('/prom/dates/:patientId', auth(roles.All), promCtrl.getPromsDates)
 api.post('/proms/:patientId', auth(roles.OnlyUser), promCtrl.saveQuestionnaire)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
