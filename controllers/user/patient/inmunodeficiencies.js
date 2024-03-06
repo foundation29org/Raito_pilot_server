@@ -551,7 +551,9 @@ function getInmunodeficienciesOnePatient (patientId){
 				resolve(err)
 			}
 			if(eventdb){
-				resolve(eventdb)
+				let copyEventDb = JSON.parse(JSON.stringify(eventdb));
+				copyEventDb.idPatient = crypt.encrypt((patientId).toString());
+				resolve(copyEventDb)
 			}else{
 				resolve({})
 			}
