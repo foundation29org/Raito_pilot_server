@@ -7,6 +7,7 @@ const { forEach } = require('async');
 const Inmunodeficiencies = require('../../../models/inmunodeficiencies')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
+const mongoose = require('mongoose');
 
 
 function getInmunodeficiencies (req, res){
@@ -25,6 +26,35 @@ function getInmunodeficiencies (req, res){
 function saveInmunodeficiencies (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
 	let eventdb = new Inmunodeficiencies()
+
+	 // Agregar _id a cada infection y complication antes de guardar
+	 if (req.body.data.infections) {
+        req.body.data.infections.forEach(infection => {
+            infection._id = new mongoose.Types.ObjectId();
+            if (infection.treatments) {
+                infection.treatments.forEach(treatment => {
+                    treatment._id = new mongoose.Types.ObjectId();
+                });
+            }
+        });
+    }
+	if (req.body.data.complications) {
+		req.body.data.complications.forEach(complication => {
+			complication._id = new mongoose.Types.ObjectId();
+			if (complication.treatments) {
+				complication.treatments.forEach(treatment => {
+					treatment._id = new mongoose.Types.ObjectId();
+				});
+			}
+		});
+	}
+	 // Agregar _id a cada usualTreatment
+	 if (req.body.data.usualTreatments) {
+        req.body.data.usualTreatments.forEach(treatment => {
+            treatment._id = new mongoose.Types.ObjectId();
+        });
+    }
+
 	eventdb.data = req.body.data
 	eventdb.date = req.body.date
 	eventdb.createdBy = patientId
@@ -49,6 +79,34 @@ function saveInmunodeficiencies (req, res){
 
 function updateInmunodeficiencies (req, res){
 	let inmunoId= req.params.inmunoId;
+
+	 // Asumiendo que quieres reemplazar completamente las infections
+	 if (req.body.data.infections) {
+        req.body.data.infections.forEach(infection => {
+            infection._id = new mongoose.Types.ObjectId();
+            if (infection.treatments) {
+                infection.treatments.forEach(treatment => {
+                    treatment._id = new mongoose.Types.ObjectId();
+                });
+            }
+        });
+    }
+	if (req.body.data.complications) {
+		req.body.data.complications.forEach(complication => {
+			complication._id = new mongoose.Types.ObjectId();
+			if (complication.treatments) {
+				complication.treatments.forEach(treatment => {
+					treatment._id = new mongoose.Types.ObjectId();
+				});
+			}
+		});
+	}
+	if(req.body.data.usualTreatments){
+		req.body.data.usualTreatments.forEach(usualTreatment => {
+			usualTreatment._id = new mongoose.Types.ObjectId();
+		});
+	}
+
 	let update = req.body
 
 	Inmunodeficiencies.findByIdAndUpdate(inmunoId, update, {select: '-createdBy', new: true}, (err,eventdbUpdated) => {
@@ -151,9 +209,10 @@ function getInmunodeficienciesFHIR (patientId){
 							}
 						};
 						listResources.push(actualResource);
-						forEach(infection.treatment, function (treatment, next) {
+						forEach(infection.treatments, function (treatment, next) {
+							console.log(treatment)
 							var actualProcedure = {
-								"fullUrl": "Procedure/" +infection._id,
+								"fullUrl": "Procedure/" +treatment._id,
 								"resource": {
 									"resourceType": "Procedure",
 									"id": "procedure1",
@@ -163,7 +222,7 @@ function getInmunodeficienciesFHIR (patientId){
 									  { "reference": "Condition/" +infection._id }
 									],
 									"code": {
-									  "text": infection.treatment
+									  "text": treatment.treatment
 									}
 								}
 							  }
@@ -220,9 +279,9 @@ function getInmunodeficienciesFHIR (patientId){
 						};
 						listResources.push(actualResource);
 						
-						forEach(complication.treatment, function (treatment, next) {
+						forEach(complication.treatments, function (treatment, next) {
 							var actualProcedure = {
-								"fullUrl": "Procedure/" +complication._id,
+								"fullUrl": "Procedure/" +treatment._id,
 								"resource": {
 									"resourceType": "Procedure",
 									"id": "procedure1",
@@ -232,7 +291,7 @@ function getInmunodeficienciesFHIR (patientId){
 									  { "reference": "Condition/" +complication._id }
 									],
 									"code": {
-									  "text": complication.treatment
+									  "text": treatment.treatment
 									}
 								}
 							  }
@@ -504,62 +563,40 @@ function getInmunodeficienciesFHIR (patientId){
 	
 }
 
-function getAllInmunodeficiencies (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		var data = await getInmunodeficienciesPatients(patients);
-		res.status(200).send(data)
-	})
+async function getAllInmunodeficiencies(req, res) {
+    try {
+        const patients = await Patient.find({ group: req.params.groupId }).exec();
+        const data = await getInmunodeficienciesPatients(patients);
+        res.status(200).send(data);
+    } catch (err) {
+        res.status(500).send({ message: `Error making the request: ${err}` });
+    }
 }
 
 async function getInmunodeficienciesPatients(patients) {
-	return new Promise(async function (resolve, reject) {
-		var promises = [];
-		if (patients.length > 0) {
-			for (var index in patients) {
-				if(patients[index].consentgroup=='true'){
-					promises.push(getInmunodeficienciesOnePatient(patients[index]._id));
-				}
-			}
-		} else {
-			resolve('No data')
-		}
-		await Promise.all(promises)
-			.then(async function (data) {
-				var res = [];
-				data.forEach(function(onePatient) {
-					if(onePatient){
-						console.log('entrando en onePatient')
-						res.push(onePatient);
-					}
-				});
-				resolve(res)
-			})
-			.catch(function (err) {
-				console.log('Manejar promesa rechazada (' + err + ') aquí.');
-				return null;
-			});
+    if (patients.length === 0) {
+        return 'No data';
+    }
 
-	});
+    const promises = patients.filter(patient => patient.consentgroup == 'true')
+                             .map(patient => getInmunodeficienciesOnePatient(patient._id));
+    const data = await Promise.all(promises);
+    return data.filter(patientData => Object.keys(patientData).length !== 0);
 }
 
-function getInmunodeficienciesOnePatient (patientId){
-	return new Promise(async function (resolve, reject) {
-		Inmunodeficiencies.findOne({"createdBy": patientId}, {"createdBy" : false},(err, eventdb) => {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			if(eventdb){
-				let copyEventDb = JSON.parse(JSON.stringify(eventdb));
-				copyEventDb.idPatient = crypt.encrypt((patientId).toString());
-				resolve(copyEventDb)
-			}else{
-				resolve({})
-			}
-		});
-	});
-	
+async function getInmunodeficienciesOnePatient(patientId) {
+    try {
+        const eventdb = await Inmunodeficiencies.findOne({ "createdBy": patientId }, { "createdBy": false }).exec();
+        if (!eventdb) {
+            return {};
+        }
+        let copyEventDb = JSON.parse(JSON.stringify(eventdb));
+        copyEventDb.idPatient = crypt.encrypt(patientId.toString());
+        return copyEventDb;
+    } catch (err) {
+        console.log(err);
+        return {}; // Dependiendo de cómo quieras manejar errores, podrías considerar lanzar el error
+    }
 }
 
 module.exports = {
