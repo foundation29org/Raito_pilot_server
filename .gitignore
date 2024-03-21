@@ -2,3 +2,4 @@ node_modules
 dist
 config.js
 config_dev.js
+raito_resources/questionnaires
