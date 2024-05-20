@@ -753,11 +753,11 @@ async function getCreatedById(questionnaire) {
 
     try {
       const json = await getFileFromBlobStorage(url);
-      const info = { "id": questionnaire.id, "createdById": json.createdById, "title": json.title };
+      const info = { "id": questionnaire.id, "createdById": json.createdById, "title": json.title, "items": json.items };
       resolve(info);
     } catch (err) {
       console.log(`Error fetching ${url}:`, err);
-      const info = { "id": questionnaire.id, "createdById": null, "title": null };
+      const info = { "id": questionnaire.id, "createdById": null, "title": null, "items": null};
       resolve(info);
     }
   });
