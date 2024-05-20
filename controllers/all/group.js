@@ -11,6 +11,17 @@ const request = require("request");
 const serviceEmail = require('../../services/email')
 const sha512 = require('js-sha512')
 
+const config = require('../../config')
+const storage = require("@azure/storage-blob")
+const accountnameGenomics = config.nameBlob;
+const keyGenomics = config.keyGenomics;
+const sharedKeyCredentialGenomics = new storage.StorageSharedKeyCredential(accountnameGenomics, keyGenomics);
+const blobServiceClientGenomics = new storage.BlobServiceClient(
+  // When using AnonymousCredential, following url should include a valid SAS or support public access
+  `https://${accountnameGenomics}.blob.core.windows.net`,
+  sharedKeyCredentialGenomics
+);
+
 /**
  * @api {get} https://raito.care/api/groupsnames/ Get groups names
  * @apiName getGroupsNames
@@ -737,18 +748,46 @@ async function getCreatedByIdAll(questionnaires) {
 }
 
 async function getCreatedById(questionnaire) {
-	return new Promise(async function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    const url = `questionnaires/${questionnaire.id}.json`;
 
-		var url = './raito_resources/questionnaires/'+questionnaire.id+'.json'
-    try{
-      var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-      var info = {"id": questionnaire.id, "createdById": json.createdById, "title": json.title};
-      resolve(json);
-    }catch (err){
-      var info = {"id": questionnaire.id, "createdById": null, "title": null};
+    try {
+      const json = await getFileFromBlobStorage(url);
+      const info = { "id": questionnaire.id, "createdById": json.createdById, "title": json.title };
+      resolve(info);
+    } catch (err) {
+      console.log(`Error fetching ${url}:`, err);
+      const info = { "id": questionnaire.id, "createdById": null, "title": null };
       resolve(info);
     }
-	});
+  });
+}
+
+async function getFileFromBlobStorage(filePath) {
+  const containerName = 'raito-resources'; // Reemplaza con el nombre de tu contenedor
+  const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+  const blobClient = containerClient.getBlobClient(filePath);
+
+  try {
+    const downloadBlockBlobResponse = await blobClient.download(0);
+    const downloadedContent = await streamToString(downloadBlockBlobResponse.readableStreamBody);
+    return JSON.parse(downloadedContent);
+  } catch (error) {
+    throw new Error(`Error downloading file from blob storage: ${error.message}`);
+  }
+}
+
+async function streamToString(readableStream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    readableStream.on('data', (data) => {
+      chunks.push(data.toString());
+    });
+    readableStream.on('end', () => {
+      resolve(chunks.join(''));
+    });
+    readableStream.on('error', reject);
+  });
 }
 
 

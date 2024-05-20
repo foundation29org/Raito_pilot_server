@@ -8,7 +8,7 @@ function callBook (req, res){
   if(req.body.funct=='duchenne'){
     funct = 'duchenne';
   }
-  //const functionUrl = `http://127.0.0.1:7071/api/HttpTrigger2?code=${config.functionKey}`;
+  //const functionUrl = `http://127.0.0.1:7071/api/${funct}?code=${config.functionKey}`;
   const functionUrl = `https://af29.azurewebsites.net/api/${funct}?code=${config.functionKey}`;
   axios.post(functionUrl, jsonText)
   .then(async response => {
