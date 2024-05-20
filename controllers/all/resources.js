@@ -3,6 +3,17 @@ const fs = require('fs');
 const Group = require('../../models/group')
 var crypto = require('crypto');
 
+const config = require('../../config')
+const storage = require("@azure/storage-blob")
+const accountnameGenomics = config.nameBlob;
+const keyGenomics = config.keyGenomics;
+const sharedKeyCredentialGenomics = new storage.StorageSharedKeyCredential(accountnameGenomics, keyGenomics);
+const blobServiceClientGenomics = new storage.BlobServiceClient(
+  // When using AnonymousCredential, following url should include a valid SAS or support public access
+  `https://${accountnameGenomics}.blob.core.windows.net`,
+  sharedKeyCredentialGenomics
+);
+
 /**
  * @api {get} https://raito.care/api/resources/questionnaire/:questionnaireId Get questionnaire
  * @apiName getQuestionnaire
@@ -234,15 +245,18 @@ var crypto = require('crypto');
  * @apiSuccess (Success 208) {String} message If there is questionnaire, it will return: "The questionnaire does not exist"
  */
 
-function getQuestionnaire(req, res) {
-	var url = './raito_resources/questionnaires/' + req.params.questionnaireId + '.json'
-	try {
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		res.status(200).send(json)
-	} catch (error) {
-		res.status(208).send({ message: 'The questionnaire does not exist' })
-	}
 
+async function getQuestionnaire(req, res) {
+    const questionnaireId = req.params.questionnaireId;
+    const url = `questionnaires/${questionnaireId}.json`;
+
+    try {
+        const json = await getFileFromBlobStorage(url);
+        res.status(200).send(json);
+    } catch (error) {
+        console.log(`Error fetching ${url}:`, error);
+        res.status(208).send({ message: 'The questionnaire does not exist' });
+    }
 }
 
 /**
@@ -305,73 +319,50 @@ function getQuestionnaire(req, res) {
  *	}
  */
 
-/*function newQuestionnaire(req, res) {
-	var bodyReq = req.body;
-	var createId = generateRandomId()//req.body.id
-	var url = './raito_resources/questionnaires/' + createId + '.json'
+async function newQuestionnaire(req, res) {
+    const bodyReq = req.body;
+    const createId = generateRandomId();
+    console.log(createId);
+    bodyReq.id = createId;
+    bodyReq.rate = { avg: 0, ids: [] };
 
-	try {
-		if (fs.existsSync(url)) {
-			//file exists
-			res.status(200).send({ message: 'already exists' })
-		} else {
-			let groupId = req.params.groupId;
-			Group.findOne({ '_id': groupId }, function (err, group) {
-				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+    try {
+        const groupId = req.params.groupId;
+        const group = await Group.findOne({ '_id': groupId }).exec();
+        
+        if (!group) {
+            return res.status(404).send({ code: 208, message: 'The group does not exist' });
+        }
 
-				var questionnaires = group.questionnaires;
-				questionnaires.push({ id: createId });
-				Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
-					if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-					fs.writeFile('./raito_resources/questionnaires/' + createId + '.json', JSON.stringify(bodyReq), (err) => {
-						if (err) {
-							console.log(err);
-							res.status(403).send({ message: 'not added' })
-						}
-						//res.status(200).send({message: 'added'})
-					});
-					res.status(200).send({ message: 'added' })
-				})
+        const questionnaires = group.questionnaires;
+        questionnaires.push({ id: createId });
 
-			})
+        await Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }).exec();
 
-		}
-	} catch (err) {
-		console.error(err)
-	}
-}*/
+        try {
+            await uploadFileToBlobStorage(`questionnaires/${createId}.json`, JSON.stringify(bodyReq));
+            res.status(200).send({ message: 'added', questionnaireId: createId });
+        } catch (err) {
+            console.log(err);
+            res.status(403).send({ message: 'not added' });
+        }
 
-function newQuestionnaire(req, res) {
-	var bodyReq = req.body;
-	var createId = generateRandomId()//req.body.id
-	console.log(createId);
-	bodyReq.id =createId;
-	bodyReq.rate = {avg:0, ids: []};
-	try {
-		let groupId = req.params.groupId;
-		Group.findOne({ '_id': groupId }, function (err, group) {
-			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: `Error making the request: ${err}` });
+    }
+}
 
-			var questionnaires = group.questionnaires;
-			questionnaires.push({ id: createId });
-			Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
-				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-				fs.writeFile('./raito_resources/questionnaires/' + createId + '.json', JSON.stringify(bodyReq), (err) => {
-					if (err) {
-						console.log(err);
-						res.status(403).send({ message: 'not added' })
-					}
-					//res.status(200).send({message: 'added'})
-				});
-				res.status(200).send({ message: 'added', questionnaireId :createId })
-			})
+async function uploadFileToBlobStorage(filePath, content) {
+    const containerName = 'raito-resources'; // Reemplaza con el nombre de tu contenedor
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(filePath);
 
-		})
-	} catch (err) {
-		console.error(err)
-	}
+    try {
+        await blockBlobClient.upload(content, Buffer.byteLength(content));
+    } catch (error) {
+        throw new Error(`Error uploading file to blob storage: ${error.message}`);
+    }
 }
 
 function generateRandomId(){
@@ -449,37 +440,31 @@ function generateRandomId(){
  *	}
  */
 
-function updateQuestionnaire(req, res) {
-	var bodyReq = req.body;
+ async function updateQuestionnaire(req, res) {
+    const bodyReq = req.body;
+    const url = `questionnaires/${req.body.id}.json`;
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
-	try {
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		let groupId = req.params.groupId;
-		bodyReq.rate = json.rate
-		bodyReq.id = json.id
-		bodyReq.createdById = json.createdById
-		if (json.createdById == groupId) {
-			//subir file
-			fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(bodyReq), (err) => {
-				if (err) {
-					res.status(403).send({ message: 'not added' })
-				}
+    try {
+        const json = await getFileFromBlobStorage(url);
+        const groupId = req.params.groupId;
+        bodyReq.rate = json.rate;
+        bodyReq.id = json.id;
+        bodyReq.createdById = json.createdById;
 
-				res.status(200).send({ message: 'updated' })
-			});
-		} else {
-			res.status(200).send({ message: 'dont have permissions' })
-		}
-
-
-	} catch (err) {
-		res.status(202).send({ message: 'dont exists' })
-		console.log(err);
-	}
-
-
-
+        if (json.createdById == groupId) {
+            try {
+                await uploadFileToBlobStorage(url, JSON.stringify(bodyReq));
+                res.status(200).send({ message: 'updated' });
+            } catch (err) {
+                res.status(403).send({ message: 'not added' });
+            }
+        } else {
+            res.status(200).send({ message: 'dont have permissions' });
+        }
+    } catch (err) {
+        res.status(202).send({ message: 'dont exists' });
+        console.log(err);
+    }
 }
 
 /**
@@ -521,13 +506,13 @@ function updateQuestionnaire(req, res) {
  *	}
  */
 
-function addlinkQuestionnaire(req, res) {
+async function addlinkQuestionnaire(req, res) {
 	//req.body.id
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
-
+	const url = `questionnaires/${req.body.id}.json`;
 	try {
-		if (!fs.existsSync(url)) {
+		const fileExists = await checkFileExistsInBlobStorage(url);
+		if (!fileExists) {
 			//file exists
 			res.status(403).send({ message: 'not added' })
 		} else {
@@ -557,7 +542,24 @@ function addlinkQuestionnaire(req, res) {
 		}
 	} catch (err) {
 		console.error(err)
+		res.status(500).send({ message: `Error checking file existence: ${err}` });
 	}
+}
+
+async function checkFileExistsInBlobStorage(filePath) {
+    const containerName = 'raito-resources'; // Reemplaza con el nombre de tu contenedor
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const blobClient = containerClient.getBlobClient(filePath);
+
+    try {
+        await blobClient.getProperties();
+        return true;
+    } catch (error) {
+        if (error.statusCode === 404) {
+            return false;
+        }
+        throw new Error(`Error checking file existence in blob storage: ${error.message}`);
+    }
 }
 
 
@@ -600,13 +602,13 @@ function addlinkQuestionnaire(req, res) {
  *	}
  */
 
-function deletelinkQuestionnaire(req, res) {
+async function deletelinkQuestionnaire(req, res) {
 	//req.body.id
-
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
+	const url = `questionnaires/${req.body.id}.json`;
 
 	try {
-		if (!fs.existsSync(url)) {
+		const fileExists = await checkFileExistsInBlobStorage(url);
+        if (!fileExists) {
 			//file exists
 			res.status(403).send({ message: 'not removed' })
 		} else {
@@ -638,6 +640,7 @@ function deletelinkQuestionnaire(req, res) {
 		}
 	} catch (err) {
 		console.error(err)
+		res.status(500).send({ message: `Error checking file existence: ${err}` });
 	}
 }
 
@@ -725,22 +728,33 @@ function deletelinkQuestionnaire(req, res) {
  *
  */
 
-async function getAllQuestionnaires(req, res) {
-	var result = []
-	fs.readdir('./raito_resources/questionnaires/', function (err, files) {
-		files.forEach(file => {
-			var nameFile = file.split('.json');
-			try {
-				var url = './raito_resources/questionnaires/' + file
-				var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-				result.push({ id: nameFile[0], data: json })
-			} catch (error) {
-				result.push({ id: nameFile[0], data: [] })
-			}
-		});
-		res.status(200).send(result)
-	});
 
+async function getAllQuestionnaires(req, res) {
+    const containerName = 'raito-resources'; // Reemplaza con el nombre de tu contenedor
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const prefix = 'questionnaires/';
+
+    try {
+        let result = [];
+        let iter = containerClient.listBlobsFlat({ prefix });
+        for await (const blob of iter) {
+            const blobClient = containerClient.getBlobClient(blob.name);
+            try {
+                const downloadBlockBlobResponse = await blobClient.download(0);
+                const downloadedContent = await streamToString(downloadBlockBlobResponse.readableStreamBody);
+                const json = JSON.parse(downloadedContent);
+                const nameFile = blob.name.split('.json')[0].split('/').pop(); // Extrae el nombre del archivo sin extensión
+                result.push({ id: nameFile, data: json });
+            } catch (error) {
+                const nameFile = blob.name.split('.json')[0].split('/').pop();
+                result.push({ id: nameFile, data: [] });
+            }
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Error fetching questionnaires' });
+    }
 }
 
 
@@ -796,66 +810,57 @@ async function getAllQuestionnaires(req, res) {
  *	}
  */
 
-function rateQuestionnaire(req, res) {
+async function rateQuestionnaire(req, res) {
+    const url = `questionnaires/${req.body.id}.json`;
 
-	var url = './raito_resources/questionnaires/' + req.body.id + '.json'
-	try {
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		let groupId = req.params.groupId;
-		//verificar que el grupo existe
-		Group.findOne({ '_id': groupId }, function (err, group) {
-			if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
-			if(group){
-				
-				if (json.createdById != groupId) {
-					//subir file
-					var ids = json.rate.ids;
-					let found =false;
-					let value = 0;
-					for(var i=0;i<ids.length;i++){
-						if(req.params.groupId==ids[i].id){
-							found = true;
-							ids[i].value = req.body.value;
-						}
-						value = value + ids[i].value;
-					}
-		
-					if(!found){
-						ids.push({"id":req.params.groupId, "value": req.body.value})
-						value = value + req.body.value;
-					}
-		
-					var newavg = value/(ids.length)
-					json.rate = {avg:newavg, ids: ids}
-					fs.writeFile('./raito_resources/questionnaires/' + req.body.id + '.json', JSON.stringify(json), (err) => {
-						if (err) {
-							console.log(req.body.id)
-							console.log(JSON.stringify(json));
-							console.log(json);
-							console.log(err)
-							res.status(403).send({ message: 'not added' })
-						}
-		
-						res.status(200).send({ message: 'updated' })
-					});
-				} else {
-					res.status(208).send({ message: 'dont have permissions' })
-				}
-			}
-		})
+    try {
+        const json = await getFileFromBlobStorage(url);
+        const groupId = req.params.groupId;
 
+        // Verificar que el grupo existe
+        Group.findOne({ '_id': groupId }, async function (err, group) {
+            if (err) return res.status(500).send({ message: `Error making the request: ${err}` });
+            if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' });
 
-		
+            if (json.createdById != groupId) {
+                // Actualizar el archivo JSON
+                let ids = json.rate.ids;
+                let found = false;
+                let value = 0;
+                for (let i = 0; i < ids.length; i++) {
+                    if (req.params.groupId == ids[i].id) {
+                        found = true;
+                        ids[i].value = req.body.value;
+                    }
+                    value += ids[i].value;
+                }
 
+                if (!found) {
+                    ids.push({ "id": req.params.groupId, "value": req.body.value });
+                    value += req.body.value;
+                }
 
-	} catch (err) {
-		res.status(202).send({ message: 'dont exists' })
-		console.log(err);
-	}
+                const newavg = value / ids.length;
+                json.rate = { avg: newavg, ids: ids };
 
-
-
+                try {
+                    await uploadFileToBlobStorage(url, JSON.stringify(json));
+                    res.status(200).send({ message: 'updated' });
+                } catch (err) {
+                    console.log(req.body.id);
+                    console.log(JSON.stringify(json));
+                    console.log(json);
+                    console.log(err);
+                    res.status(403).send({ message: 'not added' });
+                }
+            } else {
+                res.status(208).send({ message: 'dont have permissions' });
+            }
+        });
+    } catch (err) {
+        res.status(202).send({ message: 'dont exists' });
+        console.log(err);
+    }
 }
 
 
@@ -902,19 +907,51 @@ function rateQuestionnaire(req, res) {
  * }
  */
 
-
 async function getconfigFile(req, res) {
-	let groupId = req.params.groupId;
-	let url = './raito_resources/groups/' + groupId + '/config.json';
-	try {
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		res.status(200).send(json)
-	} catch (error) {
-		console.log(error);
-		url = './raito_resources/groups/61bb38fad6e0cb14f08881c0/config.json';
-		var json = JSON.parse(fs.readFileSync(url, 'utf8'));
-		res.status(200).send(json)
-	}
+    let groupId = req.params.groupId;
+    let url = `groups/${groupId}/config.json`;
+    let fallbackUrl = 'groups/61bb38fad6e0cb14f08881c0/config.json';
+
+    try {
+        const json = await getFileFromBlobStorage(url);
+        res.status(200).send(json);
+    } catch (error) {
+        console.log(`Error fetching ${url}:`, error);
+        try {
+            const json = await getFileFromBlobStorage(fallbackUrl);
+            res.status(200).send(json);
+        } catch (fallbackError) {
+            console.log(`Error fetching fallback ${fallbackUrl}:`, fallbackError);
+            res.status(500).send({ error: 'Could not fetch configuration file.' });
+        }
+    }
+}
+
+async function getFileFromBlobStorage(filePath) {
+    const containerName = 'raito-resources'; // Reemplaza con el nombre de tu contenedor
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const blobClient = containerClient.getBlobClient(filePath);
+
+    try {
+        const downloadBlockBlobResponse = await blobClient.download(0);
+        const downloadedContent = await streamToString(downloadBlockBlobResponse.readableStreamBody);
+        return JSON.parse(downloadedContent);
+    } catch (error) {
+        throw new Error(`Error downloading file from blob storage: ${error.message}`);
+    }
+}
+
+async function streamToString(readableStream) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        readableStream.on('data', (data) => {
+            chunks.push(data.toString());
+        });
+        readableStream.on('end', () => {
+            resolve(chunks.join(''));
+        });
+        readableStream.on('error', reject);
+    });
 }
 
 module.exports = {
