@@ -9,10 +9,6 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 
-
-
-
-
 function callOpenAi (req, res){
   //comprobar créditos del usuario
   
@@ -21,7 +17,7 @@ function callOpenAi (req, res){
   (async () => {
     try {
       const gptResponse = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [{role: "user", content:jsonText}, {role: "system", content: content}],
         //prompt: jsonText,
         temperature: 0,

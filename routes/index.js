@@ -30,7 +30,6 @@ const openRaitoCtrl = require('../controllers/all/openraito')
 const vcServiceCtrl = require('../services/vc.js')
 const verifierServiceCtrl = require('../services/verifier.js')
 const resourcesCtrl = require('../controllers/all/resources.js')
-const openAIserviceCtrl = require('../services/openai')
 const openAIserviceCtrl2 = require('../services/openai2')
 const bookCtrl = require('../services/book')
 
@@ -276,7 +275,6 @@ api.post('/resources/questionnaire/rate/:groupId',auth(roles.All), resourcesCtrl
 api.get('/group/configfile/:groupId', resourcesCtrl.getconfigFile)
 
 //services OPENAI
-api.post('/callopenai', auth(roles.All), corsWithOptions, openAIserviceCtrl.callOpenAi)
 api.post('/callopenai2', corsWithOptions, openAIserviceCtrl2.callOpenAi)
 api.post('/callbook', auth(roles.All), corsWithOptions, bookCtrl.callBook)
 
