@@ -720,7 +720,7 @@ function updateMedicationsGroup (req, res){
 
     //get createdById
     var data = group.questionnaires;
-    var questionnaires = await getCreatedByIdAll(data);    
+    var questionnaires = await getCreatedByIdAll(data);
 		res.status(200).send({questionnaires})
 	})
 }
@@ -753,7 +753,7 @@ async function getCreatedById(questionnaire) {
 
     try {
       const json = await getFileFromBlobStorage(url);
-      const info = { "id": questionnaire.id, "createdById": json.createdById, "title": json.title, "items": json.items };
+      const info = { "id": questionnaire.id, "createdById": json.createdById, "title": json.title, "items": json.items, "periodicity": json.periodicity };
       resolve(info);
     } catch (err) {
       console.log(`Error fetching ${url}:`, err);
