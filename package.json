@@ -64,6 +64,6 @@
     }
   },
   "overrides": {
-    "axios": "1.15.0"
+    "axios": "$axios"
   }
 }
