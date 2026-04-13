@@ -3,3 +3,5 @@ dist
 config.js
 config_dev.js
 raito_resources/questionnaires
+generate-token.js
+token-generator-simple.js
