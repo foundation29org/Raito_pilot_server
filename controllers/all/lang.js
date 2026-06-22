@@ -54,6 +54,8 @@ const crypt = require('../../services/crypt')
  */
 function getLangs (req, res){
 	Lang.find({}, function(err, langs) {
+		if (err) return res.status(503).send({ message: 'Error fetching languages' })
+
     var listLangs = [];
 
 		if(langs!=undefined){

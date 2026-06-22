@@ -40,7 +40,9 @@ const roles = require('../middlewares/roles')
 const cors = require('cors');
 const api = express.Router()
 const config= require('../config')
+const dbConnect = require('../db_connect')
 const whitelist = config.allowedOrigins;
+const requireAccountsDb = dbConnect.requireConnections(['accounts'])
 
   // Middleware personalizado para CORS
 function corsWithOptions(req, res, next) {
@@ -56,6 +58,23 @@ function corsWithOptions(req, res, next) {
   
     cors(corsOptions)(req, res, next);
   }
+
+api.get('/health', function (req, res) {
+  res.status(200).send({
+    status: 'ok',
+    databases: dbConnect.getDbStatus()
+  })
+})
+
+api.get('/health/db', function (req, res) {
+  const databases = dbConnect.getDbStatus()
+  const isHealthy = databases.accounts.readyState === 1 && databases.data.readyState === 1
+
+  res.status(isHealthy ? 200 : 503).send({
+    status: isHealthy ? 'ok' : 'unavailable',
+    databases: databases
+  })
+})
 
 // user routes, using the controller user, this controller has methods
 //routes for login-logout
@@ -140,7 +159,7 @@ api.get('/eo/checkf29/:userId', auth(roles.OnlyUser), eoCtrl.checkF29)
 api.get('/eo/backupf29/:userId', auth(roles.OnlyUser), eoCtrl.getF29)
 
 // lang routes, using the controller lang, this controller has methods
-api.get('/langs/',  langCtrl.getLangs)
+api.get('/langs/', requireAccountsDb, langCtrl.getLangs)
 
 //Support
 api.post('/support/', auth(roles.UserClinicalSuperAdmin), supportCtrl.sendMsgSupport)
@@ -179,8 +198,8 @@ api.put('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.u
 api.delete('/appointments/:appointmentId', auth(roles.OnlyUser), appointmentsCtrl.deleteAppointment)
 
 //groups
-api.get('/groupsnames', groupCtrl.getGroupsNames)
-api.get('/groups', groupCtrl.getGroups)
+api.get('/groupsnames', requireAccountsDb, groupCtrl.getGroupsNames)
+api.get('/groups', requireAccountsDb, groupCtrl.getGroups)
 api.get('/group/:groupId', auth(roles.All), groupCtrl.getGroup)
 api.get('/group/phenotype/:groupId', auth(roles.All), groupCtrl.getPhenotypeGroup)
 api.get('/group/medications/:groupId', groupCtrl.getMedicationsGroup)
