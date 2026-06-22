@@ -19,7 +19,7 @@ const connectionOptions = {
 const connectionState = {}
 
 function createConnection(name, url) {
-	const connection = mongoose.createConnection(url, connectionOptions)
+	const connection = mongoose.createConnection()
 
 	connectionState[name] = {
 		name: name,
@@ -46,6 +46,12 @@ function createConnection(name, url) {
 
 	connection.on('error', function (err) {
 		updateConnectionState(name, 'error', err && err.message ? err.message : String(err))
+	})
+
+	connection.open(url, connectionOptions, function (err) {
+		if (err) {
+			updateConnectionState(name, 'initial-error', err && err.message ? err.message : String(err))
+		}
 	})
 
 	return connection
