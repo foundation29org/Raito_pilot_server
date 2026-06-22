@@ -5,6 +5,7 @@ const config = require('./config')
 
 mongoose.Promise = global.Promise
 mongoose.set('bufferCommands', false)
+mongoose.set('autoIndex', false)
 
 const connectionOptions = {
 	useMongoClient: true,
@@ -13,7 +14,10 @@ const connectionOptions = {
 	reconnectTries: Number.MAX_VALUE,
 	reconnectInterval: 1000,
 	poolSize: 10,
-	bufferMaxEntries: 0
+	bufferMaxEntries: 0,
+	config: {
+		autoIndex: false
+	}
 }
 
 const connectionState = {}
