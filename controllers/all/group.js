@@ -58,8 +58,10 @@ const blobServiceClientGenomics = new storage.BlobServiceClient(
 function getGroupsNames (req, res){
 
   Group.find({}, function(err, groups) {
+    if (err) return res.status(503).send({ message: 'Error fetching groups' })
+
     var listGroups = [];
-    if(groups.length>0){
+    if(groups && groups.length>0){
       groups.forEach(function(group) {
         listGroups.push({name:group.name, _id: group._id, order: group.order, allowShare: group.allowShare});
       });
@@ -107,11 +109,15 @@ function getGroupsNames (req, res){
 function getGroups (req, res){
 
   Group.find({}, function(err, groups) {
+    if (err) return res.status(503).send({ message: 'Error fetching groups' })
+
     var listGroups = [];
 
-    groups.forEach(function(group) {
-      listGroups.push(group);
-    });
+    if(groups){
+      groups.forEach(function(group) {
+        listGroups.push(group);
+      });
+    }
 
     res.status(200).send(listGroups)
   });
