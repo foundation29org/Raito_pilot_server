@@ -26,13 +26,6 @@ const backupGoogleDrivechema = Schema({
 	date: { type: Date, default: Date.now },
 })
 
-const InfoVerifiedSchema = Schema({
-	isVerified: {type: Boolean, default: false},
-	status: { type: String, default: 'Not started' },
-	url: { type: String, default: null },
-	info: {type: Object, default: {}}
-})
-
 const UserSchema = Schema({
 	email: {
 		type: String,
@@ -76,12 +69,6 @@ const UserSchema = Schema({
 		}
 	},
 	backupF29: { type: Date, default: null },
-	infoVerified:{
-		type: InfoVerifiedSchema, default:{
-			isVerified:false,
-			info: {}
-		}
-	},
 	provider: { type: String, default: '' },
 	emailVerified: { type: Boolean, default: false }
 })
