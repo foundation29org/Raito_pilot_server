@@ -88,8 +88,6 @@ api.put('/users/:userId', auth(roles.AllLessResearcher), userCtrl.updateUser)
 api.delete('/users/:userId', auth(roles.AllLessResearcher), userCtrl.deleteUser)//de momento no se usa
 api.get('/users/name/:userId', auth(roles.All), userCtrl.getUserName)
 api.get('/users/email/:userId', auth(roles.All), userCtrl.getUserEmail)
-api.get('/verified/:userId', auth(roles.All), userCtrl.isVerified)
-api.post('/verified/:userId', auth(roles.All), userCtrl.setInfoVerified)
 api.put('/users/changeiscaregiver/:userId', auth(roles.AllLessResearcher), userCtrl.changeiscaregiver)
 api.get('/users/rangedate/:userId', auth(roles.All), userCtrl.getRangeDate)
 api.put('/users/changerangedate/:userId', auth(roles.AllLessResearcher), userCtrl.changeRangeDate)

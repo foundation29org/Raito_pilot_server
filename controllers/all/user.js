@@ -317,33 +317,6 @@ function getUserEmail(req, res) {
 	})
 }
 
-function isVerified(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-		var result = false;
-		if (user) {
-			result = user.infoVerified;
-		}
-		res.status(200).send({ infoVerified: result })
-	})
-}
-
-function setInfoVerified(req, res) {
-
-	let userId = crypt.decrypt(req.params.userId);
-	var infoVerified = req.body.infoVerified;
-	User.findByIdAndUpdate(userId, { infoVerified: infoVerified }, { new: true }, (err, userUpdated) => {
-		if (userUpdated) {
-			res.status(200).send({ message: 'Updated' })
-		} else {
-			console.log(err);
-			res.status(200).send({ message: 'error' })
-		}
-	})
-}
-
 function changeiscaregiver (req, res){
 
 	let userId= crypt.decrypt(req.params.userId);//crypt.decrypt(req.params.patientId);
@@ -391,8 +364,6 @@ module.exports = {
 	sendEmail,
 	getUserName,
 	getUserEmail,
-	isVerified,
-	setInfoVerified,
 	changeiscaregiver,
 	getRangeDate,
 	changeRangeDate
