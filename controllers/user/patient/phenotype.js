@@ -8,7 +8,6 @@ const PhenotypeHistory = require('../../../models/phenotype-history')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 const https = require('https');
-const request = require("request")
 const config = require('../../../config')
 
 /**

@@ -1,7 +1,7 @@
 'use strict'
 
 const config = require('../config')
-const request = require('request')
+const axios = require('axios')
 const msal = require('@azure/msal-node');
 const Session = require('../models/session')
 const crypt = require('./crypt')
@@ -88,30 +88,30 @@ async function presentationRequest (req, res){
     var token = await getToken();
     var auth = 'Bearer '+token;
     var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id);
-    var options = {
-      'method': 'POST',
-      'url': `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
-      'headers': {
-        'Content-Type': 'Application/json',
-        'Authorization': auth
-      },
-      body: JSON.stringify(requestConfigFile)
-    
-    };
-    request(options, function (error, response) {
-      if (error) throw new Error(error);
-      var respJson = JSON.parse(response.body)
-        //respJson.id = sessionStored._id;
+    try {
+      const response = await axios.post(
+        `https://verifiedid.did.msidentity.com/v1.0/${config.VC.TENANT_ID}/verifiablecredentials/request`,
+        requestConfigFile,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': auth
+          }
+        }
+      );
+      var respJson = response.data;
 
-        
-        Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
-          if (err){
-            return res.status(500).send({ message: `Error making the request: ${err}` })
-          }else{
-            res.status(200).send(sessionUpdated)
-          } 
-        })
-    });
+      Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+        if (err){
+          return res.status(500).send({ message: `Error making the request: ${err}` })
+        }else{
+          res.status(200).send(sessionUpdated)
+        }
+      })
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: `Error making the request: ${error}` })
+    }
   })
   
 }

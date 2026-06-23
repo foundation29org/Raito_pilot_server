@@ -1,7 +1,7 @@
 'use strict'
 
 const config = require('../config')
-const request = require('request')
+const axios = require('axios')
 const msal = require('@azure/msal-node');
 var mainApp = require('../app.js');
 const Session = require('../models/session')
@@ -107,31 +107,30 @@ function createIssuer(info) {
       var auth = 'Bearer '+token;
       var pin = generatePin(4);
       var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, info);
-      var options = {
-        'method': 'POST',
-        'url': `https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest`,
-        'headers': {
-          'Content-Type': 'Application/json',
-          'Authorization': auth
-        },
-        body: JSON.stringify(requestConfigFile)
-      
-      };
-      request(options, function (error, response) {
-        if (error) throw new Error(error);
-        var respJson = JSON.parse(response.body)
-          //respJson.id = sessionStored._id;
-          respJson.pin = pin;
+      try {
+        const response = await axios.post(
+          'https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest',
+          requestConfigFile,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': auth
+            }
+          }
+        );
+        var respJson = response.data;
+        respJson.pin = pin;
 
-          
-          Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
-            if (err){
-              reject({ message: `Error making the request: ${err}` })
-            }else{
-              resolve(sessionUpdated);
-            } 
-          })
-      });
+        Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+          if (err){
+            reject({ message: `Error making the request: ${err}` })
+          }else{
+            resolve(sessionUpdated);
+          }
+        })
+      } catch (error) {
+        reject({ message: `Error making the request: ${error}` })
+      }
     })
 	});
 }
@@ -160,31 +159,30 @@ function createIssuerOrganization(info) {
       var auth = 'Bearer '+token;
       var pin = generatePin(4);
       var requestConfigFile = generateBodyRequestOrganizationVC(callbackurl, sessionStored._id, pin, info);
-      var options = {
-        'method': 'POST',
-        'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest",
-        'headers': {
-          'Content-Type': 'Application/json',
-          'Authorization': auth
-        },
-        body: JSON.stringify(requestConfigFile)
-      
-      };
-      request(options, function (error, response) {
-        if (error) throw new Error(error);
-        var respJson = JSON.parse(response.body)
-          //respJson.id = sessionStored._id;
-          respJson.pin = pin;
+      try {
+        const response = await axios.post(
+          'https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest',
+          requestConfigFile,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': auth
+            }
+          }
+        );
+        var respJson = response.data;
+        respJson.pin = pin;
 
-          
-          Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
-            if (err){
-              reject({ message: `Error making the request: ${err}` })
-            }else{
-              resolve(sessionUpdated);
-            } 
-          })
-      });
+        Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+          if (err){
+            reject({ message: `Error making the request: ${err}` })
+          }else{
+            resolve(sessionUpdated);
+          }
+        })
+      } catch (error) {
+        reject({ message: `Error making the request: ${error}` })
+      }
     })
 	});
 }
@@ -234,31 +232,31 @@ async function requestVC (req, res){
     var auth = 'Bearer '+token;
     var pin = generatePin(4);
     var requestConfigFile = generateBodyRequestVC(callbackurl, sessionStored._id, pin, null);
-    var options = {
-      'method': 'POST',
-      'url': "https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest",
-      'headers': {
-        'Content-Type': 'Application/json',
-        'Authorization': auth
-      },
-      body: JSON.stringify(requestConfigFile)
-    
-    };
-    request(options, function (error, response) {
-      if (error) throw new Error(error);
-      var respJson = JSON.parse(response.body)
-        //respJson.id = sessionStored._id;
-        respJson.pin = pin;
+    try {
+      const response = await axios.post(
+        'https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/createIssuanceRequest',
+        requestConfigFile,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': auth
+          }
+        }
+      );
+      var respJson = response.data;
+      respJson.pin = pin;
 
-        
-        Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
-          if (err){
-            return res.status(500).send({ message: `Error making the request: ${err}` })
-          }else{
-            res.status(200).send(sessionUpdated)
-          } 
-        })
-    });
+      Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
+        if (err){
+          return res.status(500).send({ message: `Error making the request: ${err}` })
+        }else{
+          res.status(200).send(sessionUpdated)
+        }
+      })
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: `Error making the request: ${error}` })
+    }
   })
   
 }

@@ -31,7 +31,6 @@ const blobServiceClientGenomics = new storage.BlobServiceClient(
 
 
 var https = require('follow-redirects').https;
-const request = require("request");
 
 
 /**

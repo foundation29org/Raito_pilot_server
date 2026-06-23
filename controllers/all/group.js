@@ -7,7 +7,6 @@ const Group = require('../../models/group')
 const crypt = require('../../services/crypt')
 const User = require('../../models/user')
 const fs = require('fs-extra')
-const request = require("request");
 const serviceEmail = require('../../services/email')
 const sha512 = require('js-sha512')
 
