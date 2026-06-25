@@ -63,7 +63,7 @@ function deleteDocument (req, res){
 	Document.findById(documentId, (err, documentdb) => {
 		if (err) return res.status(500).send({message: `Error deleting the document: ${err}`})
 		if (documentdb){
-			documentdb.remove(err => {
+			documentdb.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the document: ${err}`})
 				res.status(200).send({message: `The document has been deleted`})
 			})

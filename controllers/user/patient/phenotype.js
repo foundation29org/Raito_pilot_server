@@ -238,7 +238,7 @@ function deletePhenotype (req, res){
 	Phenotype.findById(phenotypeId, (err, phenotype) => {
 		if (err) return res.status(500).send({message: `Error deleting the phenotype: ${err}`})
 		if(phenotype){
-			phenotype.remove(err => {
+			phenotype.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the phenotype: ${err}`})
 				res.status(200).send({message: `The phenotype has been eliminated`})
 			})
@@ -254,7 +254,7 @@ function deletePhenotypeHistoryRecord (req, res){
 	PhenotypeHistory.findById(phenotypeId, (err, phenotypeHistory) => {
 		if (err) return res.status(500).send({message: `Error deleting the phenotype history record: ${err}`})
 		if(phenotypeHistory){
-			phenotypeHistory.remove(err => {
+			phenotypeHistory.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the phenotype history record: ${err}`})
 				res.status(200).send({message: `The phenotype history record has been eliminated`})
 			})

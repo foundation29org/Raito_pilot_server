@@ -13,7 +13,7 @@ function getPromsDates(req, res) {
 		if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
 		if (promdbs) {
 			promdbs.forEach(function (promdb, error) {
-				promdb.remove(err => {
+				promdb.deleteOne(err => {
 					if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
 				})
 			});
@@ -197,7 +197,7 @@ function deleteProm(req, res) {
 	Prom.findById(promId, (err, promdb) => {
 		if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
 		if (promdb) {
-			promdb.remove(err => {
+			promdb.deleteOne(err => {
 				if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
 				res.status(200).send({ message: `The prom has been deleted` })
 			})

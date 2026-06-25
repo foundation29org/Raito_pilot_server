@@ -88,7 +88,7 @@ function deleteFeel (req, res){
 	Feel.findById(feelId, (err, feeldb) => {
 		if (err) return res.status(500).send({message: `Error deleting the feel: ${err}`})
 		if (feeldb){
-			feeldb.remove(err => {
+			feeldb.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the feel: ${err}`})
 				res.status(200).send({message: `The feel has been deleted`})
 			})

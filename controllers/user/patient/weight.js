@@ -227,7 +227,7 @@ function deleteWeight (req, res){
 	Weight.findById(weightId, (err, weight) => {
 		if (err) return res.status(500).send({message: `Error deleting the weight: ${err}`})
 		if(weight){
-			weight.remove(err => {
+			weight.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the weight: ${err}`})
 				res.status(200).send({message: `The weight has been eliminated`})
 			})

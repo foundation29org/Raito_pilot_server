@@ -1,30 +1,17 @@
 'use strict'
 
-const crypt = require('./crypt')
 const config = require('../config')
 const storage = require("@azure/storage-blob")
 const accountnameGenomics = config.nameBlob;
 const keyGenomics = config.keyGenomics;
 const sharedKeyCredentialGenomics = new storage.StorageSharedKeyCredential(accountnameGenomics, keyGenomics);
 const blobServiceClientGenomics = new storage.BlobServiceClient(
-  // When using AnonymousCredential, following url should include a valid SAS or support public access
   `https://${accountnameGenomics}.blob.core.windows.net`,
   sharedKeyCredentialGenomics
 );
 
-var azure = require('azure-storage');
-
-const User = require('../models/user')
-const Patient = require('../models/patient')
-
-var blobService = azure
-  .createBlobService(config.nameBlob, keyGenomics);
-
-
 function getAzureBlobSasTokenWithContainer(req, res) {
   var containerName = req.params.containerName;
-  var category = config.translationCategory;
-  var translationKey = config.translationKey;
 
   var startDate = new Date();
   var expiryDate = new Date();
@@ -33,12 +20,11 @@ function getAzureBlobSasTokenWithContainer(req, res) {
 
   var containerSAS = storage.generateBlobSASQueryParameters({
     expiresOn: expiryDate,
-    permissions: storage.ContainerSASPermissions.parse("rlc"),//rwdlac
+    permissions: storage.ContainerSASPermissions.parse("rlc"),
     protocol: storage.SASProtocol.Https,
     containerName: containerName,
     startsOn: startDate,
     version: "2017-11-09"
-
   }, sharedKeyCredentialGenomics).toString();
   res.status(200).send({ containerSAS: containerSAS })
 }
@@ -49,68 +35,48 @@ async function deleteContainers(containerName) {
 }
 
 async function createContainers(containerName) {
-  // Create a container
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
-
   const createContainerResponse = await containerClient.createIfNotExists();
-  if (createContainerResponse.succeeded) {
-    return true;
-  } else {
-    return false;
-  }
-
-
+  return !!createContainerResponse.succeeded;
 }
 
 async function createBlob(containerName, url, data) {
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
   const content = data;
   const blockBlobClient = containerClient.getBlockBlobClient(url);
-  const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
-  return uploadBlobResponse;
+  return blockBlobClient.upload(content, content.length);
 }
 
 async function createBlobSimple(containerName, data, fileName) {
-  return new Promise((resolve, reject) => {
-    blobService.createBlockBlobFromText(
-      containerName, 
-      fileName,
-      JSON.stringify(data),
-      function onResponse(error, result) {
-        if(error){
-          console.log(error);
-          resolve(false)
-        }
-          resolve(true);
-      });
-  });
-  
+  try {
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+    const content = JSON.stringify(data);
+    await blockBlobClient.upload(content, Buffer.byteLength(content));
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 }
 
 async function deleteBlob(containerName, blobName) {
-  return new Promise((resolve, reject) => {
-    blobService.deleteBlobIfExists(containerName,blobName,function(error){
-      if (error != null) {
-        resolve(false)
-      } else {
-        resolve(true)
-      }
-    })
-  });
+  try {
+    const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.deleteIfExists();
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 async function downloadBlob(containerName, blobName) {
   const containerClient = blobServiceClientGenomics.getContainerClient(containerName);
   const blobClient = containerClient.getBlobClient(blobName);
-  // Get blob content from position 0 to the end
-  // In Node.js, get downloaded data by accessing downloadBlockBlobResponse.readableStreamBody
   const downloadBlockBlobResponse = await blobClient.download();
-  const downloaded = (
-    await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
-  ).toString();
-  return downloaded;
+  return (await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)).toString();
 }
-
 
 async function streamToBuffer(readableStream) {
   return new Promise((resolve, reject) => {
@@ -124,8 +90,6 @@ async function streamToBuffer(readableStream) {
     readableStream.on("error", reject);
   });
 }
-
-
 
 module.exports = {
   getAzureBlobSasTokenWithContainer,

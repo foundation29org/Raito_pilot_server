@@ -132,7 +132,7 @@ function setIndividualShare(req, res) {
                       }else{
                         //delete and create new one
                         sessions.forEach(function(session) {
-                            session.remove(err => {
+                            session.deleteOne(err => {
                                 if(err) console.log({message: `Error deleting the feels: ${err}`})
                             })
                         });

@@ -63,7 +63,7 @@ function deleteMedication (patientId){
 	Medication.find({ 'createdBy': patientId }, (err, medications) => {
 		if (err) console.log({message: `Error deleting the medications: ${err}`})
 		medications.forEach(function(medication) {
-			medication.remove(err => {
+			medication.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the medications: ${err}`})
 			})
 		});
@@ -74,7 +74,7 @@ function deleteSeizures (patientId){
 	Seizures.find({ 'createdBy': patientId }, (err, seizures) => {
 		if (err) console.log({message: `Error deleting the seizures: ${err}`})
 		seizures.forEach(function(seizure) {
-			seizure.remove(err => {
+			seizure.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the seizures: ${err}`})
 			})
 		});
@@ -85,7 +85,7 @@ function deleteWeight (patientId){
 	Weight.find({ 'createdBy': patientId }, (err, weights) => {
 		if (err) console.log({message: `Error deleting the weights: ${err}`})
 		weights.forEach(function(weight) {
-			weight.remove(err => {
+			weight.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the weights: ${err}`})
 			})
 		});
@@ -96,7 +96,7 @@ function deleteHeight (patientId){
 	Height.find({ 'createdBy': patientId }, (err, heights) => {
 		if (err) console.log({message: `Error deleting the heights: ${err}`})
 		heights.forEach(function(height) {
-			height.remove(err => {
+			height.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the heights: ${err}`})
 			})
 		});
@@ -107,7 +107,7 @@ function deleteFeel (patientId){
 	Feel.find({ 'createdBy': patientId }, (err, feels) => {
 		if (err) console.log({message: `Error deleting the feels: ${err}`})
 		feels.forEach(function(feel) {
-			feel.remove(err => {
+			feel.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the feels: ${err}`})
 			})
 		});
@@ -118,7 +118,7 @@ function deleteAppointment (patientId){
 	Appointments.find({ 'createdBy': patientId }, (err, appointments) => {
 		if (err) console.log({message: `Error deleting the appointments: ${err}`})
 		appointments.forEach(function(appointment) {
-			appointment.remove(err => {
+			appointment.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the appointments: ${err}`})
 			})
 		});
@@ -129,7 +129,7 @@ function deletePhenotype (patientId){
 	Phenotype.find({ 'createdBy': patientId }, (err, phenotypes) => {
 		if (err) console.log({message: `Error deleting the phenotype: ${err}`})
 		phenotypes.forEach(function(phenotype) {
-			phenotype.remove(err => {
+			phenotype.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the phenotype: ${err}`})
 				
 			})
@@ -141,7 +141,7 @@ function deletePhenotypeHistory (patientId){
 	PhenotypeHistory.find({ 'createdBy': patientId }, (err, phenotypeHistories) => {
 		if (err) console.log({message: `Error deleting the phenotypeHistory: ${err}`})
 			phenotypeHistories.forEach(function(phenotypeHistory) {
-				phenotypeHistory.remove(err => {
+				phenotypeHistory.deleteOne(err => {
 					if(err) console.log({message: `Error deleting the phenotypeHistory: ${err}`})
 				})
 			});
@@ -152,7 +152,7 @@ function deleteQuestionnaire (patientId){
 	Questionnaire.find({ 'createdBy': patientId }, (err, questionnaires) => {
 		if (err) console.log({message: `Error deleting the questionnaires: ${err}`})
 		questionnaires.forEach(function(questionnaire) {
-			questionnaire.remove(err => {
+			questionnaire.deleteOne(err => {
 				if(err) console.log({message: `Error deleting the questionnaires: ${err}`})
 			})
 		});
@@ -173,7 +173,7 @@ function deletePatient (res, patientId, containerName, userId){
 	Patient.findById(patientId, (err, patient) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 		if(patient){
-			patient.remove(err => {
+			patient.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 				f29azureService.deleteContainers(containerName)
 			})
@@ -187,7 +187,7 @@ function deleteUser (res, userId){
 	User.findById(userId, (err, user) => {
 		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 		if(user){
-			user.remove(err => {
+			user.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
 				//savePatient(userId);
 				res.status(200).send({message: `The case has been eliminated`})
@@ -224,7 +224,7 @@ function deletePatientAndCreateOther(patientId, userId) {
 	Patient.findById(patientId, (err, patient) => {
 		if (err) return console.log({ message: `Error deleting the patient: ${err}` })
 		if (patient) {
-			patient.remove(err => {
+			patient.deleteOne(err => {
 				savePatient(userId)
 			})
 		} else {

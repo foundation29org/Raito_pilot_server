@@ -203,7 +203,7 @@ function deleteHeight (req, res){
 	Height.findById(heightId, (err, height) => {
 		if (err) return res.status(500).send({message: `Error deleting the height: ${err}`})
 		if(height){
-			height.remove(err => {
+			height.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the height: ${err}`})
 				res.status(200).send({message: `The height has been eliminated`})
 			})

@@ -385,7 +385,7 @@ function deleteDose (req, res){
 	Medication.findById(medicationId, (err, medication) => {
 		if (err) return res.status(500).send({message: `Error deleting the dose: ${err}`})
 		if(medication){
-			medication.remove(err => {
+			medication.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the dose: ${err}`})
 				res.status(200).send({message: `The dose has been eliminated`})
 			})
@@ -494,7 +494,7 @@ function deleteMedication (req, res){
 		var i = 0;
 
 		medications.forEach(function(medication) {
-			medication.remove(err => {
+			medication.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
 
 				i++;
@@ -554,7 +554,7 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
 					// No se ha encontrado ninguna otra, solo con la que se está trabajando
 					if(othermedication.length==1){
 						// Borro la medicacion de entrada segun el Id dado
-						medicationfound.remove(err => {
+						medicationfound.deleteOne(err => {
 							if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`});
 							res.status(200).send({message: `The medication has been eliminated and there are not other medications`})
 						});
@@ -574,7 +574,7 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
 						}
 
 						// Borro la medicacion de entrada segun el Id dado
-						medicationfound.remove(err => {
+						medicationfound.deleteOne(err => {
 							if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
 							//res.status(200).send({message: `The medication has been eliminated`})
 							// Actualizo la medicacion con fecha mas actual a current taking

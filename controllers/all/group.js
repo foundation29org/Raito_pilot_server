@@ -338,13 +338,13 @@ function deleteGroup (req, res){
       Group.findOne({ '_id': groupId }, function (err, group) {
     		if (err) return res.status(500).send({message: `Error deleting the group: ${err}`})
     		if(group){
-    			group.remove(err => {
+    			group.deleteOne(err => {
     				if(err) return res.status(500).send({message: `Error deleting the group: ${err}`})
             //remove the Admin
             User.findOne({ 'group': group.name, 'role': 'Admin' }, function (err, user) {
           		if (err) return res.status(500).send({message: `Error deleting the user: ${err}`})
           		if (user){
-          			user.remove(err => {
+          			user.deleteOne(err => {
           				if(err) return res.status(500).send({message: `Error deleting the user : ${err}`})
 
                   res.status(200).send({message: `The group has been eliminated`})

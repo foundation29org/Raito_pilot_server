@@ -95,7 +95,7 @@ function deleteAppointment (req, res){
 	Appointments.findById(appointmentId, (err, eventdb) => {
 		if (err) return res.status(500).send({message: `Error deleting the appointmentId: ${err}`})
 		if (eventdb){
-			eventdb.remove(err => {
+			eventdb.deleteOne(err => {
 				if(err) return res.status(500).send({message: `Error deleting the eventdb: ${err}`})
 				res.status(200).send({message: `The eventdb has been deleted`})
 			})

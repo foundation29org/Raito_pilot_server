@@ -251,7 +251,7 @@ function updatePatient (req, res){
 			if (err) console.log({message: `Error deleting the feels: ${err}`})
 			if(sessions.length>0){
 				sessions.forEach(function(session) {
-					session.remove(err => {
+					session.deleteOne(err => {
 						if(err) console.log({message: `Error deleting the feels: ${err}`})
 					})
 				});
