@@ -517,28 +517,23 @@ async function addlinkQuestionnaire(req, res) {
 			res.status(403).send({ message: 'not added' })
 		} else {
 			let groupId = req.params.groupId;
-			Group.findOne({ '_id': groupId }, function (err, group) {
-				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+			const group = await Group.findOne({ '_id': groupId });
+			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 
-				var questionnaires = group.questionnaires;
-				var found = false;
-				for (var i = 0; i < questionnaires.length && !found; i++) {
-					if (questionnaires[i].id == req.body.id) {
-						found = true;
-					}
+			var questionnaires = group.questionnaires;
+			var found = false;
+			for (var i = 0; i < questionnaires.length && !found; i++) {
+				if (questionnaires[i].id == req.body.id) {
+					found = true;
 				}
-				if (!found) {
-					questionnaires.push({ id: req.body.id });
-					Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } }, function (err, groupUpdated) {
-						if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-						res.status(200).send({ message: 'added' })
-					})
-				} else {
-					res.status(403).send({ message: 'not added' })
-				}
-			})
-
+			}
+			if (!found) {
+				questionnaires.push({ id: req.body.id });
+				await Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: questionnaires } });
+				res.status(200).send({ message: 'added' })
+			} else {
+				res.status(403).send({ message: 'not added' })
+			}
 		}
 	} catch (err) {
 		console.error(err)
@@ -613,30 +608,25 @@ async function deletelinkQuestionnaire(req, res) {
 			res.status(403).send({ message: 'not removed' })
 		} else {
 			let groupId = req.params.groupId;
-			Group.findOne({ '_id': groupId }, function (err, group) {
-				if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-				if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
+			const group = await Group.findOne({ '_id': groupId });
+			if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' })
 
-				var questionnaires = group.questionnaires;
-				var newQuestionnaires = [];
-				var found = false;
-				for (var i = 0; i < questionnaires.length; i++) {
-					if (questionnaires[i].id == req.body.id) {
-						found = true;
-					} else {
-						newQuestionnaires.push({ id: questionnaires[i].id });
-					}
-				}
-				if (found) {
-					Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: newQuestionnaires } }, function (err, groupUpdated) {
-						if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-						res.status(200).send({ message: 'removed' })
-					})
+			var questionnaires = group.questionnaires;
+			var newQuestionnaires = [];
+			var found = false;
+			for (var i = 0; i < questionnaires.length; i++) {
+				if (questionnaires[i].id == req.body.id) {
+					found = true;
 				} else {
-					res.status(403).send({ message: 'not removed' })
+					newQuestionnaires.push({ id: questionnaires[i].id });
 				}
-			})
-
+			}
+			if (found) {
+				await Group.findOneAndUpdate({ _id: groupId }, { $set: { questionnaires: newQuestionnaires } });
+				res.status(200).send({ message: 'removed' })
+			} else {
+				res.status(403).send({ message: 'not removed' })
+			}
 		}
 	} catch (err) {
 		console.error(err)
@@ -817,12 +807,10 @@ async function rateQuestionnaire(req, res) {
         const json = await getFileFromBlobStorage(url);
         const groupId = req.params.groupId;
 
-        // Verificar que el grupo existe
-        Group.findOne({ '_id': groupId }, async function (err, group) {
-            if (err) return res.status(500).send({ message: `Error making the request: ${err}` });
-            if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' });
+        const group = await Group.findOne({ '_id': groupId });
+        if (!group) return res.status(404).send({ code: 208, message: 'The group does not exist' });
 
-            if (json.createdById != groupId) {
+        if (json.createdById != groupId) {
                 // Actualizar el archivo JSON
                 let ids = json.rate.ids;
                 let found = false;
@@ -856,7 +844,6 @@ async function rateQuestionnaire(req, res) {
             } else {
                 res.status(208).send({ message: 'dont have permissions' });
             }
-        });
     } catch (err) {
         res.status(202).send({ message: 'dont exists' });
         console.log(err);

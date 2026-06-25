@@ -10,24 +10,26 @@ const crypt = require('../../../services/crypt')
 const mongoose = require('mongoose');
 
 
-function getInmunodeficiencies (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	Inmunodeficiencies.findOne({"createdBy": patientId}, {"createdBy" : false},(err, eventdb) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getInmunodeficiencies (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const eventdb = await Inmunodeficiencies.findOne({"createdBy": patientId}).select("-createdBy");
 		if(eventdb){
 			return res.status(200).send({eventdb})
 		}else{
 			return res.status(202).send({message: `There are no eventdb`})
 		}
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
-function saveInmunodeficiencies (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let eventdb = new Inmunodeficiencies()
+async function saveInmunodeficiencies (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let eventdb = new Inmunodeficiencies()
 
-	 // Agregar _id a cada infection y complication antes de guardar
 	 if (req.body.data.infections) {
         req.body.data.infections.forEach(infection => {
             infection._id = new mongoose.Types.ObjectId();
@@ -48,7 +50,6 @@ function saveInmunodeficiencies (req, res){
 			}
 		});
 	}
-	 // Agregar _id a cada usualTreatment
 	 if (req.body.data.usualTreatments) {
         req.body.data.usualTreatments.forEach(treatment => {
             treatment._id = new mongoose.Types.ObjectId();
@@ -59,28 +60,21 @@ function saveInmunodeficiencies (req, res){
 	eventdb.date = req.body.date
 	eventdb.createdBy = patientId
 
-	// when you save, returns an id in eventdbStored to access that social-info
-	eventdb.save((err, eventdbStored) => {
-		if (err) {
-			res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
+		const eventdbStored = await eventdb.save();
 		if(eventdbStored){
-			//podría devolver eventdbStored, pero no quiero el field createdBy, asi que hago una busqueda y que no saque ese campo
-			Inmunodeficiencies.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, eventdb2) => {
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-				if(!eventdb2) return res.status(202).send({message: `There are no eventdb`})
-				res.status(200).send({message: 'Eventdb created', eventdb: eventdb2})
-			})
+			const eventdb2 = await Inmunodeficiencies.findOne({"createdBy": patientId}).select("-createdBy");
+			if(!eventdb2) return res.status(202).send({message: `There are no eventdb`})
+			res.status(200).send({message: 'Eventdb created', eventdb: eventdb2})
 		}
-
-
-	})
+	} catch (err) {
+		res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
-function updateInmunodeficiencies (req, res){
-	let inmunoId= req.params.inmunoId;
+async function updateInmunodeficiencies (req, res){
+	try {
+		let inmunoId= req.params.inmunoId;
 
-	 // Asumiendo que quieres reemplazar completamente las infections
 	 if (req.body.data.infections) {
         req.body.data.infections.forEach(infection => {
             infection._id = new mongoose.Types.ObjectId();
@@ -97,7 +91,7 @@ function updateInmunodeficiencies (req, res){
 			if (complication.treatments) {
 				complication.treatments.forEach(treatment => {
 					treatment._id = new mongoose.Types.ObjectId();
-				});
+                });
 			}
 		});
 	}
@@ -109,20 +103,21 @@ function updateInmunodeficiencies (req, res){
 
 	let update = req.body
 
-	Inmunodeficiencies.findByIdAndUpdate(inmunoId, update, {select: '-createdBy', new: true}, (err,eventdbUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
+		const eventdbUpdated = await Inmunodeficiencies.findByIdAndUpdate(inmunoId, update, {select: '-createdBy', new: true});
 		res.status(200).send({message: 'Eventdb updated', eventdb: eventdbUpdated})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getFhirInmunodeficiencies (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getFhirInmunodeficiencies (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getInmunodeficienciesFhirPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getInmunodeficienciesFhirPatients(patients) {
@@ -165,11 +160,8 @@ async function getInmunodeficienciesFhirPatients(patients) {
 
 function getInmunodeficienciesFHIR (patientId){
 	return new Promise(async function (resolve, reject) {
-		Inmunodeficiencies.findOne({"createdBy": patientId}, {"createdBy" : false},(err, eventdb) => {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
+		try {
+			const eventdb = await Inmunodeficiencies.findOne({"createdBy": patientId}).select("-createdBy");
 			var listResources = [];
 			if(eventdb){
 				let patientIdEnc = crypt.encrypt((patientId).toString());
@@ -558,7 +550,10 @@ function getInmunodeficienciesFHIR (patientId){
 
 			}
 			resolve(listResources);
-		});
+		} catch (err) {
+			console.log(err);
+			resolve(err)
+		}
 	});
 	
 }

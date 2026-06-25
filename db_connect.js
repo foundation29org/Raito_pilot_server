@@ -1,29 +1,24 @@
 'use strict'
 
-const mongoose = require ('mongoose')
+const mongoose = require('mongoose')
 const config = require('./config')
 
-mongoose.Promise = global.Promise
 mongoose.set('bufferCommands', false)
 mongoose.set('autoIndex', false)
+mongoose.set('strictQuery', false)
+// Mongoose 8.22.1+: Cosmos DB MongoDB 4.2+ (wire v8). Do not downgrade below 8.16 on Cosmos 4.0.
 
 const connectionOptions = {
-	useMongoClient: true,
 	connectTimeoutMS: 10000,
 	socketTimeoutMS: 45000,
-	reconnectTries: Number.MAX_VALUE,
-	reconnectInterval: 1000,
-	poolSize: 10,
-	bufferMaxEntries: 0,
-	config: {
-		autoIndex: false
-	}
+	maxPoolSize: 10,
+	serverSelectionTimeoutMS: 10000
 }
 
 const connectionState = {}
 
 function createConnection(name, url) {
-	const connection = mongoose.createConnection()
+	const connection = mongoose.createConnection(url, connectionOptions)
 
 	connectionState[name] = {
 		name: name,
@@ -50,12 +45,6 @@ function createConnection(name, url) {
 
 	connection.on('error', function (err) {
 		updateConnectionState(name, 'error', err && err.message ? err.message : String(err))
-	})
-
-	connection.open(url, connectionOptions, function (err) {
-		if (err) {
-			updateConnectionState(name, 'initial-error', err && err.message ? err.message : String(err))
-		}
 	})
 
 	return connection

@@ -31,7 +31,6 @@ const blobServiceClientGenomics = new storage.BlobServiceClient(
 
 
 var https = require('follow-redirects').https;
-const request = require("request");
 
 
 /**
@@ -77,18 +76,19 @@ const request = require("request");
  *
  */
 
-function getOnlyPatients (req, res){
-	let meta = req.body.meta;
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getOnlyPatients (req, res){
+	try {
+		let meta = req.body.meta;
+		const patients = await Patient.find({group: req.params.groupId});
 		if(patients.length>0){
 			var data = await getBasicInfoPatients(patients, meta);
 			res.status(200).send(data)
 		}else{
 			res.status(200).send([])
 		}
-		
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getBasicInfoPatients(patients, meta) {
@@ -350,26 +350,26 @@ async function getAllBacicPatientInfo(patient, meta) {
  *
  */
 
-function getPatients (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getPatients (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var infoGroup = await geInfoGroup(req.params.groupId);
 		var questionnaires = await getQuestionnairesGroup(req.params.groupId);
 		var data = await getInfoPatients(patients, infoGroup, questionnaires);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function geInfoGroup(groupId) {
-	return new Promise(resolve => {
-		Group.findOne({ '_id': groupId }, function (err, group) {
-			if (err) resolve({message: `Error making the request: ${err}`})
-			if(!group) resolve({code: 208, message: 'The group does not exist'}) 
-			if (group) {
-				resolve (group)
-			}
-		});
-	});
+async function geInfoGroup(groupId) {
+	try {
+		const group = await Group.findOne({ '_id': groupId });
+		if(!group) return {code: 208, message: 'The group does not exist'}
+		return group
+	} catch (err) {
+		return {message: `Error making the request: ${err}`}
+	}
 }
 
 async function getInfoPatients(patients, infoGroup, questionnaires) {
@@ -574,16 +574,12 @@ async function getAllPatientInfo(patient, infoGroup, questionnaires) {
 
 
 async function getMedications(patientId, infoGroup, patient) {
-	return new Promise(async function (resolve, reject) {
-		await Medication.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, medications) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var listMedications = [];
-			let patientIdEnc = crypt.encrypt((patient._id).toString());
-			if (medications) {
-				medications.forEach(function (medication) {
+	try {
+		const medications = await Medication.find({ createdBy: patientId }).select("-createdBy");
+		var listMedications = [];
+		let patientIdEnc = crypt.encrypt((patient._id).toString());
+		if (medications) {
+			medications.forEach(function (medication) {
 					var codeDrug = ''
 					var idDrug = ''
 					
@@ -691,17 +687,19 @@ async function getMedications(patientId, infoGroup, patient) {
 				});
 			}
 
-			resolve(listMedications);
-		})
-	});
+		return listMedications;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getPhenotype(patientId) {
-	return new Promise(async function (resolve, reject) {
-		await Phenotype.findOne({ "createdBy": patientId }, { "createdBy": false }, async (err, phenotype) => {
-			var listSeizures = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
-			if (phenotype) {
+	try {
+		const phenotype = await Phenotype.findOne({ "createdBy": patientId }).select("-createdBy");
+		var listSeizures = [];
+		let patientIdEnc = crypt.encrypt((patientId).toString());
+		if (phenotype) {
 				if (phenotype.data.length > 0) {
 					phenotype.data.forEach(function (symptom) {
 						var actualsymptom = {
@@ -724,21 +722,19 @@ async function getPhenotype(patientId) {
 					});
 				}
 			}
-			resolve(listSeizures);
-		})
-	});
+		return listSeizures;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getFeel(patientId) {
-	return new Promise(async function (resolve, reject) {
-		await Feel.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, feels) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var listFeels = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
-			if (feels) {
+	try {
+		const feels = await Feel.find({ createdBy: patientId }).select("-createdBy");
+		var listFeels = [];
+		let patientIdEnc = crypt.encrypt((patientId).toString());
+		if (feels) {
 				feels.forEach(function (feel) {
 					var value = ((parseInt(feel.a1)+parseInt(feel.a2)+parseInt(feel.a3))/3).toFixed(2);
 					var actualfeel = {
@@ -765,18 +761,16 @@ async function getFeel(patientId) {
 				});
 			}
 
-			resolve(listFeels);
-		})
-	});
+		return listFeels;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getProm(patient, questionnaires) {
-	return new Promise(async function (resolve, reject) {
-		await Prom.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, proms) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
+	try {
+		const proms = await Prom.find({ createdBy: patient._id }).select("-createdBy");
 			const result = proms.reduce(function (r, a) {
 				r[a.idQuestionnaire] = r[a.idQuestionnaire] || [];
 				r[a.idQuestionnaire].push(a);
@@ -862,22 +856,16 @@ async function getProm(patient, questionnaires) {
 					listQuestionnaires.push(questionnaireRes);
 				  });
 			}
-			
-			  
-			
-			resolve(listQuestionnaires);
-		})
-	});
+		return listQuestionnaires;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getQuestionnaireData(patient, questionnaires) {
-    return new Promise(async function (resolve, reject) {
-        // Filtrar solo cuestionarios que tienen dateFinish definido
-        await Questionnaire.find({ createdBy: patient._id, dateFinish: { $ne: null } }, { "createdBy": false }).exec(function (err, responses) {
-            if (err) {
-                console.log(err);
-                resolve(err)
-            }
+    try {
+        const responses = await Questionnaire.find({ createdBy: patient._id, dateFinish: { $ne: null } }).select("-createdBy");
 
             var listQuestionnaires = [];
 
@@ -952,24 +940,22 @@ async function getQuestionnaireData(patient, questionnaires) {
                 listQuestionnaires.push(questionnaireRes);
             });
 
-            resolve(listQuestionnaires);
-        });
-    });
+        return listQuestionnaires;
+    } catch (err) {
+        console.log(err);
+        return err;
+    }
 }
 
 
 
 async function getSeizure(patientId) {
-	return new Promise(async function (resolve, reject) {
-		await Seizures.find({ createdBy: patientId }, { "createdBy": false }).exec(function (err, seizures) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			var listSeizures = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
-			if (seizures) {
-				seizures.forEach(function (seizure) {
+	try {
+		const seizures = await Seizures.find({ createdBy: patientId }).select("-createdBy");
+		var listSeizures = [];
+		let patientIdEnc = crypt.encrypt((patientId).toString());
+		if (seizures) {
+			seizures.forEach(function (seizure) {
 					var actualseizure = {
 						"fullUrl": "Observation/" +seizure._id,
 						"resource": {
@@ -1014,23 +1000,21 @@ async function getSeizure(patientId) {
 				});
 			}
 
-			resolve(listSeizures);
-		})
-	});
+		return listSeizures;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getHistoryWeight (patientId){
-	return new Promise(async function (resolve, reject) {
-		await Weight.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, weights){
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-	
-			var listWeights = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
-			if(weights){
-				weights.forEach(function(weight) {
+	try {
+		const weights = await Weight.find({createdBy: patientId}).sort({ date : 'asc'});
+
+		var listWeights = [];
+		let patientIdEnc = crypt.encrypt((patientId).toString());
+		if(weights){
+			weights.forEach(function(weight) {
 					var actualweight = {
 						"fullUrl": "Observation/" +weight._id,
 						"resource": {
@@ -1086,26 +1070,22 @@ async function getHistoryWeight (patientId){
 					listWeights.push(actualweight);
 				});
 			}
-			
-			resolve(listWeights);
-		});
-	
-	});
-
+		
+		return listWeights;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 async function getHistoryHeight (patientId){
-	return new Promise(async function (resolve, reject) {
-		await Height.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, heights){
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-	
-			var listHeights = [];
-			let patientIdEnc = crypt.encrypt((patientId).toString());
-			if(heights){
-				heights.forEach(function(height) {
+	try {
+		const heights = await Height.find({createdBy: patientId}).sort({ date : 'asc'});
+
+		var listHeights = [];
+		let patientIdEnc = crypt.encrypt((patientId).toString());
+		if(heights){
+			heights.forEach(function(height) {
 					var actualheight = {
 						"fullUrl": "Observation/" +height._id,
 						"resource": {
@@ -1146,12 +1126,12 @@ async function getHistoryHeight (patientId){
 					listHeights.push(actualheight);
 				});
 			}
-			
-			resolve(listHeights);
-		});
-	
-	});
-
+		
+		return listHeights;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
 
@@ -1193,10 +1173,10 @@ async function getHistoryHeight (patientId){
  *
  */
 
-function getInfoPatient (req, res){
-	let patientId = crypt.decrypt(req.params.patientId);
-	Patient.findById(patientId, async (err, patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getInfoPatient (req, res){
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		const patient = await Patient.findById(patientId);
 		if(patient){
 			var infoGroup = await geInfoGroup(patient.group);
 			var questionnaires = await getQuestionnairesGroup(patient.group);
@@ -1205,7 +1185,9 @@ function getInfoPatient (req, res){
 		}else{
 			res.status(404).send({message: 'The patient does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -1243,13 +1225,15 @@ function getInfoPatient (req, res){
  *
  */
 
-function getDrugs (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getDrugs (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var infoGroup = await geInfoGroup(req.params.groupId);
 		var data = await getDrugsPatients(patients, infoGroup);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getDrugsPatients(patients, infoGroup) {
@@ -1325,12 +1309,14 @@ async function getDrugsPatients(patients, infoGroup) {
  *
  */
 
-function getPhenotypes (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getPhenotypes (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getPhenotypesPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getPhenotypesPatients(patients) {
@@ -1406,12 +1392,14 @@ async function getPhenotypesPatients(patients) {
  *
  */
 
-function getFeels (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getFeels (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getFeelsPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getFeelsPatients(patients) {
@@ -1488,9 +1476,9 @@ async function getFeelsPatients(patients) {
  *
  */
 
-function getProms (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getProms (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var questionnaires = await getQuestionnairesGroup(req.params.groupId);
 		if(patients.length>0){
 			var data = await getPromsPatients(patients, questionnaires);
@@ -1498,35 +1486,30 @@ function getProms (req, res){
 		}else{
 			res.status(200).send({message: 'No data'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getQuestionnairesGroup(groupId) {
-	return new Promise(resolve => {
-		Group.findOne({ '_id': groupId }, async function (err, group) {
-			if (err) resolve({message: `Error making the request: ${err}`})
-			if(!group.questionnaires) resolve({code: 208, message: 'The group does not exist'}) 
-			if (group) {
-				var promises = [];
-				if (group.questionnaires.length > 0) {
-					for (var index in group.questionnaires) {
-						promises.push(getQuestionnaire(group.questionnaires[index].id));
-					}
-				}else {
-					resolve('No data')
-				}
-
-				await Promise.all(promises)
-				.then(async function (data) {
-					resolve(data)
-				})
-				.catch(function (err) {
-					console.log('Manejar promesa rechazada (' + err + ') aquí.');
-					return null;
-				});
+async function getQuestionnairesGroup(groupId) {
+	try {
+		const group = await Group.findOne({ '_id': groupId });
+		if(!group || !group.questionnaires) return {code: 208, message: 'The group does not exist'}
+		var promises = [];
+		if (group.questionnaires.length > 0) {
+			for (var index in group.questionnaires) {
+				promises.push(getQuestionnaire(group.questionnaires[index].id));
 			}
-		});
-	});
+		}else {
+			return 'No data'
+		}
+
+		const data = await Promise.all(promises);
+		return data
+	} catch (err) {
+		console.log('Manejar promesa rechazada (' + err + ') aquí.');
+		return null;
+	}
 }
 
 async function getQuestionnaire(questionnaireId) {
@@ -1646,12 +1629,14 @@ async function getPromsPatients(patients, questionnaires) {
  */
 
 
-function getSeizures (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getSeizures (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getSeizuresPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getSeizuresPatients(patients) {
@@ -1727,12 +1712,14 @@ async function getSeizuresPatients(patients) {
  *
  */
 
-function getWeights (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getWeights (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getWeightsPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getWeightsPatients(patients) {
@@ -1809,12 +1796,14 @@ async function getWeightsPatients(patients) {
  *
  */
 
- function getHeights (req, res){
-	Patient.find({group: req.params.groupId}, async (err, patients) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getHeights (req, res){
+	try {
+		const patients = await Patient.find({group: req.params.groupId});
 		var data = await getHeightsPatients(patients);
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getHeightsPatients(patients) {
@@ -1890,16 +1879,18 @@ async function getHeightsPatients(patients) {
  *
  */
 
-function haveConsent (req, res){
-	let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findById(patientId, async (err, patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function haveConsent (req, res){
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		const patient = await Patient.findById(patientId);
 		var data = {};
-		if(patient.consentgroup=='true'){
+		if(patient && patient.consentgroup=='true'){
 			data = await getConsent(patient, true);
 		}
 		res.status(200).send(data)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getConsent (patient, isBundle){
@@ -1976,53 +1967,51 @@ async function getConsent (patient, isBundle){
 }
 
 async function getAppointments(patient) {
-	return new Promise(async function (resolve, reject) {
-		await Appointments.find({ createdBy: patient._id }, { "createdBy": false }).exec(function (err, appointments) {
-			if (err) {
-				console.log(err);
-				resolve(err)
-			}
-			let listAppointments = [];
-			let patientIdEnc = crypt.encrypt((patient._id).toString());
-			if (appointments) {
-				appointments.forEach(function (appointment) {
-					let actualappointment = {
-						"fullUrl": "Observation/" +appointment._id,
-						"resource": {
-							"resourceType": "Appointment",
-							"id": appointment._id,
-							"status": "proposed",
-							"description": appointment.title,
-							"start": appointment.start,
-							"end": appointment.end,
-							"created": appointment.date,
-							"comment": appointment.notes,
-							"participant": [
-								{
-								  "actor": {
-									"reference": "Patient/"+patientIdEnc,
-									"display": patient.patientName
-								  },
-								  "required": "required",
-								  "status": "accepted"
-								}
-							]
-						}
-					};
-					listAppointments.push(actualappointment);
-				});
-			}
+	try {
+		const appointments = await Appointments.find({ createdBy: patient._id }).select("-createdBy");
+		let listAppointments = [];
+		let patientIdEnc = crypt.encrypt((patient._id).toString());
+		if (appointments) {
+			appointments.forEach(function (appointment) {
+				let actualappointment = {
+					"fullUrl": "Observation/" +appointment._id,
+					"resource": {
+						"resourceType": "Appointment",
+						"id": appointment._id,
+						"status": "proposed",
+						"description": appointment.title,
+						"start": appointment.start,
+						"end": appointment.end,
+						"created": appointment.date,
+						"comment": appointment.notes,
+						"participant": [
+							{
+							  "actor": {
+								"reference": "Patient/"+patientIdEnc,
+								"display": patient.patientName
+							  },
+							  "required": "required",
+							  "status": "accepted"
+							}
+						]
+					}
+				};
+				listAppointments.push(actualappointment);
+			});
+		}
 
-			resolve(listAppointments);
-		})
-	});
+		return listAppointments;
+	} catch (err) {
+		console.log(err);
+		return err;
+	}
 }
 
-function saveBackup (req, res){
-	let patientId = crypt.decrypt(req.params.patientId);
-	let location = req.body.location;
-	Patient.findById(patientId, async (err, patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function saveBackup (req, res){
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		let location = req.body.location;
+		const patient = await Patient.findById(patientId);
 		if(patient){
 			var infoGroup = await geInfoGroup(patient.group);
 			var questionnaires = await getQuestionnairesGroup(patient.group);
@@ -2033,21 +2022,21 @@ function saveBackup (req, res){
 				if(data2){
 					res.status(200).send({message: "Done"})
 				}else{
-					res.status(500).send({message: `Error: ${err}`})
+					res.status(500).send({message: `Error saving backup`})
 				}
-				
 			}
-			
 		}else{
 			res.status(404).send({message: 'The patient does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function createBackup (req, res){
-	let patientId = crypt.decrypt(req.params.patientId);
-	Patient.findById(patientId, async (err, patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function createBackup (req, res){
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		const patient = await Patient.findById(patientId);
 		if(patient){
 			var infoGroup = await geInfoGroup(patient.group);
 			var questionnaires = await getQuestionnairesGroup(patient.group);
@@ -2056,41 +2045,45 @@ function createBackup (req, res){
 		}else{
 			res.status(404).send({message: 'The patient does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function saveFileId (req, res){
-	let userId = crypt.decrypt(req.params.userId);
-	let fileId = req.body.fileId;
-	// Save file reference to DDBB
-	var dataToSave = {id:fileId, date: Date.now()} ;
-	User.findByIdAndUpdate(userId, { backupGoogleDrive: dataToSave}, {new: true}, (err,userUpdated) => {
+async function saveFileId (req, res){
+	try {
+		let userId = crypt.decrypt(req.params.userId);
+		let fileId = req.body.fileId;
+		var dataToSave = {id:fileId, date: Date.now()} ;
+		const userUpdated = await User.findByIdAndUpdate(userId, { backupGoogleDrive: dataToSave}, {new: true});
 		if(userUpdated){
 			res.status(200).send({message: 'Available', date: userUpdated.backupGoogleDrive.date, id:userUpdated.backupGoogleDrive.id})
 		}else{
-			res.status(500).send({message: `Error: ${err}`})
+			res.status(500).send({message: `Error saving file id`})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error: ${err}`})
+	}
 }
 
-function checkGoogleDrive (req, res){
-	// get file reference to DDBB
-	let userId = crypt.decrypt(req.params.userId);
-	User.findById(userId, async (err, user) => {
+async function checkGoogleDrive (req, res){
+	try {
+		let userId = crypt.decrypt(req.params.userId);
+		const user = await User.findById(userId);
 		var id='';
-		if(user.backupGoogleDrive){
+		if(user && user.backupGoogleDrive){
 			if(user.backupGoogleDrive.id!=''){
 				id=user.backupGoogleDrive.id;
 				return res.status(200).send({message: 'Available', date: user.backupGoogleDrive.date, id:id})
 			}else{
 				return res.status(200).send({message: 'Not available', date: null, id:null})
 			}
-			
 		}else{
 			return res.status(200).send({message: 'Not available', date: null, id:null})
 		}
-		
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -2108,49 +2101,44 @@ function checkGoogleDrive (req, res){
   }
 
   async function saveF29 (data, userId){
-	return new Promise(async function (resolve, reject) {
-		// Save file to Blob
-		const fileName = userId+'.json';
-		var result = await f29azureService.createBlobSimple('backups', data, fileName);
-		if (result) {
-			let userIdDecrypt = crypt.decrypt(userId);
-			var dataToSave = Date.now() ;
-			User.findByIdAndUpdate(userIdDecrypt, { backupF29: dataToSave}, {new: true}, (err,userUpdated) => {
-				resolve(true);
-			})
-		}else{
-			resolve(false);
-		}
-	});
+	const fileName = userId+'.json';
+	var result = await f29azureService.createBlobSimple('backups', data, fileName);
+	if (result) {
+		let userIdDecrypt = crypt.decrypt(userId);
+		await User.findByIdAndUpdate(userIdDecrypt, { backupF29: Date.now()}, {new: true});
+		return true;
+	}
+	return false;
 }
 
   async function getF29(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	User.findById(userId, async (err, user) => {
-		if(user.backupF29!=null){
+	try {
+		let userId = crypt.decrypt(req.params.userId);
+		const user = await User.findById(userId);
+		if(user && user.backupF29!=null){
 			const fileName = req.params.userId+'.json';
 			var result = await f29azureService.downloadBlob('backups', fileName);
-
 			return res.status(200).send({result: JSON.parse(result.toString())})
 		}else{
 			return res.status(200).send({message: 'Not available'})
 		}
-		
-	})
-	
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
   }
 
 async function checkF29(req, res) {
-	let userId = crypt.decrypt(req.params.userId);
-	User.findById(userId, async (err, user) => {
-		if(user.backupF29!=null){
+	try {
+		let userId = crypt.decrypt(req.params.userId);
+		const user = await User.findById(userId);
+		if(user && user.backupF29!=null){
 			return res.status(200).send({message: 'Available', date: user.backupF29})
 		}else{
 			return res.status(200).send({message: 'Not available', date: null})
 		}
-		
-	})
-	
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
   }
 
 module.exports = {

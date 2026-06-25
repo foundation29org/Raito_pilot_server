@@ -25,12 +25,6 @@ async function saveMassiveResources (req, res){
 			if(actualResource.resource.resourceType=='MedicationStatement'){
 				promises.push(addDrug(actualResource, patientId));
 			}
-			/*if(actualResource.resource.resourceType=='Consent'){
-				promises.push(updateConsent(actualResource, patientId));
-			}
-			if(actualResource.resource.resourceType=='Condition'){
-				promises.push(updateConsent(actualResource, patientId));
-			}*/
 			if(actualResource.resource.resourceType=='QuestionnaireResponse'){
 				promises.push(addQuestionnaires(actualResource, patientId));
 			}
@@ -72,243 +66,181 @@ async function saveMassiveResources (req, res){
 }
 
 async function addDrug (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let medication = new Medication()
-			medication.drug = actualResource.resource.contained[0].code.coding[0].display
-			medication.dose = actualResource.resource.dosage[0].doseAndRate[0].doseQuantity.value
-			medication.startDate = actualResource.resource.effectivePeriod.start
-			medication.endDate = actualResource.resource.effectivePeriod.end
-			medication.schedule = actualResource.resource.schedule
-			medication.notes = actualResource.resource.note[0].text
-			medication.date = actualResource.resource.dateAsserted
-			medication.createdBy = patientId
-			
-			var infoMsgMeds = await medicationCtrl.getMeds(patientId, medication);
-			if(infoMsgMeds!='imposible'){
-				var res1 = medicationCtrl.saveOneDrug(medication)
-				resolve ({added:true,medication:medication});
-			}else{
-				resolve ({added:false,medication:medication});
-			}
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
-		}
+	try {
+		let medication = new Medication()
+		medication.drug = actualResource.resource.contained[0].code.coding[0].display
+		medication.dose = actualResource.resource.dosage[0].doseAndRate[0].doseQuantity.value
+		medication.startDate = actualResource.resource.effectivePeriod.start
+		medication.endDate = actualResource.resource.effectivePeriod.end
+		medication.schedule = actualResource.resource.schedule
+		medication.notes = actualResource.resource.note[0].text
+		medication.date = actualResource.resource.dateAsserted
+		medication.createdBy = patientId
 		
-	});
-
+		var infoMsgMeds = await medicationCtrl.getMeds(patientId, medication);
+		if(infoMsgMeds!='imposible'){
+			medicationCtrl.saveOneDrug(medication)
+			return {added:true,medication:medication};
+		}else{
+			return {added:false,medication:medication};
+		}
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
 
-function addSeizure (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let eventdb = new Seizures()
-			let type = actualResource.resource.code.text.split('Seizure - ');
-			eventdb.type = type[1];
-			eventdb.duracion = actualResource.resource.valueQuantity.value
-			eventdb.start = actualResource.resource.effectiveDateTime
-			eventdb.createdBy = patientId
-		
-			// when you save, returns an id in eventdbStored to access that social-info
-			eventdb.save((err, eventdbStored) => {
-				if (err) {
-					resolve ({added:false,eventdb:eventdb});
-				}
-				if(eventdbStored){
-					resolve ({added:true,eventdb:eventdb});
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
-		}
-		
-	});
+async function addSeizure (actualResource, patientId){
+	try {
+		let eventdb = new Seizures()
+		let type = actualResource.resource.code.text.split('Seizure - ');
+		eventdb.type = type[1];
+		eventdb.duracion = actualResource.resource.valueQuantity.value
+		eventdb.start = actualResource.resource.effectiveDateTime
+		eventdb.createdBy = patientId
 	
+		const eventdbStored = await eventdb.save()
+		if(eventdbStored){
+			return {added:true,eventdb:eventdb};
+		}
+		return {added:false,eventdb:eventdb};
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
-function addFeel (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let eventdb = new Feel()
-			eventdb.a1 = actualResource.resource.valueQuantity.value;
-			eventdb.a2 = actualResource.resource.valueQuantity.value;
-			eventdb.a3 = actualResource.resource.valueQuantity.value;
-			eventdb.date = actualResource.resource.effectiveDateTime;
-			eventdb.createdBy = patientId
-		
-			// when you save, returns an id in eventdbStored to access that social-info
-			eventdb.save((err, eventdbStored) => {
-				if (err) {
-					resolve ({added:false,eventdb:eventdb});
-				}
-				if(eventdbStored){
-					resolve ({added:true,eventdb:eventdb});
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
-		}
-		
-	});
+async function addFeel (actualResource, patientId){
+	try {
+		let eventdb = new Feel()
+		eventdb.a1 = actualResource.resource.valueQuantity.value;
+		eventdb.a2 = actualResource.resource.valueQuantity.value;
+		eventdb.a3 = actualResource.resource.valueQuantity.value;
+		eventdb.date = actualResource.resource.effectiveDateTime;
+		eventdb.createdBy = patientId
 	
+		const eventdbStored = await eventdb.save()
+		if(eventdbStored){
+			return {added:true,eventdb:eventdb};
+		}
+		return {added:false,eventdb:eventdb};
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
-function addPhenotype (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
-				if (err) resolve ({added:false,err:err});
-				if(phenotype){
-					let phenotypeId= phenotype._id;
-					let update = phenotype.data
-					update.push({id:actualResource.resource.valueString, onset:actualResource.resource.effectiveDateTime})
-					Phenotype.findByIdAndUpdate(phenotypeId, update, { new: true, select: '-createdBy'}, (err,phenotypeUpdated) => { //Phenotype.findByIdAndUpdate(phenotypeId, update, {select: '-createdBy', new: true}, (err,phenotypeUpdated) => {
-						resolve ({added:true,phenotypeUpdated:phenotypeUpdated});
-					})
-				}else if(!phenotype){
-					let phenotype = new Phenotype()
-					let data=[{id:actualResource.resource.valueString, onset:actualResource.resource.effectiveDateTime}];
-					phenotype.data = data
-					phenotype.createdBy = patientId
-					// when you save, returns an id in phenotypeStored to access that social-info
-					phenotype.save((err, phenotypeStored) => {
-						resolve ({added:true,phenotype:phenotype});
-		
-					})
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
+async function addPhenotype (actualResource, patientId){
+	try {
+		const phenotype = await Phenotype.findOne({"createdBy": patientId}).select("-createdBy");
+		if(phenotype){
+			let phenotypeId= phenotype._id;
+			let update = phenotype.data
+			update.push({id:actualResource.resource.valueString, onset:actualResource.resource.effectiveDateTime})
+			const phenotypeUpdated = await Phenotype.findByIdAndUpdate(phenotypeId, update, { new: true, select: '-createdBy'});
+			return {added:true,phenotypeUpdated:phenotypeUpdated};
+		}else{
+			let newPhenotype = new Phenotype()
+			let data=[{id:actualResource.resource.valueString, onset:actualResource.resource.effectiveDateTime}];
+			newPhenotype.data = data
+			newPhenotype.createdBy = patientId
+			await newPhenotype.save()
+			return {added:true,phenotype:newPhenotype};
 		}
-		
-	});
-	
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
-function addWeight (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let weight = new Weight()
-			weight.date = actualResource.resource.effectiveDateTime
-			weight.value = actualResource.resource.valueQuantity.value
-			weight.createdBy = patientId
+async function addWeight (actualResource, patientId){
+	try {
+		let weight = new Weight()
+		weight.date = actualResource.resource.effectiveDateTime
+		weight.value = actualResource.resource.valueQuantity.value
+		weight.createdBy = patientId
 
-			weight.save({"createdBy" : false }, (err, weightStored) => {
-				if (err) {
-					resolve ({added:false,weight:weight});
-				}
-				if(weightStored){
-					resolve ({added:true,weight:weight});
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
+		const weightStored = await weight.save()
+		if(weightStored){
+			return {added:true,weight:weight};
 		}
-		
-	});
-	
+		return {added:false,weight:weight};
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
-function addHeight (actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let height = new Height()
-			height.date = actualResource.resource.effectiveDateTime
-			height.value = actualResource.resource.valueQuantity.value
-			height.createdBy = patientId
+async function addHeight (actualResource, patientId){
+	try {
+		let height = new Height()
+		height.date = actualResource.resource.effectiveDateTime
+		height.value = actualResource.resource.valueQuantity.value
+		height.createdBy = patientId
 
-			height.save({"createdBy" : false }, (err, heightStored) => {
-				if (err) {
-					resolve ({added:false,height:height});
-				}
-				if(heightStored){
-					resolve ({added:true,height:height});
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,medication:actualResource.resource});
+		const heightStored = await height.save()
+		if(heightStored){
+			return {added:true,height:height};
 		}
-		
-	});
-	
+		return {added:false,height:height};
+	} catch (error) {
+		return {added:false,medication:actualResource.resource};
+	}
 }
 
 async function addQuestionnaires(actualResource, patientId) {
-	return new Promise(async function (resolve, reject) {
-		let promises = [];
-		if (actualResource.resource.item.length > 0) {
-			let values = [];
-			for (let index in actualResource.resource.item) {
-				let haveOther = actualResource.resource.item[index].answer[0].valueString.indexOf(':');
-				let valueString = actualResource.resource.item[index].answer[0].valueString;
-				let other = '';
-				if(haveOther!=-1){
-					let dataparse = actualResource.resource.item[index].answer[0].valueString.split(':');
-					valueString = dataparse[0];
-					other = dataparse[1];
-				}
-				values.push({idProm: actualResource.resource.resource.item[index].linkId, data: valueString, other: other});
+	if (actualResource.resource.item.length > 0) {
+		let values = [];
+		for (let index in actualResource.resource.item) {
+			let haveOther = actualResource.resource.item[index].answer[0].valueString.indexOf(':');
+			let valueString = actualResource.resource.item[index].answer[0].valueString;
+			let other = '';
+			if(haveOther!=-1){
+				let dataparse = actualResource.resource.item[index].answer[0].valueString.split(':');
+				valueString = dataparse[0];
+				other = dataparse[1];
 			}
-
-			let eventdb = new Questionnaire()
-			eventdb.idQuestionnaire = actualResource.resource.id;
-			eventdb.values = values;
-			eventdb.dateFinish = actualResource.resource.authored;
-			eventdb.createdBy = patientId
-			Questionnaire.findOne({ "idQuestionnaire": eventdb.idQuestionnaire, "dateFinish": eventdb.dateFinish, "createdBy": eventdb.createdBy}, (err, haveeventsdb) => {
-				if(!haveeventsdb){
-					eventdb.save((err, eventdbStored) => {
-						if (err) {
-							resolve('fail')
-						}
-						if (eventdbStored) {
-							resolve('done')
-						}
-					})
-				}else{
-					resolve('done')
-				}
-			});
-		} else {
-			resolve('No data')
+			values.push({idProm: actualResource.resource.resource.item[index].linkId, data: valueString, other: other});
 		}
-		await Promise.all(promises)
-			.then(async function (data) {
-				resolve ({added:true,actualResource:actualResource.resource});
-			})
-			.catch(function (err) {
-				resolve ({added:false,actualResource:actualResource.resource});
-			});
 
-	});
+		let eventdb = new Questionnaire()
+		eventdb.idQuestionnaire = actualResource.resource.id;
+		eventdb.values = values;
+		eventdb.dateFinish = actualResource.resource.authored;
+		eventdb.createdBy = patientId
+		try {
+			const haveeventsdb = await Questionnaire.findOne({ "idQuestionnaire": eventdb.idQuestionnaire, "dateFinish": eventdb.dateFinish, "createdBy": eventdb.createdBy});
+			if(!haveeventsdb){
+				const eventdbStored = await eventdb.save()
+				if (eventdbStored) {
+					return 'done'
+				}
+				return 'fail'
+			}else{
+				return 'done'
+			}
+		} catch (err) {
+			return 'fail'
+		}
+	} else {
+		return 'No data'
+	}
 }
 
-function addAppointments(actualResource, patientId){
-	return new Promise(async function (resolve, reject) {
-		try {
-			let eventdb = new Appointments()
-			eventdb.start = actualResource.resource.start
-			eventdb.end = actualResource.resource.end
-			eventdb.date = actualResource.resource.created
-			eventdb.title = actualResource.resource.description
-			eventdb.notes = actualResource.resource.comment
-			eventdb.createdBy = patientId
+async function addAppointments(actualResource, patientId){
+	try {
+		let eventdb = new Appointments()
+		eventdb.start = actualResource.resource.start
+		eventdb.end = actualResource.resource.end
+		eventdb.date = actualResource.resource.created
+		eventdb.title = actualResource.resource.description
+		eventdb.notes = actualResource.resource.comment
+		eventdb.createdBy = patientId
 
-			eventdb.save((err, eventdbStored) => {
-				if (err) {
-					resolve ({added:false,eventdb:eventdb});
-				}
-				if(eventdbStored){
-					resolve ({added:true,eventdb:eventdb});
-				}
-			})
-		} catch (error) {
-			resolve ({added:false,appointment:actualResource.resource});
+		const eventdbStored = await eventdb.save()
+		if(eventdbStored){
+			return {added:true,eventdb:eventdb};
 		}
-		
-	});
-	
+		return {added:false,eventdb:eventdb};
+	} catch (error) {
+		return {added:false,appointment:actualResource.resource};
+	}
 }
 
 module.exports = {

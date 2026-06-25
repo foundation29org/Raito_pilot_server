@@ -1,6 +1,5 @@
 const axios = require('axios');
 const config = require('../config')
-const request = require('request')
 const serviceEmail = require('../services/email')
 const Support = require('../models/support')
 

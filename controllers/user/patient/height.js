@@ -46,20 +46,19 @@ const crypt = require('../../../services/crypt')
  * @apiSuccess (Success 202) {String} message If there is no height for the patient, it will return: "There are no height"
  */
 
-function getHeight (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	//Height.findOne({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).exec(function(err, height){
-	//Height.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, height) => {
-	Height.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).limit(1).exec(function(err, heights){
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getHeight (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const heights = await Height.find({createdBy: patientId}).select("-createdBy").sort({ date : 'desc'}).limit(1);
 		if(heights.length==0){
 			return res.status(202).send({message: 'There are no height'})
 		}else{
 			let height = heights[0];
 			res.status(200).send({height})
 		}
-		
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -97,11 +96,10 @@ function getHeight (req, res){
  * ]
  *
  */
-function getHistoryHeight (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-
-	Height.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).exec(function(err, heights){
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getHistoryHeight (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const heights = await Height.find({createdBy: patientId}).select("-createdBy").sort({ date : 'desc'});
 
 		var listHeights = [];
 
@@ -109,8 +107,9 @@ function getHistoryHeight (req, res){
 			listHeights.push(height);
 		});
 		res.status(200).send(listHeights)
-	});
-
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -155,18 +154,19 @@ function getHistoryHeight (req, res){
  * @apiSuccess (Success 202) {String} message If there is no height for the patient, it will return: "There are no height"
  */
 
-function saveHeight (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let height = new Height()
-	height.date = req.body.date
-	height.value = req.body.value
-	height.createdBy = patientId
+async function saveHeight (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let height = new Height()
+		height.date = req.body.date
+		height.value = req.body.value
+		height.createdBy = patientId
 
-	// when you save, returns an id in heightStored to access that social-info
-	height.save((err, heightStored) => {
-		if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
+		const heightStored = await height.save();
 		res.status(200).send({message: 'Height created', height: heightStored})
-	})
+	} catch (err) {
+		res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 /**
@@ -197,20 +197,19 @@ function saveHeight (req, res){
  * }
  *
  */
-function deleteHeight (req, res){
-	let heightId=req.params.heightId
-
-	Height.findById(heightId, (err, height) => {
-		if (err) return res.status(500).send({message: `Error deleting the height: ${err}`})
+async function deleteHeight (req, res){
+	try {
+		let heightId=req.params.heightId
+		const height = await Height.findById(heightId);
 		if(height){
-			height.remove(err => {
-				if(err) return res.status(500).send({message: `Error deleting the height: ${err}`})
-				res.status(200).send({message: `The height has been eliminated`})
-			})
+			await height.deleteOne();
+			res.status(200).send({message: `The height has been eliminated`})
 		}else{
-			 return res.status(202).send({message: 'The height does not exist'})
+			return res.status(202).send({message: 'The height does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the height: ${err}`})
+	}
 }
 
 module.exports = {

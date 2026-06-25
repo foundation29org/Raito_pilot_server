@@ -7,49 +7,59 @@ const crypt = require('../../services/crypt')
 const vcServiceCtrl = require('../../services/vc.js')
 const Session = require('../../models/session')
 
-function getGeneralShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
-        if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function getGeneralShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        const patient = await Patient.findById(patientId).select('-_id -createdBy');
         res.status(200).send({ generalShare: patient.generalShare })
-    })
+    } catch (err) {
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
-function setGeneralShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findByIdAndUpdate(patientId, { generalShare: req.body }, { select: '-createdBy', new: true }, (err, patientUpdated) => {
-        if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function setGeneralShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        await Patient.findByIdAndUpdate(patientId, { generalShare: req.body }, { select: '-createdBy', new: true });
         res.status(200).send({ message: 'general share changed' })
-    })
+    } catch (err) {
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
-function getCustomShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findById(patientId, { "_id": false, "createdBy": false }, (err, patient) => {
-        if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function getCustomShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        const patient = await Patient.findById(patientId).select('-_id -createdBy');
         res.status(200).send({ customShare: patient.customShare })
-    })
+    } catch (err) {
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
-function setCustomShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findByIdAndUpdate(patientId, { customShare: req.body }, { select: '-createdBy', new: true }, (err, patientUpdated) => {
-        if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function setCustomShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        const patientUpdated = await Patient.findByIdAndUpdate(patientId, { customShare: req.body }, { select: '-createdBy', new: true });
         res.status(200).send({ message: 'custom share changed', customShare: patientUpdated.customShare })
-    })
+    } catch (err) {
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
-function getIndividualShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    Patient.findById(patientId, { "_id": false, "createdBy": false }, async (err, patient) => {
+async function getIndividualShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        const patient = await Patient.findById(patientId).select('-_id -createdBy');
         if(patient.individualShare.length>0){
             var data = await getInfoUsers(patient.individualShare);
             return res.status(200).send({ individualShare: data })
         }else{
             res.status(200).send({ individualShare: patient.individualShare })
         }
-        
-    })
+    } catch (err) {
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
 async function getInfoUsers(individualShares) {
@@ -73,40 +83,35 @@ async function getInfoUsers(individualShares) {
 	});
 }
 
-function getUserName(individualShare) {
-    return new Promise(async function (resolve, reject) {
-        if(individualShare.idUser!=null){
-            let idUser = crypt.decrypt(individualShare.idUser);
-            //añado  {"_id" : false} para que no devuelva el _id
-            User.findById(idUser, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, (err, user) => {
-                if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-                if (user) {
-                    var res = JSON.parse(JSON.stringify(individualShare))
-                    res.userInfo = { userName: user.userName, lastName: user.lastName, email: user.email }
-                    resolve(res)
-                }else{
-                    var res = JSON.parse(JSON.stringify(individualShare))
-                    res.userInfo = { userName: '', lastName: '', email: '' }
-                    resolve(res)
-                }
-            })
-        }else{
-            var res = JSON.parse(JSON.stringify(individualShare))
-            res.userInfo = { userName: '', lastName: '', email: '' }
-            resolve(res)
+async function getUserName(individualShare) {
+    if(individualShare.idUser!=null){
+        let idUser = crypt.decrypt(individualShare.idUser);
+        try {
+            const user = await User.findById(idUser).select('-_id -__v -confirmationCode -loginAttempts -role -lastLogin');
+            if (user) {
+                var res = JSON.parse(JSON.stringify(individualShare))
+                res.userInfo = { userName: user.userName, lastName: user.lastName, email: user.email }
+                return res
+            }else{
+                var res = JSON.parse(JSON.stringify(individualShare))
+                res.userInfo = { userName: '', lastName: '', email: '' }
+                return res
+            }
+        } catch (err) {
+            throw err
         }
-        
-    });
-	
+    }else{
+        var res = JSON.parse(JSON.stringify(individualShare))
+        res.userInfo = { userName: '', lastName: '', email: '' }
+        return res
+    }
 }
 
-function setIndividualShare(req, res) {
-    let patientId = crypt.decrypt(req.params.patientId);
-    var info = {patientId: req.params.patientId, individualShare: req.body.individualShare[req.body.indexUpdated], type: 'Clinician'}
-    Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true }, (err, patientUpdated) => {
-        if (err) {
-            console.log(err);
-        }
+async function setIndividualShare(req, res) {
+    try {
+        let patientId = crypt.decrypt(req.params.patientId);
+        var info = {patientId: req.params.patientId, individualShare: req.body.individualShare[req.body.indexUpdated], type: 'Clinician'}
+        const patientUpdated = await Patient.findByIdAndUpdate(patientId, { individualShare: req.body.individualShare }, { new: true });
         if (patientUpdated) {
             res.status(200).send({ message: 'individuals share updated' })
             /*if( req.body.updateStatus){
@@ -132,7 +137,7 @@ function setIndividualShare(req, res) {
                       }else{
                         //delete and create new one
                         sessions.forEach(function(session) {
-                            session.remove(err => {
+                            session.deleteOne(err => {
                                 if(err) console.log({message: `Error deleting the feels: ${err}`})
                             })
                         });
@@ -155,36 +160,24 @@ function setIndividualShare(req, res) {
             }*/
             
         }
-    })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send({ message: `Error making the request: ${err}` })
+    }
 }
 
 async function generateQR(info) {
-	return new Promise(async function (resolve, reject) {
-
         let userId = crypt.decrypt(info.individualShare.idUser);
-        //añado  {"_id" : false} para que no devuelva el _id
-        User.findById(userId, { "_id": false, "__v": false, "confirmationCode": false, "loginAttempts": false, "role": false, "lastLogin": false }, async (err, user) => {
-            if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
-            if (user) {
-                info.userInfo= { userName: user.userName, lastName: user.lastName, email: user.email };
-                var promises = [];
-                promises.push(vcServiceCtrl.createIssuer(info));
-                await Promise.all(promises)
-                    .then(async function (data) {
-                        resolve(data)
-                    })
-                    .catch(function (err) {
-                        console.log('Manejar promesa rechazada (' + err + ') aquí.');
-                        reject('Manejar promesa rechazada (' + err + ') aquí.');
-                    });
-            }else{
-                reject("not user found");
-            }
-        })
-
-		
-
-	});
+        const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -role -lastLogin');
+        if (user) {
+            info.userInfo= { userName: user.userName, lastName: user.lastName, email: user.email };
+            var promises = [];
+            promises.push(vcServiceCtrl.createIssuer(info));
+            const data = await Promise.all(promises);
+            return data;
+        }else{
+            throw new Error("not user found");
+        }
 }
 
 module.exports = {
