@@ -22,14 +22,14 @@ const f29azureService = require("../../services/f29azure")
 
 function deleteAccount (req, res){
 	req.body.email = (req.body.email).toLowerCase();
-		User.getAuthenticated(req.body.email, req.body.password, function (err, user, reason) {
+		User.getAuthenticated(req.body.email, req.body.password, async function (err, user, reason) {
 		if (err) return res.status(500).send({ message: err })
 
 		// login was successful if we have a user
 		if (user) {
-			let userId= crypt.decrypt(req.params.userId);
-			Patient.find({"createdBy": userId},(err, patients) => {
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			try {
+				let userId= crypt.decrypt(req.params.userId);
+				const patients = await Patient.find({"createdBy": userId});
 		
 				patients.forEach(function(u) {
 					var patientId = u._id.toString();
@@ -48,189 +48,182 @@ function deleteAccount (req, res){
 					deletePatient(res, patientId, containerName, userId);
 				});
 				deleteUser(res, userId);
-			})
+			} catch (err) {
+				return res.status(500).send({message: `Error making the request: ${err}`})
+			}
 		}else{
 			res.status(200).send({message: `fail`})
 		}
 	})
-	
-
-	/*User.findById(userId, (err, user) => {
-	})*/
 }
 
-function deleteMedication (patientId){
-	Medication.find({ 'createdBy': patientId }, (err, medications) => {
-		if (err) console.log({message: `Error deleting the medications: ${err}`})
-		medications.forEach(function(medication) {
-			medication.remove(err => {
-				if(err) console.log({message: `Error deleting the medications: ${err}`})
-			})
-		});
-	})
+async function deleteMedication (patientId){
+	try {
+		const medications = await Medication.find({ 'createdBy': patientId });
+		for (const medication of medications) {
+			await medication.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the medications: ${err}`})
+	}
 }
 
-function deleteSeizures (patientId){
-	Seizures.find({ 'createdBy': patientId }, (err, seizures) => {
-		if (err) console.log({message: `Error deleting the seizures: ${err}`})
-		seizures.forEach(function(seizure) {
-			seizure.remove(err => {
-				if(err) console.log({message: `Error deleting the seizures: ${err}`})
-			})
-		});
-	})
+async function deleteSeizures (patientId){
+	try {
+		const seizures = await Seizures.find({ 'createdBy': patientId });
+		for (const seizure of seizures) {
+			await seizure.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the seizures: ${err}`})
+	}
 }
 
-function deleteWeight (patientId){
-	Weight.find({ 'createdBy': patientId }, (err, weights) => {
-		if (err) console.log({message: `Error deleting the weights: ${err}`})
-		weights.forEach(function(weight) {
-			weight.remove(err => {
-				if(err) console.log({message: `Error deleting the weights: ${err}`})
-			})
-		});
-	})
+async function deleteWeight (patientId){
+	try {
+		const weights = await Weight.find({ 'createdBy': patientId });
+		for (const weight of weights) {
+			await weight.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the weights: ${err}`})
+	}
 }
 
-function deleteHeight (patientId){
-	Height.find({ 'createdBy': patientId }, (err, heights) => {
-		if (err) console.log({message: `Error deleting the heights: ${err}`})
-		heights.forEach(function(height) {
-			height.remove(err => {
-				if(err) console.log({message: `Error deleting the heights: ${err}`})
-			})
-		});
-	})
+async function deleteHeight (patientId){
+	try {
+		const heights = await Height.find({ 'createdBy': patientId });
+		for (const height of heights) {
+			await height.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the heights: ${err}`})
+	}
 }
 
-function deleteFeel (patientId){
-	Feel.find({ 'createdBy': patientId }, (err, feels) => {
-		if (err) console.log({message: `Error deleting the feels: ${err}`})
-		feels.forEach(function(feel) {
-			feel.remove(err => {
-				if(err) console.log({message: `Error deleting the feels: ${err}`})
-			})
-		});
-	})
+async function deleteFeel (patientId){
+	try {
+		const feels = await Feel.find({ 'createdBy': patientId });
+		for (const feel of feels) {
+			await feel.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the feels: ${err}`})
+	}
 }
 
-function deleteAppointment (patientId){
-	Appointments.find({ 'createdBy': patientId }, (err, appointments) => {
-		if (err) console.log({message: `Error deleting the appointments: ${err}`})
-		appointments.forEach(function(appointment) {
-			appointment.remove(err => {
-				if(err) console.log({message: `Error deleting the appointments: ${err}`})
-			})
-		});
-	})
+async function deleteAppointment (patientId){
+	try {
+		const appointments = await Appointments.find({ 'createdBy': patientId });
+		for (const appointment of appointments) {
+			await appointment.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the appointments: ${err}`})
+	}
 }
 
-function deletePhenotype (patientId){
-	Phenotype.find({ 'createdBy': patientId }, (err, phenotypes) => {
-		if (err) console.log({message: `Error deleting the phenotype: ${err}`})
-		phenotypes.forEach(function(phenotype) {
-			phenotype.remove(err => {
-				if(err) console.log({message: `Error deleting the phenotype: ${err}`})
-				
-			})
-		});
-	})
+async function deletePhenotype (patientId){
+	try {
+		const phenotypes = await Phenotype.find({ 'createdBy': patientId });
+		for (const phenotype of phenotypes) {
+			await phenotype.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the phenotype: ${err}`})
+	}
 }
 
-function deletePhenotypeHistory (patientId){
-	PhenotypeHistory.find({ 'createdBy': patientId }, (err, phenotypeHistories) => {
-		if (err) console.log({message: `Error deleting the phenotypeHistory: ${err}`})
-			phenotypeHistories.forEach(function(phenotypeHistory) {
-				phenotypeHistory.remove(err => {
-					if(err) console.log({message: `Error deleting the phenotypeHistory: ${err}`})
-				})
-			});
-	})
+async function deletePhenotypeHistory (patientId){
+	try {
+		const phenotypeHistories = await PhenotypeHistory.find({ 'createdBy': patientId });
+		for (const phenotypeHistory of phenotypeHistories) {
+			await phenotypeHistory.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the phenotypeHistory: ${err}`})
+	}
 }
 
-function deleteQuestionnaire (patientId){
-	Questionnaire.find({ 'createdBy': patientId }, (err, questionnaires) => {
-		if (err) console.log({message: `Error deleting the questionnaires: ${err}`})
-		questionnaires.forEach(function(questionnaire) {
-			questionnaire.remove(err => {
-				if(err) console.log({message: `Error deleting the questionnaires: ${err}`})
-			})
-		});
-	})
+async function deleteQuestionnaire (patientId){
+	try {
+		const questionnaires = await Questionnaire.find({ 'createdBy': patientId });
+		for (const questionnaire of questionnaires) {
+			await questionnaire.deleteOne();
+		}
+	} catch (err) {
+		console.log({message: `Error deleting the questionnaires: ${err}`})
+	}
 }
 
 async function deleteBackups (userId){
 	const fileName = userId+'.json';
-	var result = await f29azureService.deleteBlob('backups', fileName);
+	await f29azureService.deleteBlob('backups', fileName);
 
 	let userIdDecrypt = crypt.decrypt(userId);
-	User.findByIdAndUpdate(userIdDecrypt, { backupF29: null}, {new: true}, (err,userUpdated) => {
-		
-	})
+	try {
+		await User.findByIdAndUpdate(userIdDecrypt, { backupF29: null}, {new: true});
+	} catch (err) {
+		// ignore
+	}
 }
 
-function deletePatient (res, patientId, containerName, userId){
-	Patient.findById(patientId, (err, patient) => {
-		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
+async function deletePatient (res, patientId, containerName, userId){
+	try {
+		const patient = await Patient.findById(patientId);
 		if(patient){
-			patient.remove(err => {
-				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
-				f29azureService.deleteContainers(containerName)
-			})
+			await patient.deleteOne();
+			f29azureService.deleteContainers(containerName)
 		}else{
-				f29azureService.deleteContainers(containerName);
+			f29azureService.deleteContainers(containerName);
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the case: ${err}`})
+	}
 }
 
-function deleteUser (res, userId){
-	User.findById(userId, (err, user) => {
-		if (err) return res.status(500).send({message: `Error deleting the case: ${err}`})
+async function deleteUser (res, userId){
+	try {
+		const user = await User.findById(userId);
 		if(user){
-			user.remove(err => {
-				if(err) return res.status(500).send({message: `Error deleting the case: ${err}`})
-				//savePatient(userId);
-				res.status(200).send({message: `The case has been eliminated`})
-			})
+			await user.deleteOne();
+			res.status(200).send({message: `The case has been eliminated`})
 		}else{
-			//savePatient(userId);
-			 return res.status(202).send({message: 'The case has been eliminated'})
+			return res.status(202).send({message: 'The case has been eliminated'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the case: ${err}`})
+	}
 }
 
-function savePatient(userId) {
-	let patient = new Patient()
-	patient.createdBy = userId
-	// when you save, returns an id in patientStored to access that patient
-	patient.save(async (err, patientStored) => {
-		if (err) console.log({ message: `Failed to save in the database: ${err} ` })
+async function savePatient(userId) {
+	try {
+		let patient = new Patient()
+		patient.createdBy = userId
+		const patientStored = await patient.save()
 		var id = patientStored._id.toString();
 		var idencrypt = crypt.encrypt(id);
-		var patientInfo = { sub: idencrypt, patientName: patient.patientName, surname: patient.surname, birthDate: patient.birthDate, gender: patient.gender, country: patient.country, previousDiagnosis: patient.previousDiagnosis, avatar: patient.avatar, consentgroup: patient.consentgroup };
 		let containerName = (idencrypt).substr(1);
 		var result = await f29azureService.createContainers(containerName);
-		if (result) {
-			//res.status(200).send({message: 'Patient created', patientInfo})
-		} else {
+		if (!result) {
 			deletePatientAndCreateOther(patientStored._id, userId);
 		}
-
-	})
+	} catch (err) {
+		console.log({ message: `Failed to save in the database: ${err} ` })
+	}
 }
 
-function deletePatientAndCreateOther(patientId, userId) {
-
-	Patient.findById(patientId, (err, patient) => {
-		if (err) return console.log({ message: `Error deleting the patient: ${err}` })
+async function deletePatientAndCreateOther(patientId, userId) {
+	try {
+		const patient = await Patient.findById(patientId);
 		if (patient) {
-			patient.remove(err => {
-				savePatient(userId)
-			})
-		} else {
-			savePatient(userId)
+			await patient.deleteOne();
 		}
-	})
+		savePatient(userId)
+	} catch (err) {
+		console.log({ message: `Error deleting the patient: ${err}` })
+		savePatient(userId)
+	}
 }
 
 module.exports = {

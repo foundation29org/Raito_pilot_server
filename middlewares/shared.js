@@ -6,28 +6,29 @@ const crypt = require('../services/crypt')
 
 function shared (){
 
-	return function(req, res, next) {
-		let patientId= crypt.decrypt(req.params.patientId);
-		Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
-			if (err) return res.status(403).send({message: 'Forbidden'})
+	return async function(req, res, next) {
+		try {
+			let patientId= crypt.decrypt(req.params.patientId);
+			const patient = await Patient.findById(patientId, {"_id" : false , "createdBy" : false });
 			if(!patient) return res.status(403).send({message: 'Forbidden'})
 			if(patient.generalShare.data.medicalInfo){
-				//req.user = response
 				saveRequest('open', patient.generalShare, patientId, req.route.path);
 				next()
 			}else{
 				return res.status(403).send({message: 'Forbidden'})
 			}
-		})
+		} catch (err) {
+			return res.status(403).send({message: 'Forbidden'})
+		}
   }
 }
 
 function shared2 (){
-	return function(req, res, next) {
-		let patientId= crypt.decrypt(req.params.patientId);
-		let userId = req.body.userId;
-		Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
-			if (err) return res.status(403).send({message: 'Forbidden'})
+	return async function(req, res, next) {
+		try {
+			let patientId= crypt.decrypt(req.params.patientId);
+			let userId = req.body.userId;
+			const patient = await Patient.findById(patientId, {"_id" : false , "createdBy" : false });
 			if(!patient) return res.status(403).send({message: 'Forbidden'})
 			if(patient.generalShare.data.medicalInfo){
 				saveRequest('openReg', patient.generalShare.data, patientId, req.route.path);
@@ -52,16 +53,18 @@ function shared2 (){
 				}else{
 					return res.status(403).send({message: 'Forbidden'})
 				}
-			}			
-		})
+			}
+		} catch (err) {
+			return res.status(403).send({message: 'Forbidden'})
+		}
   }
 }
 
 function sharedInvitation (){
-	return function(req, res, next) {
-		let patientId= crypt.decrypt(req.params.patientId);
-		Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
-			if (err) return res.status(403).send({message: 'Forbidden'})
+	return async function(req, res, next) {
+		try {
+			let patientId= crypt.decrypt(req.params.patientId);
+			const patient = await Patient.findById(patientId, {"_id" : false , "createdBy" : false });
 			if(!patient) return res.status(403).send({message: 'Forbidden'})
 			if(patient.customShare.length>0){
 				var found = false;
@@ -85,11 +88,13 @@ function sharedInvitation (){
 			}else{
 				return res.status(403).send({message: 'Forbidden'})
 			}
-		})
+		} catch (err) {
+			return res.status(403).send({message: 'Forbidden'})
+		}
   }
 }
 
-function saveRequest(platform, info, patientId, route){
+async function saveRequest(platform, info, patientId, route){
 	try {
 		let tempData = JSON.stringify(info)
 		let eventdb = new Operations();
@@ -97,15 +102,10 @@ function saveRequest(platform, info, patientId, route){
 		eventdb.route = route
 		eventdb.data = tempData
 		eventdb.createdBy = patientId
-		eventdb.save((err, eventdbStored) => {
-			if (err) {
-				console.log(1);
-				console.log(err);
-			}
-			if(eventdbStored){
-				console.log('saved track');
-			}
-		})
+		const eventdbStored = await eventdb.save();
+		if(eventdbStored){
+			console.log('saved track');
+		}
 	} catch (error) {
 		console.log(2);
 		console.log(error);

@@ -9,17 +9,15 @@ const crypt = require('../../services/crypt')
 const fs = require('fs');
 const translate = require('@iamtraction/google-translate');
 
-function updateLangFile (req, res){
-	let userId= crypt.decrypt(req.params.userId);
-	let lang = req.body.lang;
-	let jsonData = req.body.jsonData;
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+async function updateLangFile (req, res){
+	try {
+		let userId= crypt.decrypt(req.params.userId);
+		let lang = req.body.lang;
+		let jsonData = req.body.jsonData;
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'SuperAdmin'){
-			//subir file
 			fs.writeFile('./dist/assets/i18n/'+lang+'.json', JSON.stringify(jsonData), (err) => {
         if (err) {
           res.status(403).send({message: 'not uploaded'})
@@ -32,38 +30,35 @@ function updateLangFile (req, res){
 		}else{
 			res.status(401).send({message: 'without permission'})
 		}
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: 'Error making the request:'})
+	}
 }
 
-function addlang (req, res){
-	let userId= crypt.decrypt(req.params.userId);
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+async function addlang (req, res){
+	try {
+		let userId= crypt.decrypt(req.params.userId);
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'SuperAdmin'){
 
 		  let code = req.body.code;
 			let name = req.body.name;
-			Lang.findOne({ 'code': code }, function (err, langfound) {
-				if (err) res.status(403).send({message: 'fail'})
-				if(langfound) res.status(200).send({message: 'already exists'})
+			const langfound = await Lang.findOne({ 'code': code });
+			if(langfound) return res.status(200).send({message: 'already exists'})
 
-				if(!langfound) {
-					//traducir el filePath
-					var objToTranslate = JSON.parse(fs.readFileSync('./dist/assets/i18n/en.json', 'utf8'));
-					processObj(objToTranslate, code, name, res);
-				}
-
-			})
+			if(!langfound) {
+				var objToTranslate = JSON.parse(fs.readFileSync('./dist/assets/i18n/en.json', 'utf8'));
+				processObj(objToTranslate, code, name, res);
+			}
 
 		}else{
 				res.status(401).send({message: 'without permission'})
 			}
-
-	})
+	} catch (err) {
+		return res.status(403).send({message: 'fail'})
+	}
 }
 
 
@@ -78,7 +73,7 @@ async function processObj(obj, code, name, res){
 	}
 
 	//subir file
-	fs.writeFile('./dist/assets/i18n/'+code+'.json', JSON.stringify(result.data), (err) => {
+	fs.writeFile('./dist/assets/i18n/'+code+'.json', JSON.stringify(result.data), async (err) => {
 		if (err) {
 			res.status(403).send({message: 'not added'})
 		}
@@ -88,10 +83,12 @@ async function processObj(obj, code, name, res){
 		let lang = new Lang()
 		lang.name = name
 		lang.code = code
-		lang.save((err, langSaved) => {
-			if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
+		try {
+			await lang.save()
 			res.status(200).send({message: 'added', isSupported: result.isSupported})
-		})
+		} catch (err) {
+			res.status(500).send({message: `Failed to save in the database: ${err} `})
+		}
 	});
 
 	//return obj
@@ -150,41 +147,40 @@ async function processObj4(obj4, keys, keysLevel2, keysLevel3, keysLevel4,  i, j
 }
 
 
-function deletelang (req, res){
-
-	var params= req.params.userIdAndLang;
-	params = params.split("-code-");
-	let userId= crypt.decrypt(params[0]);
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+async function deletelang (req, res){
+	try {
+		var params= req.params.userIdAndLang;
+		params = params.split("-code-");
+		let userId= crypt.decrypt(params[0]);
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'SuperAdmin'){
 
 		  let code = params[1];
 
-			fs.unlink('./dist/assets/i18n/'+code+'.json',function(err){
+			fs.unlink('./dist/assets/i18n/'+code+'.json', async function(err){
         if(err) res.status(403).send({message: 'fail'});
 
-				Lang.findOne({code: code},(err, langFound) => {
-					if (err) return res.status(500).send({message: `Error deleting the lang: ${err}`})
+				try {
+					const langFound = await Lang.findOne({code: code});
 					if(langFound){
-						langFound.remove(err => {
-								if(err) res.status(202).send({message: 'error, not found'})
-								res.status(200).send({message: 'deleted'})
-							})
-						}else{
-							 res.status(202).send({message: 'error, not found'})
-						}
-				})
+						await langFound.deleteOne();
+						res.status(200).send({message: 'deleted'})
+					}else{
+						res.status(202).send({message: 'error, not found'})
+					}
+				} catch (err) {
+					return res.status(500).send({message: `Error deleting the lang: ${err}`})
+				}
 
 		   });
 		}else{
 				res.status(401).send({message: 'without permission'})
 			}
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: 'Error making the request:'})
+	}
 }
 
 module.exports = {

@@ -8,115 +8,97 @@ const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
 
-function getDoses (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	Dose.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getDoses (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const eventsdb = await Dose.find({"createdBy": patientId}).select("-createdBy");
 		var listEventsdb = [];
 
 		eventsdb.forEach(function(eventdb) {
 			listEventsdb.push(eventdb);
 		});
 		res.status(200).send(listEventsdb)
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
-function saveDose (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let eventdb = new Dose()
-	eventdb.recommendedDose = req.body.recommendedDose;
-	eventdb.actualDrugs = req.body.actualDrugs;
-	eventdb.units = req.body.units;
-	eventdb.name = req.body.name;
-	eventdb.createdBy = patientId
+async function saveDose (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let eventdb = new Dose()
+		eventdb.recommendedDose = req.body.recommendedDose;
+		eventdb.actualDrugs = req.body.actualDrugs;
+		eventdb.units = req.body.units;
+		eventdb.name = req.body.name;
+		eventdb.createdBy = patientId
 
-	// when you save, returns an id in eventdbStored to access that dose
-	eventdb.save((err, eventdbStored) => {
-		if (err) {
-			return res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
+		const eventdbStored = await eventdb.save();
 		if(eventdbStored){
 			res.status(200).send({message: 'Done'})
 		}
-	})
-
-
+	} catch (err) {
+		return res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 async function saveMassiveDose (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
-	var promises = [];
-	if (req.body.length > 0) {
-		for (var i = 0; i<(req.body).length;i++){
-			var actualdose = (req.body)[i];
-			promises.push(testOneDose(actualdose, patientId, res));
-		}
-	}else{
-		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
+	if (!req.body.length) {
+		return res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
 	}
 
-
-	await Promise.all(promises)
-			.then(async function (data) {
-				res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
-			})
-			.catch(function (err) {
-				console.log('Manejar promesa rechazada (' + err + ') aquí.');
-				return null;
-			});
-	
-
+	try {
+		await Promise.all(req.body.map((actualdose) => testOneDose(actualdose, patientId, res)))
+		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
+	} catch (err) {
+		console.log('Manejar promesa rechazada (' + err + ') aquí.');
+		if (!res.headersSent) {
+			res.status(500).send({message: `Error making the request: ${err}`})
+		}
+	}
 }
 
 async function testOneDose(actualdose, patientId, res){
-	var functionDone = false;
-	await Dose.findOne({name: actualdose.name, createdBy: patientId}, (err, eventdb2) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!eventdb2){
-			let eventdb = new Dose()
-			eventdb.name = actualdose.name
-			eventdb.recommendedDose = actualdose.recommendedDose
-			eventdb.actualDrugs = actualdose.actualDrugs;
-			eventdb.units = actualdose.units;
-			eventdb.createdBy = patientId
-			var res1 = saveOneDose(eventdb, res)
-			// when you save, returns an id in eventdbStored to access that social-info
-			functionDone = true;
-		}else{
-			//update the Dose
-			eventdb2.recommendedDose = actualdose.recommendedDose
-			eventdb2.actualDrugs = actualdose.actualDrugs;
-			eventdb2.units = actualdose.units;
-			var res1 = updateDose(eventdb2, res)
-			
-			functionDone = true;
-		}
-	})
+	const eventdb2 = await Dose.findOne({name: actualdose.name, createdBy: patientId})
+	if(!eventdb2){
+		let eventdb = new Dose()
+		eventdb.name = actualdose.name
+		eventdb.recommendedDose = actualdose.recommendedDose
+		eventdb.actualDrugs = actualdose.actualDrugs;
+		eventdb.units = actualdose.units;
+		eventdb.createdBy = patientId
+		await saveOneDose(eventdb, res)
+		return
+	}
 
-	return functionDone
+	eventdb2.recommendedDose = actualdose.recommendedDose
+	eventdb2.actualDrugs = actualdose.actualDrugs;
+	eventdb2.units = actualdose.units;
+	await updateDose(eventdb2, res)
 }
 
 async function updateDose (actualdose, res){
-	//update DOSE
-	Dose.findByIdAndUpdate(actualdose._id, actualdose, { select: '-createdBy', new: true }, (err, doseUpdated) => {
-		if (err){
+	try {
+		return await Dose.findByIdAndUpdate(actualdose._id, actualdose, { select: '-createdBy', new: true })
+	} catch (err) {
+		if (!res.headersSent) {
 			res.status(500).send({message: `Failed to update in the database: ${err} `})
-		}else{
-			return(doseUpdated);
-		} 
-	  })
+		}
+		throw err
+	}
 }
 
 async function saveOneDose(eventdb, res){
-	var functionDone2 = false;
-	await eventdb.save((err, eventdbStored) => {
-		if (err) {
+	try {
+		await eventdb.save()
+	} catch (err) {
+		if (!res.headersSent) {
 			res.status(500).send({message: `Failed to save in the database: ${err} `})
 		}
-		functionDone2 = true;
-	})
-	return functionDone2;
+		throw err
+	}
 }
 
 module.exports = {

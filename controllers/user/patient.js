@@ -53,54 +53,44 @@ const f29azureService = require("../../services/f29azure")
  *
  */
 
-function getPatientsUser (req, res){
-	let userId= crypt.decrypt(req.params.userId);
+async function getPatientsUser (req, res){
+	try {
+		let userId= crypt.decrypt(req.params.userId);
 
-
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'User'){
-			Patient.find({"createdBy": userId},(err, patients) => {
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			const patients = await Patient.find({"createdBy": userId});
 
-				var listpatients = [];
+			var listpatients = [];
 
-				patients.forEach(function(u) {
-					var id = u._id.toString();
-					var idencrypt= crypt.encrypt(id);
-					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
-				});
+			patients.forEach(function(u) {
+				var id = u._id.toString();
+				var idencrypt= crypt.encrypt(id);
+				listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
+			});
 
-				//res.status(200).send({patient, patient})
-				// if the two objects are the same, the previous line can be set as follows
-				res.status(200).send({listpatients})
-			})
+			res.status(200).send({listpatients})
 		}else if(user.role == 'Clinical' || user.role == 'SuperAdmin' || user.role == 'Admin'){
 
-			//debería de coger los patientes creados por ellos, más adelante, habrá que meter tb los pacientes que les hayan datos permisos
-			Patient.find({"createdBy": userId},(err, patients) => {
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			const patients = await Patient.find({"createdBy": userId});
 
-				var listpatients = [];
+			var listpatients = [];
 
-				patients.forEach(function(u) {
-					var id = u._id.toString();
-					var idencrypt= crypt.encrypt(id);
-					listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, isArchived: u.isArchived, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
-				});
+			patients.forEach(function(u) {
+				var id = u._id.toString();
+				var idencrypt= crypt.encrypt(id);
+				listpatients.push({sub:idencrypt, patientName: u.patientName, surname: u.surname, isArchived: u.isArchived, birthDate: u.birthDate, gender: u.gender, country: u.country, group: u.group});
+			});
 
-				//res.status(200).send({patient, patient})
-				// if the two objects are the same, the previous line can be set as follows
-				res.status(200).send({listpatients})
-			})
+			res.status(200).send({listpatients})
 		}else{
 			res.status(401).send({message: 'without permission'})
 		}
-	})
-
-
+	} catch (err) {
+		return res.status(500).send({message: 'Error making the request:'})
+	}
 }
 
 
@@ -165,15 +155,17 @@ function getPatientsUser (req, res){
  *
  */
 
-function getPatient (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+async function getPatient (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err, patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		const patient = await Patient.findById(patientId).select('-_id -createdBy');
 		if(!patient) return res.status(202).send({message: `The patient does not exist`})
 
 		res.status(200).send({patient})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -229,114 +221,99 @@ function getPatient (req, res){
  *
  */
 
-function updatePatient (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let update = req.body
-  var avatar = '';
-  if(req.body.avatar==undefined){
-    if(req.body.gender!=undefined){
-      if(req.body.gender=='male'){
-				avatar='boy-0'
-			}else if(req.body.gender=='female'){
-				avatar='girl-0'
-			}
-    }
-  }else{
-    avatar = req.body.avatar;
-  }
-  if(req.body.deleteConsent!=undefined){
-	if(req.body.deleteConsent){
-		req.body.consentgroup='false';
-		/*Session.find({"createdBy": req.params.patientId, "type": 'Organization'},async (err, sessions) => {
-			if (err) console.log({message: `Error deleting the feels: ${err}`})
-			if(sessions.length>0){
-				sessions.forEach(function(session) {
-					session.remove(err => {
-						if(err) console.log({message: `Error deleting the feels: ${err}`})
-					})
-				});
-			}
-		})*/
-	}
-  }
+async function updatePatient (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let update = req.body
+	  var avatar = '';
+	  if(req.body.avatar==undefined){
+	    if(req.body.gender!=undefined){
+	      if(req.body.gender=='male'){
+					avatar='boy-0'
+				}else if(req.body.gender=='female'){
+					avatar='girl-0'
+				}
+	    }
+	  }else{
+	    avatar = req.body.avatar;
+	  }
+	  if(req.body.deleteConsent!=undefined){
+		if(req.body.deleteConsent){
+			req.body.consentgroup='false';
+		}
+	  }
 
-  Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup, modules: req.body.modules, tobaccoUse: req.body.tobaccoUse, avgCigarettesPerDay: req.body.avgCigarettesPerDay, numberSmokingYears: req.body.numberSmokingYears, specificDiet: req.body.specificDiet, specificDietDescription: req.body.specificDietDescription, physicalExercise: req.body.physicalExercise, physicalExerciseDescription: req.body.physicalExerciseDescription}, {new: true}, async (err,patientUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+	  const patientUpdated = await Patient.findByIdAndUpdate(patientId, { gender: req.body.gender, birthDate: req.body.birthDate, patientName: req.body.patientName, surname: req.body.surname, relationship: req.body.relationship, country: req.body.country, previousDiagnosis: req.body.previousDiagnosis, avatar: avatar, group: req.body.group, consentgroup: req.body.consentgroup, modules: req.body.modules, tobaccoUse: req.body.tobaccoUse, avgCigarettesPerDay: req.body.avgCigarettesPerDay, numberSmokingYears: req.body.numberSmokingYears, specificDiet: req.body.specificDiet, specificDietDescription: req.body.specificDietDescription, physicalExercise: req.body.physicalExercise, physicalExerciseDescription: req.body.physicalExerciseDescription}, {new: true});
 		var id = patientUpdated._id.toString();
 		var idencrypt= crypt.encrypt(id);
 		var patientInfo = {sub:idencrypt, patientName: patientUpdated.patientName, surname: patientUpdated.surname, birthDate: patientUpdated.birthDate, gender: patientUpdated.gender, country: patientUpdated.country, previousDiagnosis: patientUpdated.previousDiagnosis, avatar: patientUpdated.avatar, group: patientUpdated.group, consentgroup: patientUpdated.consentgroup, modules: patientUpdated.modules, tobaccoUse: patientUpdated.tobaccoUse, avgCigarettesPerDay:patientUpdated.avgCigarettesPerDay, numberSmokingYears:patientUpdated.numberSmokingYears, specificDiet: patientUpdated.specificDiet, specificDietDescription: patientUpdated.specificDietDescription, physicalExercise: patientUpdated.physicalExercise, physicalExerciseDescription: patientUpdated.physicalExerciseDescription};
 		let containerName = (idencrypt).substr(1);
-		var result = await f29azureService.createContainers(containerName);
+		await f29azureService.createContainers(containerName);
 		res.status(200).send({message: 'Patient updated', patientInfo})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function consentgroup (req, res){
-
-	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-	var newConsent = req.body.consentgroup;
-	/*if(req.body.consentgroup == 'Pending'){
-		newConsent = 'true'
-	}else if(req.body.consentgroup == 'true'){
-		newConsent = 'Pending'
-	}*/
-	Patient.findByIdAndUpdate(patientId, { consentgroup: newConsent }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
+async function consentgroup (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		var newConsent = req.body.consentgroup;
+		await Patient.findByIdAndUpdate(patientId, { consentgroup: newConsent }, {select: '-createdBy', new: true});
 		res.status(200).send({message: 'consent changed', consent: newConsent})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getConsentGroup (req, res){
+async function getConsentGroup (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-
-	Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err,patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-			res.status(200).send({consentgroup: patient.consentgroup})
-
-	})
+		const patient = await Patient.findById(patientId).select('-_id -createdBy');
+		res.status(200).send({consentgroup: patient.consentgroup})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function setChecks (req, res){
+async function setChecks (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-
-	Patient.findByIdAndUpdate(patientId, { checks: req.body.checks }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'checks changed'})
-
-	})
+		await Patient.findByIdAndUpdate(patientId, { checks: req.body.checks }, {select: '-createdBy', new: true});
+		res.status(200).send({message: 'checks changed'})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getChecks (req, res){
+async function getChecks (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	let patientId= crypt.decrypt(req.params.patientId);//crypt.decrypt(req.params.patientId);
-
-	Patient.findById(patientId, {"_id" : false , "createdBy" : false }, (err,patient) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-			res.status(200).send({checks: patient.checks})
-
-	})
+		const patient = await Patient.findById(patientId).select('-_id -createdBy');
+		res.status(200).send({checks: patient.checks})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function setBirthDate (req, res){
+async function setBirthDate (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	let patientId= crypt.decrypt(req.params.patientId);
-
-	Patient.findByIdAndUpdate(patientId, { birthDate: req.body.birthDate }, {select: '-createdBy', new: true}, (err,patientUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'birthDate changed'})
-
-	})
+		await Patient.findByIdAndUpdate(patientId, { birthDate: req.body.birthDate }, {select: '-createdBy', new: true});
+		res.status(200).send({message: 'birthDate changed'})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getModules(req, res) {
-	let patientId = crypt.decrypt(req.params.patientId);
-	Patient.findById(patientId, { "_id": false}, (err, patient) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function getModules(req, res) {
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		const patient = await Patient.findById(patientId).select('-_id');
 		if (patient) {
 			if (patient.modules) {
 				res.status(200).send({ modules: patient.modules })
@@ -346,7 +323,9 @@ function getModules(req, res) {
 		}else{
 			res.status(200).send({ modules: ["seizures"]})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({ message: `Error making the request: ${err}` })
+	}
 }
 
 module.exports = {

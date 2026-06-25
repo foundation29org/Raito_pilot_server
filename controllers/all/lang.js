@@ -52,11 +52,10 @@ const crypt = require('../../services/crypt')
  *   }
  * ]
  */
-function getLangs (req, res){
-	Lang.find({}, function(err, langs) {
-		if (err) return res.status(503).send({ message: 'Error fetching languages' })
-
-    var listLangs = [];
+async function getLangs (req, res){
+	try {
+		const langs = await Lang.find({});
+		var listLangs = [];
 
 		if(langs!=undefined){
 			langs.forEach(function(lang) {
@@ -64,10 +63,12 @@ function getLangs (req, res){
 					listLangs.push({name:lang.name, code: lang.code});
 				}
 
-	    });
+			});
 		}
-    res.status(200).send(listLangs)
-  });
+		res.status(200).send(listLangs)
+	} catch (err) {
+		return res.status(503).send({ message: 'Error fetching languages' })
+	}
 }
 
 module.exports = {

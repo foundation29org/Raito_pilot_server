@@ -29,7 +29,7 @@ function isAuth (roles){
 
 }
 
-function saveRequest(platform, info, patientId, route){
+async function saveRequest(platform, info, patientId, route){
 	try {
 		let tempData = JSON.stringify(info)
 		let eventdb = new Operations();
@@ -37,15 +37,10 @@ function saveRequest(platform, info, patientId, route){
 		eventdb.route = route
 		eventdb.data = tempData
 		eventdb.createdBy = patientId
-		eventdb.save((err, eventdbStored) => {
-			if (err) {
-				console.log(1);
-				console.log(err);
-			}
-			if(eventdbStored){
-				console.log('saved track');
-			}
-		})
+		const eventdbStored = await eventdb.save();
+		if(eventdbStored){
+			console.log('saved track');
+		}
 	} catch (error) {
 		console.log(2);
 		console.log(error);
