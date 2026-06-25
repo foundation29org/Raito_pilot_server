@@ -69,18 +69,14 @@ function generateBodyRequestVC(callbackurl, id){
 
 async function presentationRequest (req, res){
   let patientId= crypt.decrypt(req.params.patientId);
-  //save new session
   let session = new Session()
   session.sessionData = {
     "status" : 0,
     "message": "Waiting for QR code to be scanned"
   };
   session.createdBy = patientId;
-  session.save(async (err, sessionStored) => {
-    if (err) {
-			console.log(err);
-			console.log({ message: `Failed to save in the database: ${err} ` })
-		}
+  try {
+    const sessionStored = await session.save();
     var callbackurl = `${config.client_server}api/verifier/presentation-request-callback`;
     if(config.client_server=='http://localhost:4200'){
       callbackurl = "https://32e4-88-11-10-36.eu.ngrok.io:/api/verifier/presentation-request-callback"
@@ -101,19 +97,16 @@ async function presentationRequest (req, res){
       );
       var respJson = response.data;
 
-      Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true }, (err, sessionUpdated) => {
-        if (err){
-          return res.status(500).send({ message: `Error making the request: ${err}` })
-        }else{
-          res.status(200).send(sessionUpdated)
-        }
-      })
+      const sessionUpdated = await Session.findByIdAndUpdate(sessionStored._id, { data: respJson }, { select: '-createdBy', new: true });
+      res.status(200).send(sessionUpdated)
     } catch (error) {
       console.log(error);
       return res.status(500).send({ message: `Error making the request: ${error}` })
     }
-  })
-  
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: `Failed to save in the database: ${err} ` })
+  }
 }
 
 async function presentationRequestCallback (req, res){
@@ -127,11 +120,6 @@ async function presentationRequestCallback (req, res){
     }
     var presentationResponse = JSON.parse(body);
     var message = null;
-    // there are 2 different callbacks. 1 if the QR code is scanned (or deeplink has been followed)
-    // Scanning the QR code makes Authenticator download the specific request from the server
-    // the request will be deleted from the server immediately.
-    // That's why it is so important to capture this callback and relay this to the UI so the UI can hide
-    // the QR code to prevent the user from scanning it twice (resulting in an error since the request is already deleted)
     if ( presentationResponse.code == "request_retrieved" ) {
       message = "QR Code is scanned. Waiting for validation...";
 
@@ -139,15 +127,13 @@ async function presentationRequestCallback (req, res){
         "status" : presentationResponse.code,
         "message": message
       };
-      Session.findByIdAndUpdate(presentationResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
-        if (err) {
-          console.log(err);
-          console.log({ message: `Error making the request: ${err} ` })
-          res.status(202).send({ message: 'Error QR Code..' })
-        }
+      try {
+        await Session.findByIdAndUpdate(presentationResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true});
         res.status(202).send({ message: 'QR Code is scanned. Waiting for validation...' })
-      })
-          
+      } catch (err) {
+        console.log(err);
+        res.status(202).send({ message: 'Error QR Code..' })
+      }
     }
 
     if ( presentationResponse.code == "presentation_verified" ) {
@@ -161,42 +147,36 @@ async function presentationRequestCallback (req, res){
         "lastName": presentationResponse.issuers[0].claims.lastName,
         "presentationResponse": presentationResponse
     };
-      Session.findByIdAndUpdate(presentationResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
-        if (err) {
-          console.log(err);
-          console.log({ message: `Error making the request: ${err} ` })
-          res.status(202).send({ message: 'Error Credential successfully issued' })
-        }
+      try {
+        await Session.findByIdAndUpdate(presentationResponse.state, { sessionData: sessionData }, {select: '-createdBy', new: true});
         res.status(202).send({ message: 'Credential successfully issued' })
-      })     
+      } catch (err) {
+        console.log(err);
+        res.status(202).send({ message: 'Error Credential successfully issued' })
+      }
     }
 }
 
 async function presentationResponse (req, res){
-  var id = req.params.sessionId;
-  Session.findById(id, (err, session) => {
-    if (err) {
-      console.log(err);
-      console.log({ message: `Error getting session: ${err} ` })
-      res.status(202).send({ message: 'Error getting session' })
-    }
+  try {
+    var id = req.params.sessionId;
+    const session = await Session.findById(id);
     if(!session){
       res.status(202).send({ message: 'The sessions dont exist' })
     }else{
-      delete session.sessionData.presentationResponse; // browser don't need this
+      delete session.sessionData.presentationResponse;
       res.status(202).send({ data: session.sessionData })
     }
-  })
+  } catch (err) {
+    console.log(err);
+    res.status(202).send({ message: 'Error getting session' })
+  }
 }
 
 async function presentationResponseb2c (req, res){
-  var id = req.body.id;
-  Session.findById(id, (err, session) => {
-    if (err) {
-      console.log(err);
-      console.log({ message: `Error getting session: ${err} ` })
-      res.status(202).send({ message: 'Error getting session' })
-    }
+  try {
+    var id = req.body.id;
+    const session = await Session.findById(id);
     if(!session){
       res.status(409).send({
         'version': '1.0.0', 
@@ -212,30 +192,28 @@ async function presentationResponseb2c (req, res){
         'vcSub': session.sessionData.presentationResponse.subject,
         'vcKey': session.sessionData.presentationResponse.subject.replace("did:ion:", "did.ion.").split(":")[0]
         };        
-        var responseBody = { ...claimsExtra, ...claims }; // merge the two structures
-        Session.findByIdAndUpdate(id, { sessionData: null }, {select: '-createdBy', new: true}, (err,sessionUpdated) => {
-        })
+        var responseBody = { ...claimsExtra, ...claims };
+        await Session.findByIdAndUpdate(id, { sessionData: null }, {select: '-createdBy', new: true});
         res.status(200).json( responseBody );
     }
-  })
+  } catch (err) {
+    console.log(err);
+    res.status(202).send({ message: 'Error getting session' })
+  }
 }
 
 async function getAllVC (req, res){
-  let patientId= crypt.decrypt(req.params.patientId);
-  Session.find({"createdBy": patientId},(err, sessions) => {
-    if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+  try {
+    let patientId= crypt.decrypt(req.params.patientId);
+    const sessions = await Session.find({"createdBy": patientId});
     var listsessions = [];
-    if(sessions.length>0){
-      for (var i = 0; i < sessions.length; i++) {
-        listsessions.push(sessions[i]);
-      }
-      res.status(200).send({listsessions})
-    }else{
-      res.status(200).send({listsessions})
+    for (var i = 0; i < sessions.length; i++) {
+      listsessions.push(sessions[i]);
     }
-  
-  
-  })
+    res.status(200).send({listsessions})
+  } catch (err) {
+    return res.status(500).send({message: `Error making the request: ${err}`})
+  }
 }
 
 

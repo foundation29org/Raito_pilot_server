@@ -7,24 +7,23 @@ const Medication = require('../../../models/medication')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
-function getMedicationsDate (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	var period = 31;
-	if(req.body.rangeDate == 'quarter'){
-		period = 90;
-	}else if(req.body.rangeDate == 'year'){
-		period = 365;
-	}
-	var actualDate = new Date();
-	var actualDateTime = actualDate.getTime();
+async function getMedicationsDate (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		var period = 31;
+		if(req.body.rangeDate == 'quarter'){
+			period = 90;
+		}else if(req.body.rangeDate == 'year'){
+			period = 365;
+		}
+		var actualDate = new Date();
+		var actualDateTime = actualDate.getTime();
 
-	var pastDate=new Date(actualDate);
-    pastDate.setDate(pastDate.getDate() - period);
-	var pastDateDateTime = pastDate.getTime();
-	
-	//Medication.find({createdBy: patientId}, {"createdBy" : false }).sort({ endDate : 'asc'}).exec(function(err, medications){
-		Medication.find({"createdBy": patientId, $or:[ {"startDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":null}]}, {"createdBy" : false},(err, medications) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		var pastDate=new Date(actualDate);
+	    pastDate.setDate(pastDate.getDate() - period);
+		var pastDateDateTime = pastDate.getTime();
+		
+		const medications = await Medication.find({"createdBy": patientId, $or:[ {"startDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"endDate":null}]}).select("-createdBy");
 
 		var listMedications = [];
 
@@ -32,7 +31,9 @@ function getMedicationsDate (req, res){
 			listMedications.push(medication);
 		});
 		res.status(200).send(listMedications)
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -82,12 +83,11 @@ function getMedicationsDate (req, res){
  * {message: 'There are no medication'}
  * @apiSuccess (Success 202) {String} message If there is no medication for the patient, it will return: "There are no medication"
  */
-function getMedications (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+async function getMedications (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	//Medication.find({createdBy: patientId}, {"createdBy" : false }).sort({ endDate : 'asc'}).exec(function(err, medications){
-		Medication.find({"createdBy": patientId}, {"createdBy" : false},(err, medications) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		const medications = await Medication.find({"createdBy": patientId}).select("-createdBy");
 
 		var listMedications = [];
 
@@ -95,7 +95,9 @@ function getMedications (req, res){
 			listMedications.push(medication);
 		});
 		res.status(200).send(listMedications)
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -142,13 +144,14 @@ function getMedications (req, res){
  * {message: 'There are no medication'}
  * @apiSuccess (Success 202) {String} message If there is no medication for the patient, it will return: "There are no medication"
  */
-function getMedication (req, res){
-	//let medicationId= crypt.decrypt(req.params.medicationId);
-	Medication.findOne({"_id": req.params.medicationId}, {"createdBy" : false }, (err, medication) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getMedication (req, res){
+	try {
+		const medication = await Medication.findOne({"_id": req.params.medicationId}).select("-createdBy");
 		if(!medication) return res.status(202).send({message: 'There are no medication'})
 		res.status(200).send({medication})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -206,13 +209,11 @@ function getMedication (req, res){
  * {message: 'There are no medication'}
  * @apiSuccess (Success 202) {String} message If there is no medication for the patient, it will return: "There are no medication"
  */
-function saveMedication (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+async function saveMedication (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	
-	Medication.find({"createdBy": patientId, "drug": req.body.drug},(err, medications) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		var listMedications = [];
+		const medications = await Medication.find({"createdBy": patientId, "drug": req.body.drug});
 		var failmsg= '';
 		var bsd = new Date(req.body.startDate);
 		var bed = new Date(req.body.endDate);
@@ -241,8 +242,6 @@ function saveMedication (req, res){
 					failmsg = 'imposible';
 				}
 			}
-		/*	var result = new Date(req.body.startDate);
-		  result.setDate(result.getDate() -1);*/
 
 		});
 
@@ -261,23 +260,16 @@ function saveMedication (req, res){
 			medication.freesideEffects = req.body.freesideEffects
 			medication.createdBy = patientId
 
-			// when you save, returns an id in medicationStored to access that social-info
-			medication.save((err, medicationStored) => {
-				if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
-
-				var copymedication = JSON.parse(JSON.stringify(medicationStored));
-				delete copymedication.createdBy;
-				res.status(200).send({message: 'Dose created', medication: copymedication})
-
-			})
+			const medicationStored = await medication.save()
+			var copymedication = JSON.parse(JSON.stringify(medicationStored));
+			delete copymedication.createdBy;
+			res.status(200).send({message: 'Dose created', medication: copymedication})
 		}else{
 				res.status(200).send({message: 'fail', medication: []})
 		}
-
-
-	});
-
-
+	} catch (err) {
+		return res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 /**
@@ -332,20 +324,21 @@ function saveMedication (req, res){
  * }
  *
  */
-function updateMedication (req, res){
-	let medicationId= req.params.medicationId;
-	let update = req.body
+async function updateMedication (req, res){
+	try {
+		let medicationId= req.params.medicationId;
+		let update = req.body
 
-	Medication.findByIdAndUpdate(medicationId, update, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		const medicationUpdated = await Medication.findByIdAndUpdate(medicationId, update, {select: '-createdBy', new: true});
     var copymedication = {};
     if(medicationUpdated){
       copymedication = JSON.parse(JSON.stringify(medicationUpdated));
   		delete copymedication.createdBy;
     }
 		res.status(200).send({message: 'Medication updated', medication: copymedication})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -379,20 +372,20 @@ function updateMedication (req, res){
  * {message: 'The dose does not exist'}
  * @apiSuccess (Success 202) {String} message If there is no dose for the patient, it will return: "The dose does not exist"
  */
-function deleteDose (req, res){
-	let medicationId=req.params.medicationId
+async function deleteDose (req, res){
+	try {
+		let medicationId=req.params.medicationId
 
-	Medication.findById(medicationId, (err, medication) => {
-		if (err) return res.status(500).send({message: `Error deleting the dose: ${err}`})
+		const medication = await Medication.findById(medicationId);
 		if(medication){
-			medication.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the dose: ${err}`})
-				res.status(200).send({message: `The dose has been eliminated`})
-			})
+			await medication.deleteOne();
+			res.status(200).send({message: `The dose has been eliminated`})
 		}else{
 			 return res.status(202).send({message: 'The dose does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the dose: ${err}`})
+	}
 }
 
 /**
@@ -442,17 +435,18 @@ function deleteDose (req, res){
  * {message: 'No medications found'}
  * @apiSuccess (Success 202) {String} message If there is no medication with the name provided for the patient, it will return: "TNo medications found"
  */
-function getAllMedicationByNameForPatient(req,res){
-	var params= req.params.drugNameAndPatient;
-	params = params.split("-code-");
-	let drugName= params[0];
-	let patientId= crypt.decrypt(params[1]);
-	Medication.find({createdBy: patientId, drug: drugName}, {"createdBy" : false },(err, medications) => {
-		if (err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
+async function getAllMedicationByNameForPatient(req,res){
+	try {
+		var params= req.params.drugNameAndPatient;
+		params = params.split("-code-");
+		let drugName= params[0];
+		let patientId= crypt.decrypt(params[1]);
+		const medications = await Medication.find({createdBy: patientId, drug: drugName}).select("-createdBy");
 		if(medications) return res.status(200).send({medications})
 		else if (!medications) res.status(200).send({message: `No medications found`})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the medication: ${err}`})
+	}
 }
 
 /**
@@ -483,29 +477,21 @@ function getAllMedicationByNameForPatient(req,res){
  *		}
  *
  */
-function deleteMedication (req, res){
-	var params= req.params.drugNameAndPatient;
-	params = params.split("-code-");
-	let drugName= params[0];
-	let patientId= crypt.decrypt(params[1]);
-	Medication.find({createdBy: patientId, drug: drugName},(err, medications) => {
-		if (err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
+async function deleteMedication (req, res){
+	try {
+		var params= req.params.drugNameAndPatient;
+		params = params.split("-code-");
+		let drugName= params[0];
+		let patientId= crypt.decrypt(params[1]);
+		const medications = await Medication.find({createdBy: patientId, drug: drugName});
 
-		var i = 0;
-
-		medications.forEach(function(medication) {
-			medication.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
-
-				i++;
-				if(i==medications.length){
-						res.status(200).send({message: `The medication has been eliminated`})
-				}
-			})
-		});
-
-
-	})
+		for (const medication of medications) {
+			await medication.deleteOne();
+		}
+		res.status(200).send({message: `The medication has been eliminated`})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the medication: ${err}`})
+	}
 }
 
 /**
@@ -536,70 +522,50 @@ function deleteMedication (req, res){
  *     "message":"Medication has been eliminated, and previous has been updated to current taking",
  *   }
  */
-function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
-	let params = req.params.PatientIdAndMedicationId;
-	params = params.split("-code-");
-	let patientId = crypt.decrypt(params[0]);
-	let medicationId = params[1];
+async function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
+	try {
+		let params = req.params.PatientIdAndMedicationId;
+		params = params.split("-code-");
+		let patientId = crypt.decrypt(params[0]);
+		let medicationId = params[1];
 
-	Medication.findById(medicationId,(err,medicationfound)=>{
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		const medicationfound = await Medication.findById(medicationId);
 		if (medicationfound){
-			// Buscar todas las que tengan el mismo medication drug
 			let drug = medicationfound.drug;
-			Medication.find({drug:drug, createdBy:patientId},(err,othermedication)=>{
-				if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+			const othermedication = await Medication.find({drug:drug, createdBy:patientId});
 
-				if(othermedication.length>0){
-					// No se ha encontrado ninguna otra, solo con la que se está trabajando
-					if(othermedication.length==1){
-						// Borro la medicacion de entrada segun el Id dado
-						medicationfound.deleteOne(err => {
-							if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`});
-							res.status(200).send({message: `The medication has been eliminated and there are not other medications`})
-						});
-					}
-					// Se han encontrado otras
-					else{
-						let lastEndDate = othermedication[0].endDate;
-						let medicationToUpdate = othermedication[0];
-
-						// Miro cual es la que tiene fecha mas actual
-						// Me quedo con la que tiene fecha más actual
-						for (var i =0;i<othermedication.length;i++){
-							if(othermedication[i].endDate>lastEndDate){
-								lastEndDate = othermedication[i].endDate;
-								medicationToUpdate = othermedication[i]
-							}
-						}
-
-						// Borro la medicacion de entrada segun el Id dado
-						medicationfound.deleteOne(err => {
-							if(err) return res.status(500).send({message: `Error deleting the medication: ${err}`})
-							//res.status(200).send({message: `The medication has been eliminated`})
-							// Actualizo la medicacion con fecha mas actual a current taking
-							medicationToUpdate.endDate=null;
-							Medication.findByIdAndUpdate(medicationToUpdate._id, medicationToUpdate, (err,medicationUpdated) => {
-								if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-								var copymedication = JSON.parse(JSON.stringify(medicationUpdated));
-								delete copymedication.createdBy;
-								res.status(200).send({message: 'Medication has been eliminated, and previous has been updated to current taking', medication: copymedication})
-
-							})
-						})
-
-
-					}
-
+			if(othermedication.length>0){
+				if(othermedication.length==1){
+					await medicationfound.deleteOne();
+					res.status(200).send({message: `The medication has been eliminated and there are not other medications`})
 				}
-			})
+				else{
+					let lastEndDate = othermedication[0].endDate;
+					let medicationToUpdate = othermedication[0];
+
+					for (var i =0;i<othermedication.length;i++){
+						if(othermedication[i].endDate>lastEndDate){
+							lastEndDate = othermedication[i].endDate;
+							medicationToUpdate = othermedication[i]
+						}
+					}
+
+					await medicationfound.deleteOne();
+					medicationToUpdate.endDate=null;
+					const medicationUpdated = await Medication.findByIdAndUpdate(medicationToUpdate._id, medicationToUpdate, {new: true});
+
+					var copymedication = JSON.parse(JSON.stringify(medicationUpdated));
+					delete copymedication.createdBy;
+					res.status(200).send({message: 'Medication has been eliminated, and previous has been updated to current taking', medication: copymedication})
+				}
+			}
 		}
 		else{
 			return res.status(200).send({message:'medication not found'})
 		}
-	})
-
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -655,18 +621,16 @@ function deleteMedicationByIDAndUpdateStateForThePrevious(req,res){
  * {message: 'There are no medication'}
  * @apiSuccess (Success 202) {String} message If there is no medication for the patient, it will return: "There are no medication"
  */
-function newDose (req, res){
+async function newDose (req, res){
+	try {
+		var params= req.params.medicationIdAndPatient;
+		params = params.split("-code-");
+		let medicationId= params[0];
 
-	var params= req.params.medicationIdAndPatient;
-	params = params.split("-code-");
-	let medicationId= params[0];
+		var result = new Date(req.body.startDate);
+	  result.setDate(result.getDate() -1);
 
-
-	var result = new Date(req.body.startDate);
-  result.setDate(result.getDate() -1);
-
-	Medication.findByIdAndUpdate(medicationId, { endDate: result }, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		await Medication.findByIdAndUpdate(medicationId, { endDate: result }, {select: '-createdBy', new: true});
 
 		let patientId= crypt.decrypt(params[1]);
 		let medication = new Medication()
@@ -683,16 +647,13 @@ function newDose (req, res){
 		medication.freesideEffects = req.body.freesideEffects
 		medication.createdBy = patientId
 
-		// when you save, returns an id in medicationStored to access that social-info
-		medication.save((err, medicationStored) => {
-			if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
-			var copymedication = JSON.parse(JSON.stringify(medicationStored));
-			delete copymedication.createdBy;
-			res.status(200).send({message: 'Dose changed', medication: copymedication})
-
-		})
-
-	})
+		const medicationStored = await medication.save()
+		var copymedication = JSON.parse(JSON.stringify(medicationStored));
+		delete copymedication.createdBy;
+		res.status(200).send({message: 'Dose changed', medication: copymedication})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -742,16 +703,15 @@ function newDose (req, res){
  * }
  *
  */
-function stoptaking (req, res){
+async function stoptaking (req, res){
+	try {
+		let medicationId= req.params.medicationId;
 
-	let medicationId= req.params.medicationId;
-
-	Medication.findByIdAndUpdate(medicationId, { endDate: req.body.startDate }, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'stop takin the drug', medication: medicationUpdated})
-
-	})
+		const medicationUpdated = await Medication.findByIdAndUpdate(medicationId, { endDate: req.body.startDate }, {select: '-createdBy', new: true});
+		res.status(200).send({message: 'stop takin the drug', medication: medicationUpdated})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -797,16 +757,15 @@ function stoptaking (req, res){
  * }
  *
  */
-function changenotes (req, res){
+async function changenotes (req, res){
+	try {
+		let medicationId= req.params.medicationId;
 
-	let medicationId= req.params.medicationId;
-
-	Medication.findByIdAndUpdate(medicationId, { notes: req.body.notes }, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-			res.status(200).send({message: 'notes changed', medication: medicationUpdated})
-
-	})
+		const medicationUpdated = await Medication.findByIdAndUpdate(medicationId, { notes: req.body.notes }, {select: '-createdBy', new: true});
+		res.status(200).send({message: 'notes changed', medication: medicationUpdated})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -852,25 +811,19 @@ function changenotes (req, res){
  * }
  *
  */
-function sideeffect (req, res){
-
-	let medicationId= req.params.medicationId;
-	if(req.body.sideEffects!=null){
-		Medication.findByIdAndUpdate(medicationId, { sideEffects: req.body.sideEffects }, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-			if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-				res.status(200).send({message: 'sideEffects changed', medication: medicationUpdated})
-
-		})
-	}else{
-		Medication.findByIdAndUpdate(medicationId, { freesideEffects: req.body.freesideEffects }, {select: '-createdBy', new: true}, (err,medicationUpdated) => {
-			if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
-				res.status(200).send({message: 'sideEffects changed', medication: medicationUpdated})
-
-		})
+async function sideeffect (req, res){
+	try {
+		let medicationId= req.params.medicationId;
+		if(req.body.sideEffects!=null){
+			const medicationUpdated = await Medication.findByIdAndUpdate(medicationId, { sideEffects: req.body.sideEffects }, {select: '-createdBy', new: true});
+			res.status(200).send({message: 'sideEffects changed', medication: medicationUpdated})
+		}else{
+			const medicationUpdated = await Medication.findByIdAndUpdate(medicationId, { freesideEffects: req.body.freesideEffects }, {select: '-createdBy', new: true});
+			res.status(200).send({message: 'sideEffects changed', medication: medicationUpdated})
+		}
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
 	}
-
 }
 
 async function saveMassiveDrugs (req, res){
@@ -922,46 +875,45 @@ async function testOneDrug(actualdrug, patientId){
 	
 }
 
-function getMeds(patientId, medication) {
-	return new Promise(resolve => {
-		var failmsg= '';
-		Medication.find({"createdBy": patientId, "drug": medication.drug},(err, medications) => {
-			if (err) resolve({message: `Error making the request: ${err}`})
-			if (medications) {
-				var bsd = new Date(medication.startDate);
-				var bed = new Date(medication.endDate);
+async function getMeds(patientId, medication) {
+	var failmsg= '';
+	try {
+		const medications = await Medication.find({"createdBy": patientId, "drug": medication.drug});
+		if (medications) {
+			var bsd = new Date(medication.startDate);
+			var bed = new Date(medication.endDate);
 
-				medications.forEach(function(medication) {
+			medications.forEach(function(med) {
 
-					var msd = new Date(medication.startDate);
-					var med = new Date(medication.endDate);
+				var msd = new Date(med.startDate);
+				var medEnd = new Date(med.endDate);
 
-					if(!medication.endDate && !medication.endDate){
-						failmsg = 'imposible';
-					}
-					if(!medication.endDate && medication.endDate){
-							if(msd.getTime() <=bsd.getTime() || msd.getTime() <=bed.getTime() ){
-								failmsg = 'imposible';
-							}
-					}
-					if(!medication.endDate && medication.endDate){
-							if(bsd.getTime()<=med.getTime()){
-								failmsg = 'imposible';
-							}
-					}
-
-					if(medication.endDate && medication.endDate){
-						if((med.getTime()>=bsd.getTime() && msd.getTime()<=bed.getTime()) || (med.getTime()>=bsd.getTime() && med.getTime()<=bed.getTime()) || (msd.getTime()<=bed.getTime() && med.getTime()>=bed.getTime())){
+				if(!med.endDate && !medication.endDate){
+					failmsg = 'imposible';
+				}
+				if(!med.endDate && medication.endDate){
+						if(msd.getTime() <=bsd.getTime() || msd.getTime() <=bed.getTime() ){
 							failmsg = 'imposible';
 						}
-					}
+				}
+				if(!medication.endDate && med.endDate){
+						if(bsd.getTime()<=medEnd.getTime()){
+							failmsg = 'imposible';
+						}
+				}
 
-				});
-				
-			}
-			resolve (failmsg)
-		});
-	});
+				if(med.endDate && medication.endDate){
+					if((medEnd.getTime()>=bsd.getTime() && msd.getTime()<=bed.getTime()) || (medEnd.getTime()>=bsd.getTime() && medEnd.getTime()<=bed.getTime()) || (msd.getTime()<=bed.getTime() && medEnd.getTime()>=bed.getTime())){
+						failmsg = 'imposible';
+					}
+				}
+
+			});
+		}
+	} catch (err) {
+		return {message: `Error making the request: ${err}`}
+	}
+	return failmsg
 }
 
 async function saveOneDrug(eventdb){

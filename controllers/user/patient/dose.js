@@ -8,40 +8,39 @@ const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
 
-function getDoses (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	Dose.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getDoses (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const eventsdb = await Dose.find({"createdBy": patientId}).select("-createdBy");
 		var listEventsdb = [];
 
 		eventsdb.forEach(function(eventdb) {
 			listEventsdb.push(eventdb);
 		});
 		res.status(200).send(listEventsdb)
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
-function saveDose (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let eventdb = new Dose()
-	eventdb.recommendedDose = req.body.recommendedDose;
-	eventdb.actualDrugs = req.body.actualDrugs;
-	eventdb.units = req.body.units;
-	eventdb.name = req.body.name;
-	eventdb.createdBy = patientId
+async function saveDose (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let eventdb = new Dose()
+		eventdb.recommendedDose = req.body.recommendedDose;
+		eventdb.actualDrugs = req.body.actualDrugs;
+		eventdb.units = req.body.units;
+		eventdb.name = req.body.name;
+		eventdb.createdBy = patientId
 
-	// when you save, returns an id in eventdbStored to access that dose
-	eventdb.save((err, eventdbStored) => {
-		if (err) {
-			return res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
+		const eventdbStored = await eventdb.save();
 		if(eventdbStored){
 			res.status(200).send({message: 'Done'})
 		}
-	})
-
-
+	} catch (err) {
+		return res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 async function saveMassiveDose (req, res){

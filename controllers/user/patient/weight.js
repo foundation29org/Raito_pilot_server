@@ -46,18 +46,15 @@ const crypt = require('../../../services/crypt')
  * @apiSuccess (Success 202) {String} message If there is no weight for the patient, it will return: "There are no weight"
  */
 
-function getWeight (req, res){
-	var period = 7;
+async function getWeight (req, res){
+	try {
+		var period = 7;
+		var pastDate = new Date();
+		pastDate.setDate(pastDate.getDate() - period);
+		var pastDateDateTime = pastDate.getTime();
 
-	var pastDate = new Date();
-	pastDate.setDate(pastDate.getDate() - period);
-	var pastDateDateTime = pastDate.getTime();
-
-	let patientId= crypt.decrypt(req.params.patientId);
-	//Weight.findOne({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'asc'}).exec(function(err, weight){
-	Weight.find({createdBy: patientId}, {"createdBy" : false }).sort({ date : 'desc'}).limit(1).exec(function(err, weights){
-	//Weight.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, weight) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		let patientId= crypt.decrypt(req.params.patientId);
+		const weights = await Weight.find({createdBy: patientId}).select("-createdBy").sort({ date : 'desc'}).limit(1);
 		if(weights.length==0){
 			return res.status(202).send({message: 'There are no weight'})
 		}else{
@@ -68,10 +65,9 @@ function getWeight (req, res){
 				res.status(200).send({message:'updated weight', weight:weight})
 			}
 		}
-
-		
-		
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -109,11 +105,10 @@ function getWeight (req, res){
  *
  */
 
-function getHistoryWeight (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-
-	Weight.find({createdBy: patientId}, {"createdBy" : false }).sort({ 'date' : 'desc'}).exec(function(err, weights){
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getHistoryWeight (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const weights = await Weight.find({createdBy: patientId}).select("-createdBy").sort({ 'date' : 'desc'});
 
 		var listWeights = [];
 
@@ -121,8 +116,9 @@ function getHistoryWeight (req, res){
 			listWeights.push(weight);
 		});
 		res.status(200).send(listWeights)
-	});
-
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -166,31 +162,19 @@ function getHistoryWeight (req, res){
  * @apiSuccess (Success 202) {String} message If there is no weight for the patient, it will return: "There are no weight"
  */
 
-function saveWeight (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let weight = new Weight()
-	weight.date = req.body.date
-	weight.value = req.body.value
-	weight.createdBy = patientId
+async function saveWeight (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let weight = new Weight()
+		weight.date = req.body.date
+		weight.value = req.body.value
+		weight.createdBy = patientId
 
-	weight.save({"createdBy" : false }, (err, weightStored) => {
-		if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
+		const weightStored = await weight.save();
 		res.status(200).send({message: 'Weight created', weight: weightStored})
-	})
-
-	/*Weight.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, weight2) => {
-		if(!weight2){
-			// when you save, returns an id in weightStored to access that social-info
-			weight.save((err, weightStored) => {
-				if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
-				res.status(200).send({message: 'Weight created', weight: weightStored})
-
-			})
-		}else{
-			return res.status(202).send({ message: 'weight exists', weight: weight2})
-		}
-	})*/
-
+	} catch (err) {
+		res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 /**
@@ -221,20 +205,19 @@ function saveWeight (req, res){
  * }
  *
  */
-function deleteWeight (req, res){
-	let weightId=req.params.weightId
-
-	Weight.findById(weightId, (err, weight) => {
-		if (err) return res.status(500).send({message: `Error deleting the weight: ${err}`})
+async function deleteWeight (req, res){
+	try {
+		let weightId=req.params.weightId
+		const weight = await Weight.findById(weightId);
 		if(weight){
-			weight.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the weight: ${err}`})
-				res.status(200).send({message: `The weight has been eliminated`})
-			})
+			await weight.deleteOne();
+			res.status(200).send({message: `The weight has been eliminated`})
 		}else{
-			 return res.status(202).send({message: 'The weight does not exist'})
+			return res.status(202).send({message: 'The weight does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the weight: ${err}`})
+	}
 }
 
 module.exports = {

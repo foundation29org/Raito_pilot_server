@@ -53,19 +53,22 @@ const config = require('../../../config')
  * @apiSuccess (Success 202) {String} message If there is no phenotype for the patient, it will return: "There are no phenotype"
  */
 
-function getPhenotype (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getPhenotype (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const phenotype = await Phenotype.findOne({"createdBy": patientId}).select("-createdBy");
 		if(!phenotype) return res.status(202).send({message: 'There are no phenotype'})
 		res.status(200).send({phenotype})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function getPhenotypeHistory (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+async function getPhenotypeHistory (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	PhenotypeHistory.find({createdBy: patientId}).sort({ date : 'asc'}).exec(function(err, phenotypeHistory){
+		const phenotypeHistory = await PhenotypeHistory.find({createdBy: patientId}).sort({ date : 'asc'});
 
 		var listPhenotypeHistory = [];
 		phenotypeHistory.forEach(function(phenotype) {
@@ -73,7 +76,9 @@ function getPhenotypeHistory (req, res){
 		});
 
 		res.status(200).send(listPhenotypeHistory)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -124,45 +129,36 @@ function getPhenotypeHistory (req, res){
  * @apiSuccess (Success 202) {String} message If there is no phenotype for the patient, it will return: "There are no phenotype"
  */
 
-function savePhenotype (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
+async function savePhenotype (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
 
-	Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+		const phenotype = await Phenotype.findOne({"createdBy": patientId}).select("-createdBy");
 		if(phenotype){
-			res.status(202).send({message: 'There is already a phenotype for the patient', phenotype: phenotype})
-		}else if(!phenotype){
-			let phenotype = new Phenotype()
-			phenotype.data = req.body.data
-      if(req.body.discarded!=undefined){
-        phenotype.discarded = req.body.discarded
-      }
-			phenotype.createdBy = patientId
-			// when you save, returns an id in phenotypeStored to access that social-info
-			phenotype.save((err, phenotypeStored) => {
-				if (err) res.status(500).send({message: `Failed to save in the database: ${err} `})
-
-				//save in PhenotypeHistory
-				let phenotypeHistory = new PhenotypeHistory()
-				phenotypeHistory.data = req.body.data
-        if(req.body.discarded!=undefined){
-          phenotypeHistory.discarded = req.body.discarded
-        }
-				phenotypeHistory.createdBy = patientId
-				phenotypeHistory.save((err, phenotypeHistoryStored) => {
-				})
-				//podría devolver socialInfoStored, pero no quiero el field createdBy, asi que hago una busqueda y que no saque ese campo
-				Phenotype.findOne({"createdBy": patientId}, {"createdBy" : false }, (err, phenotype2) => {
-					if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-					if(!phenotype2) return res.status(202).send({message: `There are no phenotype`})
-					res.status(200).send({message: 'Phenotype created', phenotype: phenotype2})
-				})
-
-			})
+			return res.status(202).send({message: 'There is already a phenotype for the patient', phenotype: phenotype})
 		}
-	})
+		let newPhenotype = new Phenotype()
+		newPhenotype.data = req.body.data
+		if(req.body.discarded!=undefined){
+			newPhenotype.discarded = req.body.discarded
+		}
+		newPhenotype.createdBy = patientId
+		await newPhenotype.save()
 
+		let phenotypeHistory = new PhenotypeHistory()
+		phenotypeHistory.data = req.body.data
+		if(req.body.discarded!=undefined){
+			phenotypeHistory.discarded = req.body.discarded
+		}
+		phenotypeHistory.createdBy = patientId
+		await phenotypeHistory.save()
 
+		const phenotype2 = await Phenotype.findOne({"createdBy": patientId}).select("-createdBy");
+		if(!phenotype2) return res.status(202).send({message: `There are no phenotype`})
+		res.status(200).send({message: 'Phenotype created', phenotype: phenotype2})
+	} catch (err) {
+		return res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
 /**
@@ -209,59 +205,57 @@ function savePhenotype (req, res){
  *
  */
 
-function updatePhenotype (req, res){
-	let phenotypeId= req.params.phenotypeId;
-	let update = req.body
-	Phenotype.findByIdAndUpdate(phenotypeId, update, { new: true, select: '-createdBy'}, (err,phenotypeUpdated) => { //Phenotype.findByIdAndUpdate(phenotypeId, update, {select: '-createdBy', new: true}, (err,phenotypeUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function updatePhenotype (req, res){
+	try {
+		let phenotypeId= req.params.phenotypeId;
+		let update = req.body
+		const phenotypeUpdated = await Phenotype.findByIdAndUpdate(phenotypeId, update, { new: true, select: '-createdBy'});
 		if (!phenotypeUpdated) return res.status(500).send({message: 'not found'})
-		//save in PhenotypeHistory
-		Phenotype.findByIdAndUpdate(phenotypeId, update, {new: true}, (err,phenotypeCreatedBy) => {
-			if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-			let phenotypeHistory = new PhenotypeHistory()
-			phenotypeHistory.data = req.body.data
-			phenotypeHistory.createdBy = phenotypeUpdated.createdBy//phenotypeCreatedBy.createdBy
-			phenotypeHistory.validated = phenotypeUpdated.validated
-			phenotypeHistory.validator_id = phenotypeUpdated.validator_id
-			phenotypeHistory.save((err, phenotypeHistoryStored) => {
-			})
-		})
+
+		const phenotypeCreatedBy = await Phenotype.findByIdAndUpdate(phenotypeId, update, {new: true});
+		let phenotypeHistory = new PhenotypeHistory()
+		phenotypeHistory.data = req.body.data
+		phenotypeHistory.createdBy = phenotypeUpdated.createdBy
+		phenotypeHistory.validated = phenotypeUpdated.validated
+		phenotypeHistory.validator_id = phenotypeUpdated.validator_id
+		await phenotypeHistory.save()
 
 		res.status(200).send({message: 'Phenotype updated', phenotype: phenotypeUpdated})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function deletePhenotype (req, res){
-	let phenotypeId=req.params.phenotypeId
+async function deletePhenotype (req, res){
+	try {
+		let phenotypeId=req.params.phenotypeId
 
-	Phenotype.findById(phenotypeId, (err, phenotype) => {
-		if (err) return res.status(500).send({message: `Error deleting the phenotype: ${err}`})
+		const phenotype = await Phenotype.findById(phenotypeId);
 		if(phenotype){
-			phenotype.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the phenotype: ${err}`})
-				res.status(200).send({message: `The phenotype has been eliminated`})
-			})
+			await phenotype.deleteOne();
+			res.status(200).send({message: `The phenotype has been eliminated`})
 		}else{
-			 return res.status(202).send({message: 'The phenotype does not exist'})
+			return res.status(202).send({message: 'The phenotype does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the phenotype: ${err}`})
+	}
 }
 
-function deletePhenotypeHistoryRecord (req, res){
-	let phenotypeId=req.params.phenotypeId
+async function deletePhenotypeHistoryRecord (req, res){
+	try {
+		let phenotypeId=req.params.phenotypeId
 
-	PhenotypeHistory.findById(phenotypeId, (err, phenotypeHistory) => {
-		if (err) return res.status(500).send({message: `Error deleting the phenotype history record: ${err}`})
+		const phenotypeHistory = await PhenotypeHistory.findById(phenotypeId);
 		if(phenotypeHistory){
-			phenotypeHistory.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the phenotype history record: ${err}`})
-				res.status(200).send({message: `The phenotype history record has been eliminated`})
-			})
+			await phenotypeHistory.deleteOne();
+			res.status(200).send({message: `The phenotype history record has been eliminated`})
 		}else{
-			 return res.status(202).send({message: 'The phenotype history record does not exist'})
+			return res.status(202).send({message: 'The phenotype history record does not exist'})
 		}
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the phenotype history record: ${err}`})
+	}
 }
 
 module.exports = {

@@ -57,32 +57,28 @@ const serviceEmail = require('../../services/email')
  * 
  * 
  */
-function requestLangFile (req, res){
-	let userId= crypt.decrypt(req.params.userId);
-	let lang = req.body.lang;
-	let jsonData = req.body.jsonData;
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+async function requestLangFile (req, res){
+	try {
+		let userId= crypt.decrypt(req.params.userId);
+		let lang = req.body.lang;
+		let jsonData = req.body.jsonData;
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -confirmed -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'Admin'){
-			//envaiar file para revisión
-
 			serviceEmail.sendMailRequestNewTranslation(user, lang, JSON.stringify(jsonData))
 			.then(response => {
 				return res.status(200).send({message: 'Request for new translation sent'})
 			})
 			.catch(response => {
-				//create user, but Failed sending email.
-				//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
 				res.status(500).send({ message: 'Fail sending email'})
 			})
 		}else{
 			res.status(401).send({message: 'without permission'})
 		}
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: 'Error making the request:'})
+	}
 }
 /**
  * @api {put} https://raito.care/api/admin/lang/ Request new language for the platform texts
@@ -103,7 +99,7 @@ function requestLangFile (req, res){
  * @apiHeader {String} authorization Users unique access-key. For this, go to  [Get token](#api-Access_token-signIn)
  * @apiHeaderExample {json} Header-Example:
  *     {
- *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
+ *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4OTAzMCwicm9sZSI6IlVzZXIiLCJncm91cDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
  * @apiParam {Object} userId The user unique id.
  * @apiParam (body) {String} code The language code, i.e "en" or "nl".
@@ -117,43 +113,36 @@ function requestLangFile (req, res){
  * 
  * 
  */
-function requestaddlang (req, res){
-	let userId= crypt.decrypt(req.params.userId);
-	//añado  {"_id" : false} para que no devuelva el _id
-	User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "confirmed" : false, "lastLogin" : false}, (err, user) => {
-		if (err) return res.status(500).send({message: 'Error making the request:'})
+async function requestaddlang (req, res){
+	try {
+		let userId= crypt.decrypt(req.params.userId);
+		const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -confirmed -lastLogin');
 		if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
 		if(user.role == 'Admin'){
 
 		  let code = req.body.code;
 
-			Lang.findOne({ 'code': code }, function (err, langfound) {
-				if (err) res.status(403).send({message: 'fail'})
-				if(langfound) res.status(200).send({message: 'already exists'})
+			const langfound = await Lang.findOne({ 'code': code });
+			if(langfound) return res.status(200).send({message: 'already exists'})
 
-				if(!langfound){
-					//enviar un email con la nueva solicitud
-					let name = req.body.name;
-					serviceEmail.sendMailRequestNewLanguage(user, name, code)
-					.then(response => {
-						return res.status(200).send({message: 'request for new language sent'})
-					})
-					.catch(response => {
-						//create user, but Failed sending email.
-						//res.status(200).send({ token: serviceAuth.createToken(user),  message: 'Fail sending email'})
-						res.status(500).send({ message: 'Fail sending email'})
-					})
-				}
-
-
-			})
+			if(!langfound){
+				let name = req.body.name;
+				serviceEmail.sendMailRequestNewLanguage(user, name, code)
+				.then(response => {
+					return res.status(200).send({message: 'request for new language sent'})
+				})
+				.catch(response => {
+					res.status(500).send({ message: 'Fail sending email'})
+				})
+			}
 
 		}else{
 				res.status(401).send({message: 'without permission'})
 			}
-
-	})
+	} catch (err) {
+		return res.status(403).send({message: 'fail'})
+	}
 }
 
 module.exports = {

@@ -54,11 +54,9 @@ const blobServiceClientGenomics = new storage.BlobServiceClient(
  *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
  */
-function getGroupsNames (req, res){
-
-  Group.find({}, function(err, groups) {
-    if (err) return res.status(503).send({ message: 'Error fetching groups' })
-
+async function getGroupsNames (req, res){
+  try {
+    const groups = await Group.find({});
     var listGroups = [];
     if(groups && groups.length>0){
       groups.forEach(function(group) {
@@ -66,7 +64,9 @@ function getGroupsNames (req, res){
       });
     }
     res.status(200).send(listGroups)
-  });
+  } catch (err) {
+    return res.status(503).send({ message: 'Error fetching groups' })
+  }
 }
 
 /**
@@ -105,11 +105,9 @@ function getGroupsNames (req, res){
  *       "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciPgDIUzI1NiJ9.eyJzdWIiOiI1M2ZlYWQ3YjY1YjM0ZTQ0MGE4YzRhNmUyMzVhNDFjNjEyOThiMWZjYTZjMjXkZTUxMTA9OGVkN2NlODMxYWY3IiwiaWF0IjoxNTIwMzUzMDMwLCJlcHAiOjE1NTE4ODkwMzAsInJvbGUiOiJVc2VyIiwiZ3JvdDEiOiJEdWNoZW5uZSBQYXJlbnQgUHJfrmVjdCBOZXRoZXJsYW5kcyJ9.MloW8eeJ857FY7-vwxJaMDajFmmVStGDcnfHfGJx05k"
  *     }
  */
-function getGroups (req, res){
-
-  Group.find({}, function(err, groups) {
-    if (err) return res.status(503).send({ message: 'Error fetching groups' })
-
+async function getGroups (req, res){
+  try {
+    const groups = await Group.find({});
     var listGroups = [];
 
     if(groups){
@@ -119,7 +117,9 @@ function getGroups (req, res){
     }
 
     res.status(200).send(listGroups)
-  });
+  } catch (err) {
+    return res.status(503).send({ message: 'Error fetching groups' })
+  }
 }
 
 /**
@@ -228,16 +228,16 @@ function getGroups (req, res){
  * }
  */
 
-function getGroup (req, res){
-	let groupId= req.params.groupId;
-  //Group.findById(groupName, {"_id" : false }, (err, group) => {
-  //Group.find({"name": groupName}, function(err, group) {
-  Group.findById(groupId, (err, group) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getGroup (req, res){
+	try {
+		let groupId= req.params.groupId;
+		const group = await Group.findById(groupId);
 		if(!group) return res.status(202).send({message: `The group does not exist`})
 
 		res.status(200).send(group)
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 /**
@@ -270,26 +270,22 @@ function getGroup (req, res){
  *    "message":'Group updated'
  * }
  */
-function updateGroup (req, res){
-
+async function updateGroup (req, res){
+  try {
   let userId= crypt.decrypt(req.params.userId);
-  User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-    if (err) return res.status(500).send({message: 'Error making the request:'})
-    if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
+  const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
+  if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
-    if(user.role == 'SuperAdmin'){
-      Group.findOneAndUpdate({_id: req.body._id}, {$set:{email: req.body.email, subscription:req.body.subscription, defaultLang:req.body.defaultLang}}, {new: true}, function(err, groupUpdated){
-        if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+  if(user.role == 'SuperAdmin'){
+    await Group.findOneAndUpdate({_id: req.body._id}, {$set:{email: req.body.email, subscription:req.body.subscription, defaultLang:req.body.defaultLang}}, {new: true});
+    res.status(200).send({message: 'Group updated'})
 
-        res.status(200).send({message: 'Group updated'})
-      })
-
-    }else{
-        res.status(401).send({message: 'without permission'})
-      }
-
-  })
-
+  }else{
+      res.status(401).send({message: 'without permission'})
+    }
+  } catch (err) {
+    return res.status(500).send({message: 'Error making the request:'})
+  }
 }
 
 /**
@@ -322,53 +318,37 @@ function updateGroup (req, res){
  * }
  */
 
-function deleteGroup (req, res){
-
+async function deleteGroup (req, res){
+  try {
   var params= req.params.userIdAndgroupId;
   params = params.split("-code-");
   let userId= crypt.decrypt(params[0]);
-  //añado  {"_id" : false} para que no devuelva el _id
-  User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-    if (err) return res.status(500).send({message: 'Error making the request:'})
-    if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
+  const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
+  if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
-    if(user.role == 'SuperAdmin'){
+  if(user.role == 'SuperAdmin'){
 
-      let groupId = params[1];
-      Group.findOne({ '_id': groupId }, function (err, group) {
-    		if (err) return res.status(500).send({message: `Error deleting the group: ${err}`})
-    		if(group){
-    			group.deleteOne(err => {
-    				if(err) return res.status(500).send({message: `Error deleting the group: ${err}`})
-            //remove the Admin
-            User.findOne({ 'group': group.name, 'role': 'Admin' }, function (err, user) {
-          		if (err) return res.status(500).send({message: `Error deleting the user: ${err}`})
-          		if (user){
-          			user.deleteOne(err => {
-          				if(err) return res.status(500).send({message: `Error deleting the user : ${err}`})
-
-                  res.status(200).send({message: `The group has been eliminated`})
-
-          			})
-          		}else{
-          			 return res.status(202).send({message: 'The user does not exist'})
-          		}
-
-          	})
-
-    			})
-    		}else{
-    			 return res.status(202).send({message: 'The group does not exist'})
-    		}
-    	})
-
-
-    }else{
-        res.status(401).send({message: 'without permission'})
+    let groupId = params[1];
+    const group = await Group.findOne({ '_id': groupId });
+    if(group){
+      await group.deleteOne();
+      const adminUser = await User.findOne({ 'group': group.name, 'role': 'Admin' });
+      if (adminUser){
+        await adminUser.deleteOne();
+        res.status(200).send({message: `The group has been eliminated`})
+      }else{
+        return res.status(202).send({message: 'The user does not exist'})
       }
+    }else{
+      return res.status(202).send({message: 'The group does not exist'})
+    }
 
-  })
-
+  }else{
+      res.status(401).send({message: 'without permission'})
+    }
+  } catch (err) {
+    return res.status(500).send({message: `Error deleting the group: ${err}`})
+  }
 }
 
 
@@ -408,15 +388,17 @@ function deleteGroup (req, res){
  * @apiSuccess (Success 202) {String} message If there is group name, it will return: "The group does not exist"
  */
 
-function getPhenotypeGroup (req, res){
-	let groupId= req.params.groupId;
-  Group.findById(groupId, function (err, phenotype) {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getPhenotypeGroup (req, res){
+	try {
+		let groupId= req.params.groupId;
+		const phenotype = await Group.findById(groupId);
 		if(!phenotype) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
     var infoPhenotype = {data:phenotype.phenotype};
 		res.status(200).send({infoPhenotype})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -452,26 +434,23 @@ function getPhenotypeGroup (req, res){
  *
  */
 
-function updatePhenotypeGroup (req, res){
-
+async function updatePhenotypeGroup (req, res){
+  try {
   let userId= crypt.decrypt(req.params.userId);
-  User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-    if (err) return res.status(500).send({message: 'Error making the request:'})
-    if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
+  const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
+  if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
-    if(user.role == 'SuperAdmin'){
-      let groupId= req.body._id;
-      Group.findOneAndUpdate({_id: groupId}, {$set:{phenotype:req.body.phenotype}}, {new: true}, function(err, groupUpdated){
-        if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-        res.status(200).send({message: 'Phenotype updated'})
-      })
+  if(user.role == 'SuperAdmin'){
+    let groupId= req.body._id;
+    await Group.findOneAndUpdate({_id: groupId}, {$set:{phenotype:req.body.phenotype}}, {new: true});
+    res.status(200).send({message: 'Phenotype updated'})
 
-    }else{
-        res.status(401).send({message: 'without permission'})
-      }
-
-  })
-
+  }else{
+      res.status(401).send({message: 'without permission'})
+    }
+  } catch (err) {
+    return res.status(500).send({message: 'Error making the request:'})
+  }
 }
 
 /**
@@ -559,15 +538,17 @@ function updatePhenotypeGroup (req, res){
  * @apiSuccess (Success 202) {String} message If there is group name, it will return: "The group does not exist"
  */
 
-function getMedicationsGroup (req, res){
-	let groupId= req.params.groupId;
-  Group.findOne({ '_id': groupId }, function (err, group) {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getMedicationsGroup (req, res){
+	try {
+		let groupId= req.params.groupId;
+		const group = await Group.findOne({ '_id': groupId });
 		if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
     var medications = {data:group.medications};
 		res.status(200).send({medications})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 
@@ -656,26 +637,24 @@ function getMedicationsGroup (req, res){
  *
  */
 
-function updateMedicationsGroup (req, res){
-
+async function updateMedicationsGroup (req, res){
+  try {
   let userId= crypt.decrypt(req.params.userId);
-  User.findById(userId, {"_id" : false , "__v" : false, "confirmationCode" : false, "loginAttempts" : false, "lastLogin" : false}, (err, user) => {
-    if (err) return res.status(500).send({message: 'Error making the request:'})
-    if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
+  const user = await User.findById(userId).select('-_id -__v -confirmationCode -loginAttempts -lastLogin');
+  if(!user) return res.status(404).send({code: 208, message: 'The user does not exist'})
 
-    if(user.role == 'SuperAdmin'){
+  if(user.role == 'SuperAdmin'){
 
-      let groupId= req.body._id;
-      Group.findOneAndUpdate({_id: groupId}, {$set:{medications:req.body.medications}}, function(err, groupUpdated){
-        if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-        res.status(200).send({message: 'Medications updated'})
-      })
+    let groupId= req.body._id;
+    await Group.findOneAndUpdate({_id: groupId}, {$set:{medications:req.body.medications}});
+    res.status(200).send({message: 'Medications updated'})
 
-    }else{
-        res.status(401).send({message: 'without permission'})
-      }
-
-  })
+  }else{
+      res.status(401).send({message: 'without permission'})
+    }
+  } catch (err) {
+    return res.status(500).send({message: 'Error making the request:'})
+  }
 }
 
 
@@ -717,17 +696,18 @@ function updateMedicationsGroup (req, res){
  * @apiSuccess (Success 202) {String} message If there is group name, it will return: "The group does not exist"
  */
 
- function getQuestionnairesGroup (req, res){
-	let groupId= req.params.groupId;
-  Group.findOne({ '_id': groupId }, async function (err, group) {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+ async function getQuestionnairesGroup (req, res){
+	try {
+		let groupId= req.params.groupId;
+		const group = await Group.findOne({ '_id': groupId });
 		if(!group) return res.status(404).send({code: 208, message: 'The group does not exist'})
 
-    //get createdById
     var data = group.questionnaires;
     var questionnaires = await getCreatedByIdAll(data);
 		res.status(200).send({questionnaires})
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
 async function getCreatedByIdAll(questionnaires) {

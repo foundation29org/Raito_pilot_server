@@ -8,70 +8,66 @@ const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 const f29azureService = require("../../../services/f29azure")
 
-function getDocuments (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	//Document.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-		Document.find({"createdBy": patientId}, {"createdBy" : false},(err, eventsdb) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
+async function getDocuments (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		const eventsdb = await Document.find({"createdBy": patientId}).select("-createdBy");
 		var listEventsdb = [];
 
 		eventsdb.forEach(function(eventdb) {
 			listEventsdb.push(eventdb);
 		});
 		res.status(200).send(listEventsdb)
-	});
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function saveDocument (req, res){
-	let patientId= crypt.decrypt(req.params.patientId);
-	let eventdb = new Document()
-	eventdb.name = req.body.name;
-	eventdb.description = req.body.description;
-	eventdb.url = req.body.url;
-	eventdb.notes = req.body.notes;
-	eventdb.dateDoc = req.body.dateDoc;
-	eventdb.createdBy = patientId
+async function saveDocument (req, res){
+	try {
+		let patientId= crypt.decrypt(req.params.patientId);
+		let eventdb = new Document()
+		eventdb.name = req.body.name;
+		eventdb.description = req.body.description;
+		eventdb.url = req.body.url;
+		eventdb.notes = req.body.notes;
+		eventdb.dateDoc = req.body.dateDoc;
+		eventdb.createdBy = patientId
 
-	// when you save, returns an id in eventdbStored to access that document
-	eventdb.save((err, eventdbStored) => {
-		if (err) {
-			res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
+		const eventdbStored = await eventdb.save();
 		if(eventdbStored){
 			res.status(200).send({message: 'Done'})
 		}
-	})
-
-
+	} catch (err) {
+		res.status(500).send({message: `Failed to save in the database: ${err} `})
+	}
 }
 
-function updateDocument(req, res){
-	let documentId= req.params.documentId;
-	let update = req.body
+async function updateDocument(req, res){
+	try {
+		let documentId= req.params.documentId;
+		let update = req.body
 
-	Document.findByIdAndUpdate(documentId, update, {select: '-createdBy', new: true}, (err,eventdbUpdated) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-
+		await Document.findByIdAndUpdate(documentId, update, {select: '-createdBy', new: true});
 		res.status(200).send({message: 'Document updated'})
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error making the request: ${err}`})
+	}
 }
 
-function deleteDocument (req, res){
-	let documentId=req.params.documentId
-
-	Document.findById(documentId, (err, documentdb) => {
-		if (err) return res.status(500).send({message: `Error deleting the document: ${err}`})
+async function deleteDocument (req, res){
+	try {
+		let documentId=req.params.documentId
+		const documentdb = await Document.findById(documentId);
 		if (documentdb){
-			documentdb.deleteOne(err => {
-				if(err) return res.status(500).send({message: `Error deleting the document: ${err}`})
-				res.status(200).send({message: `The document has been deleted`})
-			})
+			await documentdb.deleteOne();
+			res.status(200).send({message: `The document has been deleted`})
 		}else{
-			 return res.status(404).send({code: 208, message: `Error deleting the document: ${err}`})
+			return res.status(404).send({code: 208, message: `Error deleting the document`})
 		}
-
-	})
+	} catch (err) {
+		return res.status(500).send({message: `Error deleting the document: ${err}`})
+	}
 }
 
 
@@ -81,7 +77,7 @@ async function uploadFile (req, res){
 		if(data2){
 			res.status(200).send({message: "Done"})
 		}else{
-			res.status(500).send({message: `Error: ${err}`})
+			res.status(500).send({message: `Error uploading file`})
 		}
 	}else{
 		res.status(500).send({message: `Error: no files`})
@@ -91,7 +87,6 @@ async function uploadFile (req, res){
 
 async function saveBlob (containerName, url, thumbnail){
 	return new Promise(async function (resolve, reject) {
-		// Save file to Blob
 		var result = await f29azureService.createBlob(containerName, url, thumbnail.data);
 		if (result) {
 			resolve(true);
@@ -107,7 +102,7 @@ async function deleteBlob (req, res){
 	if(result){
 		res.status(200).send({message: "Done"})
 	}else{
-		res.status(500).send({message: `Error: ${err}`})
+		res.status(500).send({message: `Error deleting blob`})
 	}
 }
 

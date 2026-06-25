@@ -7,91 +7,57 @@ const Prom = require('../../../models/prom')
 const Patient = require('../../../models/patient')
 const crypt = require('../../../services/crypt')
 
-function getPromsDates(req, res) {
-
-	/*Prom.find({}, (err, promdbs) => {
-		if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
-		if (promdbs) {
-			promdbs.forEach(function (promdb, error) {
-				promdb.deleteOne(err => {
-					if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
-				})
-			});
-		}
-	})*/
-
-	let patientId = crypt.decrypt(req.params.patientId);
-	var questionnaires = req.body.questionnaires;
-	var period = 7;
-	if (req.body.rangeDate == 'quarter') {
-		period = 30;
-	} else if (req.body.rangeDate == 'year') {
-		period = 60;
-	}
-	var actualDate = new Date();
-	var actualDateTime = actualDate.getTime();
-
-	var pastDate = new Date(actualDate);
-	pastDate.setDate(pastDate.getDate() - period);
-	var pastDateDateTime = pastDate.getTime();
-	//Prom.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-	Prom.find({ "createdBy": patientId, idQuestionnaire: {$in:questionnaires} }, { "createdBy": false }, (err, eventsdb) => {
-		//Prom.find({"createdBy": patientId, "date":{"$gte": pastDateDateTime, "$lt": actualDateTime}}, {"createdBy" : false},(err, eventsdb) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function getPromsDates(req, res) {
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		var questionnaires = req.body.questionnaires;
+		const eventsdb = await Prom.find({ "createdBy": patientId, idQuestionnaire: {$in:questionnaires} }).select("-createdBy");
 		var listEventsdb = [];
 
 		eventsdb.forEach(function (eventdb, error) {
-			/*if (eventdb.idProm == '7' || eventdb.idProm == '11') {
-				if (eventdb.date < actualDateTime && eventdb.date > pastDateDateTime) {
-					listEventsdb.push(eventdb);
-				}
-			} else {
-				listEventsdb.push(eventdb);
-			}*/
 			listEventsdb.push(eventdb);
-
 		});
-		var respTask = listEventsdb.length;
-		//res.status(200).send((respTask).toString());
 		res.status(200).send(listEventsdb)
-	});
+	} catch (err) {
+		return res.status(500).send({ message: `Error making the request: ${err}` })
+	}
 }
 
-function getProms(req, res) {
-	let patientId = crypt.decrypt(req.params.patientId);
-	//Prom.find({createdBy: patientId}).sort({ start : 'desc'}).exec(function(err, eventsdb){
-	Prom.find({ "createdBy": patientId }, { "createdBy": false }, (err, eventsdb) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+async function getProms(req, res) {
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		const eventsdb = await Prom.find({ "createdBy": patientId }).select("-createdBy");
 		var listEventsdb = [];
 
 		eventsdb.forEach(function (eventdb) {
 			listEventsdb.push(eventdb);
 		});
 		res.status(200).send(listEventsdb)
-	});
+	} catch (err) {
+		return res.status(500).send({ message: `Error making the request: ${err}` })
+	}
 }
 
 
-function saveProm(req, res) {
-	let patientId = crypt.decrypt(req.params.patientId);
-	let eventdb = new Prom()
-	eventdb.idQuestionnaire = req.body.idQuestionnaire;
-	eventdb.idProm = req.body.idProm;
-	eventdb.data = req.body.data;
-	eventdb.other = req.body.other;
-	eventdb.createdBy = patientId
+async function saveProm(req, res) {
+	try {
+		let patientId = crypt.decrypt(req.params.patientId);
+		let eventdb = new Prom()
+		eventdb.idQuestionnaire = req.body.idQuestionnaire;
+		eventdb.idProm = req.body.idProm;
+		eventdb.data = req.body.data;
+		eventdb.other = req.body.other;
+		eventdb.createdBy = patientId
 
-	// when you save, returns an id in eventdbStored to access that Prom
-	eventdb.save((err, eventdbStored) => {
-		if (err) {
-			res.status(500).send({ message: `Failed to save in the database: ${err} ` })
-		}
+		const eventdbStored = await eventdb.save();
 		if (eventdbStored) {
 			var copyprom = JSON.parse(JSON.stringify(eventdbStored));
 			delete copyprom.createdBy;
 			res.status(200).send({ message: 'Done', prom: copyprom })
 		}
-	})
+	} catch (err) {
+		res.status(500).send({ message: `Failed to save in the database: ${err} ` })
+	}
 }
 
 async function savesProm(req, res) {
@@ -108,104 +74,88 @@ async function savesProm(req, res) {
 
 
 async function saveData(proms, patientId) {
-	return new Promise(async function (resolve, reject) {
-		var promises = [];
-		if (proms.length > 0) {
-			for (var index in proms) {
-				if (proms[index].data != null) {
-					if (proms[index]._id) {
-						promises.push(updateOneProm(proms[index], patientId));
-					} else {
-						promises.push(saveOneProm(proms[index], patientId));
-					}
-
+	var promises = [];
+	if (proms.length > 0) {
+		for (var index in proms) {
+			if (proms[index].data != null) {
+				if (proms[index]._id) {
+					promises.push(updateOneProm(proms[index], patientId));
+				} else {
+					promises.push(saveOneProm(proms[index], patientId));
 				}
-
 			}
-		} else {
-			resolve('No data')
 		}
+	} else {
+		return 'No data'
+	}
+	try {
 		await Promise.all(promises)
-			.then(async function (data) {
-				resolve('termina')
-			})
-			.catch(function (err) {
-				console.log('Manejar promesa rechazada (' + err + ') aquí.');
-				return null;
-			});
-
-	});
+		return 'termina'
+	} catch (err) {
+		console.log('Manejar promesa rechazada (' + err + ') aquí.');
+		return null;
+	}
 }
 
 
-function updateOneProm(prom, patientId) {
-	return new Promise(async function (resolve, reject) {
+async function updateOneProm(prom, patientId) {
+	try {
 		let promId = prom._id
 		let update = prom
-
-		Prom.findByIdAndUpdate(promId, update, { select: '-createdBy', new: true }, (err, promUpdated) => {
-			if (err) {
-				resolve('fail')
-			}
-			resolve('done')
-
-		})
-	});
+		await Prom.findByIdAndUpdate(promId, update, { select: '-createdBy', new: true });
+		return 'done'
+	} catch (err) {
+		return 'fail'
+	}
 }
 
 async function saveOneProm(prom, patientId) {
-	return new Promise(async function (resolve, reject) {
+	try {
 		let eventdb = new Prom()
 		eventdb.idQuestionnaire = prom.idQuestionnaire;
 		eventdb.idProm = prom.idProm;
 		eventdb.data = prom.data;
 		eventdb.other = prom.other;
 		eventdb.createdBy = patientId
-		// when you save, returns an id in eventdbStored to access that Prom
-		eventdb.save((err, eventdbStored) => {
-			if (err) {
-				resolve('fail')
-			}
-			if (eventdbStored) {
-				var copyprom = JSON.parse(JSON.stringify(eventdbStored));
-				delete copyprom.createdBy;
-				resolve('done')
-			}
-		})
-	});
+		const eventdbStored = await eventdb.save();
+		if (eventdbStored) {
+			return 'done'
+		}
+	} catch (err) {
+		return 'fail'
+	}
 }
 
-function updateProm(req, res) {
-	let promId = req.params.promId;
-	let update = req.body
+async function updateProm(req, res) {
+	try {
+		let promId = req.params.promId;
+		let update = req.body
 
-	Prom.findByIdAndUpdate(promId, update, { select: '-createdBy', new: true }, (err, promUpdated) => {
-		if (err) return res.status(500).send({ message: `Error making the request: ${err}` })
+		const promUpdated = await Prom.findByIdAndUpdate(promId, update, { select: '-createdBy', new: true });
 		var copyprom = {};
 		if (promUpdated) {
 			copyprom = JSON.parse(JSON.stringify(promUpdated));
 			delete copyprom.createdBy;
 		}
 		res.status(200).send({ message: 'prom updated', prom: copyprom })
-
-	})
+	} catch (err) {
+		return res.status(500).send({ message: `Error making the request: ${err}` })
+	}
 }
 
-function deleteProm(req, res) {
-	let promId = req.params.promId
-
-	Prom.findById(promId, (err, promdb) => {
-		if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
+async function deleteProm(req, res) {
+	try {
+		let promId = req.params.promId
+		const promdb = await Prom.findById(promId);
 		if (promdb) {
-			promdb.deleteOne(err => {
-				if (err) return res.status(500).send({ message: `Error deleting the prom: ${err}` })
-				res.status(200).send({ message: `The prom has been deleted` })
-			})
+			await promdb.deleteOne();
+			res.status(200).send({ message: `The prom has been deleted` })
 		} else {
-			return res.status(404).send({ code: 208, message: `Error deleting the prom: ${err}` })
+			return res.status(404).send({ code: 208, message: `Error deleting the prom` })
 		}
-
-	})
+	} catch (err) {
+		return res.status(500).send({ message: `Error deleting the prom: ${err}` })
+	}
 }
 
 module.exports = {
