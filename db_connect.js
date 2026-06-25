@@ -9,10 +9,11 @@ mongoose.set('strictQuery', false)
 // Mongoose 8.22.1+: Cosmos DB MongoDB 4.2+ (wire v8). Do not downgrade below 8.16 on Cosmos 4.0.
 
 const connectionOptions = {
-	connectTimeoutMS: 10000,
-	socketTimeoutMS: 45000,
 	maxPoolSize: 10,
-	serverSelectionTimeoutMS: 10000
+	serverSelectionTimeoutMS: 30000,
+	socketTimeoutMS: 45000,
+	connectTimeoutMS: 30000,
+	retryWrites: false
 }
 
 const connectionState = {}
@@ -100,6 +101,45 @@ const connections = {
 	data: conndbdata
 }
 
+function ensureConnection(name) {
+	const connection = connections[name]
+	const url = name === 'accounts' ? config.dbaccounts : config.dbdata
+	if (!connection) {
+		return Promise.resolve(false)
+	}
+	if (connection.readyState === 1) {
+		return Promise.resolve(true)
+	}
+
+	return connection.asPromise().then(function () {
+		return true
+	}).catch(function () {
+		return connection.openUri(url, connectionOptions).then(function () {
+			return true
+		}).catch(function (err) {
+			updateConnectionState(name, 'error', err && err.message ? err.message : String(err))
+			return false
+		})
+	})
+}
+
+function ensureConnections(names) {
+	return Promise.all(names.map(function (name) {
+		return ensureConnection(name)
+	}))
+}
+
+// iisnode can keep a worker alive after a failed boot (e.g. Cosmos upgrade); retry connect.
+;[5000, 15000, 30000, 60000].forEach(function (delay) {
+	setTimeout(function () {
+		ensureConnections(['accounts', 'data'])
+	}, delay)
+})
+
+setInterval(function () {
+	ensureConnections(['accounts', 'data'])
+}, 60000)
+
 function getDbStatus() {
 	return {
 		accounts: getConnectionStatus('accounts', conndbaccounts),
@@ -109,20 +149,29 @@ function getDbStatus() {
 
 function requireConnections(names) {
 	return function (req, res, next) {
-		const dbStatus = getDbStatus()
 		const unavailable = names.filter(function (name) {
 			return !connections[name] || connections[name].readyState !== 1
 		})
 
-		if (unavailable.length > 0) {
-			return res.status(503).send({
-				message: 'Database connection unavailable',
-				unavailable: unavailable,
-				databases: dbStatus
-			})
+		if (unavailable.length === 0) {
+			return next()
 		}
 
-		next()
+		ensureConnections(unavailable).then(function () {
+			const stillUnavailable = names.filter(function (name) {
+				return !connections[name] || connections[name].readyState !== 1
+			})
+
+			if (stillUnavailable.length > 0) {
+				return res.status(503).send({
+					message: 'Database connection unavailable',
+					unavailable: stillUnavailable,
+					databases: getDbStatus()
+				})
+			}
+
+			next()
+		})
 	}
 }
 
@@ -130,5 +179,6 @@ module.exports = {
 	conndbaccounts,
 	conndbdata,
 	getDbStatus,
-	requireConnections
+	requireConnections,
+	ensureConnections
 }
