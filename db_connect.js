@@ -103,15 +103,23 @@ const connections = {
 
 function ensureConnection(name) {
 	const connection = connections[name]
-	if (!connection || connection.readyState === 1) {
-		return Promise.resolve(connection && connection.readyState === 1)
+	const url = name === 'accounts' ? config.dbaccounts : config.dbdata
+	if (!connection) {
+		return Promise.resolve(false)
+	}
+	if (connection.readyState === 1) {
+		return Promise.resolve(true)
 	}
 
 	return connection.asPromise().then(function () {
 		return true
-	}).catch(function (err) {
-		updateConnectionState(name, 'error', err && err.message ? err.message : String(err))
-		return false
+	}).catch(function () {
+		return connection.openUri(url, connectionOptions).then(function () {
+			return true
+		}).catch(function (err) {
+			updateConnectionState(name, 'error', err && err.message ? err.message : String(err))
+			return false
+		})
 	})
 }
 
@@ -171,5 +179,6 @@ module.exports = {
 	conndbaccounts,
 	conndbdata,
 	getDbStatus,
-	requireConnections
+	requireConnections,
+	ensureConnections
 }
