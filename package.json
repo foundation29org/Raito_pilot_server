@@ -17,31 +17,45 @@
   },
   "dependencies": {
     "@azure/msal-node": "^2.16.2",
-    "@azure/storage-blob": "^12.26.0",
+    "@azure/storage-blob": "^12.27.0",
     "@iamtraction/google-translate": "^1.1.2",
     "async": "^2.6.4",
-    "axios": "^1.15.0",
-    "bcrypt-nodejs": "0.0.3",
+    "axios": "^1.18.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
-    "express-handlebars": "^6.0.6",
+    "express-handlebars": "^8.0.1",
     "follow-redirects": "^1.15.9",
     "fs-extra": "^11.2.0",
     "helmet": "^8.0.0",
-    "jasmine": "^3.5.0",
     "jose": "^4.15.9",
     "js-sha512": "^0.9.0",
     "jwt-simple": "^0.5.6",
     "moment": "^2.30.1",
     "mongoose": "^6.13.8",
-    "nodemailer": "^6.9.16",
-    "nodemailer-express-handlebars": "^5.0.0"
+    "nodemailer": "^9.0.1",
+    "nodemailer-express-handlebars": "^6.1.2"
   },
   "devDependencies": {
+    "jasmine": "^5.4.0",
     "nodemon": "^3.1.9"
+  },
+  "overrides": {
+    "axios": "$axios",
+    "fast-xml-parser": "^5.9.3",
+    "handlebars": "^4.7.8",
+    "form-data": "^4.0.5",
+    "minimatch": "^9.0.5",
+    "brace-expansion": "^2.0.2",
+    "jws": "^4.0.1",
+    "picomatch": "^4.0.2",
+    "uuid": "^11.1.1"
+  },
+  "volta": {
+    "node": "18.20.8"
   },
   "apidoc": {
     "name": "Raito",
@@ -59,11 +73,5 @@
       "title": "About Raito",
       "filename": "apidoc/footer.md"
     }
-  },
-  "overrides": {
-    "axios": "$axios"
-  },
-  "volta": {
-    "node": "18.20.8"
   }
 }

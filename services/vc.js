@@ -6,7 +6,6 @@ const msal = require('@azure/msal-node');
 var mainApp = require('../app.js');
 const Session = require('../models/session')
 const crypt = require('./crypt');
-const { ConsoleReporter } = require('jasmine');
 
 const msalConfig = {
   auth: {
