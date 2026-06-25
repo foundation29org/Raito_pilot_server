@@ -965,14 +965,7 @@ function getMeds(patientId, medication) {
 }
 
 async function saveOneDrug(eventdb){
-	var functionDone2 = false;
-	await eventdb.save((err, eventdbStored) => {
-		if (err) {
-			res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
-		functionDone2 = true;
-	})
-	return functionDone2;
+	await eventdb.save()
 }
 
 module.exports = {

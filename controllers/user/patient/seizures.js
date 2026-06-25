@@ -111,62 +111,40 @@ function deleteSeizure (req, res){
 
 async function saveMassiveSeizure (req, res){
 	let patientId= crypt.decrypt(req.params.patientId);
-	var promises = [];
-	if (req.body.length > 0) {
-		for (var i = 0; i<(req.body).length;i++){
-			var actualseizure = (req.body)[i];
-			promises.push(testOneSeizure(actualseizure, patientId));
-		}
-	}else{
-		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
+	if (!req.body.length) {
+		return res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
 	}
 
-
-	await Promise.all(promises)
-			.then(async function (data) {
-				res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
-			})
-			.catch(function (err) {
-				console.log('Manejar promesa rechazada (' + err + ') aquí.');
-				return null;
-			});
-	
-
+	try {
+		await Promise.all(req.body.map((actualseizure) => testOneSeizure(actualseizure, patientId)))
+		res.status(200).send({message: 'Eventdb created', eventdb: 'epa'})
+	} catch (err) {
+		console.log('Manejar promesa rechazada (' + err + ') aquí.');
+		if (!res.headersSent) {
+			res.status(500).send({message: `Error making the request: ${err}`})
+		}
+	}
 }
 
 async function testOneSeizure(actualseizure, patientId){
-	var functionDone = false;
-	await Seizures.findOne({'GUID': actualseizure.GUID, 'createdBy': patientId}, (err, eventdb2) => {
-		if (err) return res.status(500).send({message: `Error making the request: ${err}`})
-		if(!eventdb2){
-			let eventdb = new Seizures()
-			eventdb.type = actualseizure.type
-			eventdb.duracion = actualseizure.duracion
-			eventdb.state = actualseizure.state
-			eventdb.notes = actualseizure.notes
-			eventdb.start = actualseizure.start
-			eventdb.GUID = actualseizure.GUID
-			eventdb.createdBy = patientId
-			var res1 = saveOneSeizure(eventdb)
-			// when you save, returns an id in eventdbStored to access that social-info
-			functionDone = true;
-		}else{
-			functionDone = true;
-		}
-	})
+	const eventdb2 = await Seizures.findOne({'GUID': actualseizure.GUID, 'createdBy': patientId})
+	if(eventdb2){
+		return
+	}
 
-	return functionDone
+	let eventdb = new Seizures()
+	eventdb.type = actualseizure.type
+	eventdb.duracion = actualseizure.duracion
+	eventdb.state = actualseizure.state
+	eventdb.notes = actualseizure.notes
+	eventdb.start = actualseizure.start
+	eventdb.GUID = actualseizure.GUID
+	eventdb.createdBy = patientId
+	await saveOneSeizure(eventdb)
 }
 
 async function saveOneSeizure(eventdb){
-	var functionDone2 = false;
-	await eventdb.save((err, eventdbStored) => {
-		if (err) {
-			res.status(500).send({message: `Failed to save in the database: ${err} `})
-		}
-		functionDone2 = true;
-	})
-	return functionDone2;
+	await eventdb.save()
 }
 
 module.exports = {
