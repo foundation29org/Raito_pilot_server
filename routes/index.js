@@ -170,6 +170,7 @@ api.get('/getAzureBlobSasTokenWithContainer/:containerName', auth(roles.UserClin
 //gateway
 api.post('/gateway/search/disease/', f29gatewayCtrl.searchDiseases)
 api.post('/gateway/search/symptoms/', f29gatewayCtrl.searchSymptoms)
+api.put('/gateway/document/parse', auth(roles.OnlyUser), f29gatewayCtrl.parseDocument)
 
 // seizuresCtrl routes, using the controller seizures, this controller has methods
 api.post('/openraito/seizures/dates/:patientId', sharedCtrl.shared(), seizuresCtrl.getSeizuresDate)
